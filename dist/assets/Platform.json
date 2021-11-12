@@ -1,0 +1,14 @@
+{ "columns":11,
+ "image":"kenney_scribbleplatformer\/Spritesheet\/spritesheet_retina.png",
+ "imageheight":1408,
+ "imagewidth":1408,
+ "margin":0,
+ "name":"Platform",
+ "spacing":0,
+ "tilecount":121,
+ "tiledversion":"1.7.2",
+ "tileheight":128,
+ "tilewidth":128,
+ "type":"tileset",
+ "version":"1.6"
+}
