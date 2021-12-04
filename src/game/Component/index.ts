@@ -6,7 +6,7 @@ import Vector2, { getLinearVelocityFromAngularVelocity } from "../Vector2";
 import ComponentType from "./ComponentType";
 
 const EPSILON = 0.001;
-export const UNIT_SCALE = 40;
+export const UNIT_SCALE = 10;
 
 export default class Component {
     type: ComponentType;

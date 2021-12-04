@@ -14,7 +14,7 @@ export default interface ComponentType{
 export const leftWing: ComponentType = {
     name: "Left Wing",
     mass: 1,
-    drag: 0.01,
+    drag: 0.1,
     width: 2,
     height: 2,
     getThrust(intent: SpaceshipIntent, spaceship: SpaceShip): Force|undefined {
@@ -50,7 +50,7 @@ export const rightWing: ComponentType = {
 export const block: ComponentType = {
     name: "Block",
     mass: 1,
-    drag: 0.1,
+    drag: 1,
     width: 1,
     height: 1,
     getThrust(intent: SpaceshipIntent, spaceship: SpaceShip): Force|undefined {

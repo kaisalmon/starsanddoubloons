@@ -5,6 +5,8 @@ import SpaceshipIntent from "../game/SpaceshipIntent";
 
 const GAME_SPEED = 1/10000;
 
+const DRAW_SCALE = 3;
+
 export default class SpaceScene extends Phaser.Scene {
     name = "SpaceScene";
     player: SpaceShip;
@@ -38,8 +40,8 @@ export default class SpaceScene extends Phaser.Scene {
         this.graphics.z = 10;
 
         console.log("CREATE")
-        this.player.position.x = 400;
-        this.player.position.y = 300;
+        this.player.position.x = 40;
+        this.player.position.y = 30;
        // this.player.angle = Math.PI / 4;
         //this.player.velocity.x = 10;
         this.player.angularVelocity = 0;
@@ -68,8 +70,9 @@ export default class SpaceScene extends Phaser.Scene {
         this.graphics.fillStyle(0xff0000, 1);
         for(let component of this.player.components){
             const {x,y} = component.getCenterOfMassInWorldSpace(this.player);
-            this.graphics.fillCircle(x, y, component.width / 2 * UNIT_SCALE);
+            this.graphics.fillCircle(x * DRAW_SCALE, y * DRAW_SCALE, component.width / 2 * UNIT_SCALE * DRAW_SCALE);
         }
+        /*
         this.graphics.lineStyle(1, 0x00ff00, 1);
         for(let component of this.player.components){
             const {x,y} = component.getCenterOfMassInWorldSpace(this.player);
@@ -89,8 +92,9 @@ export default class SpaceScene extends Phaser.Scene {
                 y + force.offsetY + force.y * 10
             )
         }
+        */
         this.graphics.fillStyle(0xffff00, 1);
-        this.graphics.fillCircle(this.player.position.x, this.player.position.y, 10);
+        this.graphics.fillCircle(this.player.position.x * DRAW_SCALE, this.player.position.y * DRAW_SCALE, 10);
     }
 
     
