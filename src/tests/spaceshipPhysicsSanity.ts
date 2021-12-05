@@ -56,7 +56,7 @@ describe("Space Ship Sanity tests", () => {
         const lastX = ship.position.x;
         const lastVel = ship.velocity.x;
         const lastEnergy = ship.keneticEnergy;
-        ship.update(EMPTY_INTENT, 1);
+        ship.update(EMPTY_INTENT, 0.1);
         expect(ship.angle).toBeCloseTo(0);
         expect(ship.position.x).toBeGreaterThan(lastX);
         expect(ship.velocity.x).toBeLessThan(lastVel);
@@ -132,7 +132,7 @@ describe("Space Ship Sanity tests", () => {
 
       it("Expect the torque to still be counter clockwise, even after setting the angle", () => {
         const torque = ship.getTorque(EMPTY_INTENT)
-        expect(torque).toBeCloseTo(-UNIT_SCALE * 2 * 3);
+        expect(torque).toBeCloseTo(-1.5 * UNIT_SCALE);
       });
 
       it("expect the forces to be perpendicular to the origin", () => {
@@ -178,8 +178,8 @@ describe("Space Ship Sanity tests", () => {
           expect(ship.angularVelocity).toBeLessThanOrEqual(lastAngVel);
           expect(ship.angle).toBeGreaterThanOrEqual(lastAngle);
           expect(ship.keneticEnergy).toBeLessThan(lastEnergy);
-          expect(ship.position.x).toBeCloseTo(0);
-          expect(ship.position.y).toBeCloseTo(0);
+          expect(ship.position.x).toBeCloseTo(startingPosition.x);
+          expect(ship.position.y).toBeCloseTo(startingPosition.y);
         }
         expect(ship.angularVelocity).toBeCloseTo(0);
         expect(ship.keneticEnergy).toBeCloseTo(0);

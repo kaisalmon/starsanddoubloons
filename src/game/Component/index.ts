@@ -6,7 +6,7 @@ import Vector2, { getLinearVelocityFromAngularVelocity } from "../Vector2";
 import ComponentType from "./ComponentType";
 
 const EPSILON = 0.001;
-export const UNIT_SCALE = 10;
+export const UNIT_SCALE = 1;
 
 export default class Component {
     type: ComponentType;
@@ -34,8 +34,8 @@ export default class Component {
             return undefined;
         }
         const offsetForce: Force = {
-            offsetX: force.offsetX + this.position.x + this.type.width / 2,
-            offsetY: force.offsetY + this.position.y + this.type.height / 2,
+            offsetX: (force.offsetX + this.position.x + this.type.width / 2) * UNIT_SCALE,
+            offsetY: (force.offsetY + this.position.y + this.type.height / 2) * UNIT_SCALE,
             x: force.x,
             y: force.y
         };
