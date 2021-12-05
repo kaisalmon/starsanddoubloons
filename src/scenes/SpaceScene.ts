@@ -3,7 +3,7 @@ import { block, leftWing, rightWing } from "../game/Component/ComponentType";
 import { SpaceShip } from "../game/SpaceShip";
 import SpaceshipIntent from "../game/SpaceshipIntent";
 
-const GAME_SPEED = 1/1000;
+const GAME_SPEED = 1/100;
 
 const DRAW_SCALE = 15/UNIT_SCALE;
 
@@ -21,6 +21,7 @@ export default class SpaceScene extends Phaser.Scene {
     constructor(){
         super({ key: "SpaceScene" });
         this.player = new SpaceShip([
+            new Component(block, {x: 0, y: 2}),
             new Component(block, {x: 0, y: 1}),
             new Component(block, {x: 0, y: 0}),
             new Component(leftWing, {x: -2, y: 0}),

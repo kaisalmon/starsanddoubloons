@@ -3,6 +3,7 @@ import Force, { calculateTorques, sum } from "./Force";
 import SpaceshipIntent from "./SpaceshipIntent";
 import Vector2 from "./Vector2";
 
+const ROTATION_FACTOR = 0.2;
 
 export class SpaceShip { 
     components: Component[];
@@ -76,6 +77,8 @@ export class SpaceShip {
         this.angularVelocity += torque / this.mass * delta;
         this.position.x += this.velocity.x * delta;
         this.position.y += this.velocity.y * delta;
-        this.angle += this.angularVelocity * delta;
+
+        const angularVelocity = this.angularVelocity;
+        this.angle -= angularVelocity * delta * ROTATION_FACTOR;
     }
 }
