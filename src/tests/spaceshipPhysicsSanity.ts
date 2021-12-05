@@ -177,7 +177,7 @@ describe("Space Ship Sanity tests", () => {
           expect(Math.abs(torque)).toBeLessThan(Math.abs(lastTorque));
           expect(torque).toBeGreaterThan(lastTorque);
           expect(ship.angularVelocity).toBeLessThanOrEqual(lastAngVel);
-          expect(ship.angle).toBeGreaterThanOrEqual(lastAngle);
+          expect(ship.angle).toBeLessThanOrEqual(lastAngle);
           expect(ship.keneticEnergy).toBeLessThan(lastEnergy);
           expect(ship.position.x).toBeCloseTo(startingPosition.x);
           expect(ship.position.y).toBeCloseTo(startingPosition.y);
