@@ -11,12 +11,21 @@ export default interface ComponentType{
     getThrust(intent: SpaceshipIntent, spaceship: SpaceShip): Force|undefined;
 }
 
-export const leftWing: ComponentType = {
-    name: "Left Wing",
+export const block: ComponentType = {
+    name: "Block",
     mass: 1,
     drag: 0.1,
-    width: 2,
+    width: 1,
+    height: 1,
+    getThrust(intent: SpaceshipIntent, spaceship: SpaceShip): Force|undefined {
+        return undefined;
+    }
+}
+export const leftWing: ComponentType = {
+    name: "Left Wing",
+    ...block,
     height: 2,
+    width: 2,
     getThrust(intent: SpaceshipIntent, spaceship: SpaceShip): Force|undefined {
         if(intent.rotateLeft || intent.moveForward){
             return {
@@ -31,10 +40,7 @@ export const leftWing: ComponentType = {
 
 export const rightWing: ComponentType = {
     name: "Right Wing",
-    mass: 1,
-    drag: 0.01,
-    width: 2,
-    height: 2,
+    ...leftWing,
     getThrust(intent: SpaceshipIntent, spaceship: SpaceShip): Force|undefined {
         if(intent.rotateRight || intent.moveForward){
             return {
@@ -47,13 +53,3 @@ export const rightWing: ComponentType = {
     }
 }
 
-export const block: ComponentType = {
-    name: "Block",
-    mass: 1,
-    drag: 1,
-    width: 1,
-    height: 1,
-    getThrust(intent: SpaceshipIntent, spaceship: SpaceShip): Force|undefined {
-        return undefined;
-    }
-}

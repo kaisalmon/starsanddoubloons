@@ -27,19 +27,23 @@ export default class Component {
         return this.type.mass;
     }
 
-    //Calculate the thrust of the component, offset to this component's center x,y (not the x,y of the component)
+    //Calculate the thrust of the component
     getThrust(intent: SpaceshipIntent, spaceship: SpaceShip): Force|undefined {
         const force: Force = this.type.getThrust(intent, spaceship);
         if(!force){
             return undefined;
         }
-        const offsetForce: Force = {
-            offsetX: (force.offsetX + this.position.x + this.type.width / 2) * UNIT_SCALE,
-            offsetY: (force.offsetY + this.position.y + this.type.height / 2) * UNIT_SCALE,
-            x: force.x,
-            y: force.y
-        };
-        return rotate(offsetForce, spaceship.angle);
+        if(force.offsetY !== 0 || force.offsetX !== 0){
+            throw new Error("Thrust offset must not be 0, 0");
+        }
+        const rotatedForce = rotate(force, spaceship.angle);
+        const CoM = this.getCenterOfMassInWorldSpace(spaceship);
+        return {
+            x: rotatedForce.x,
+            y: rotatedForce.y,
+            offsetX: CoM.x - spaceship.position.x,
+            offsetY: CoM.y - spaceship.position.y
+        }
     }
 
     //Calculate the drag of the component, offset to this component's center x,y (not the x,y of the component)

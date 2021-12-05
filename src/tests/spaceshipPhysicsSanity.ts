@@ -7,6 +7,7 @@ import { EMPTY_INTENT } from "../game/SpaceshipIntent";
 
 const radToDeg = (rad: number) => rad * 180 / Math.PI;
 
+
 describe("Space Ship Sanity tests", () => {
   describe("Case 1 - Block thrown into space", () => {
     let ship: SpaceShip;
@@ -132,7 +133,7 @@ describe("Space Ship Sanity tests", () => {
 
       it("Expect the torque to still be counter clockwise, even after setting the angle", () => {
         const torque = ship.getTorque(EMPTY_INTENT)
-        expect(torque).toBeCloseTo(-1.5 * UNIT_SCALE);
+        expect(torque).toBeCloseTo(-1.5 * UNIT_SCALE * block.drag);
       });
 
       it("expect the forces to be perpendicular to the origin", () => {
@@ -155,7 +156,7 @@ describe("Space Ship Sanity tests", () => {
       });
 
       it("Should slowly reduce it's angular velocity, but it's angle should be going up", () => {
-        for (let i = 0; i < 1000; i++) {
+        for (let i = 0; i < 2000; i++) {
           const lastAngVel = ship.angularVelocity;
           const lastAngle = ship.angle;
           const lastEnergy = ship.keneticEnergy;
@@ -164,7 +165,7 @@ describe("Space Ship Sanity tests", () => {
             lastForces,
             ship.getCenterOfMassUnitSpace()
           );
-          ship.update(EMPTY_INTENT, 0.1);
+          ship.update(EMPTY_INTENT, 0.2);
           if (ship.angularVelocity < 0.001) {
             return;
           }
