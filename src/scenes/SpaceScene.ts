@@ -3,9 +3,9 @@ import { block, leftWing, rightWing } from "../game/Component/ComponentType";
 import { SpaceShip } from "../game/SpaceShip";
 import SpaceshipIntent from "../game/SpaceshipIntent";
 
-const GAME_SPEED = 1/10000;
+const GAME_SPEED = 1/1000;
 
-const DRAW_SCALE = 3;
+const DRAW_SCALE = 15/UNIT_SCALE;
 
 export default class SpaceScene extends Phaser.Scene {
     name = "SpaceScene";
@@ -21,11 +21,11 @@ export default class SpaceScene extends Phaser.Scene {
     constructor(){
         super({ key: "SpaceScene" });
         this.player = new SpaceShip([
-            new Component(block, {x: 0, y: -1}),
+            new Component(block, {x: 0, y: 1}),
             new Component(block, {x: 0, y: 0}),
+            new Component(leftWing, {x: -2, y: 0}),
+            new Component(rightWing, {x: 1, y: 0}),
         ])
-        console.log(this.player.getCenterOfMassUnitSpace());
-        console.log('init')
     }
 
     preload(){
@@ -35,25 +35,25 @@ export default class SpaceScene extends Phaser.Scene {
     }
 
     create(){
+        this.input.keyboard.addKey('W').on('down', () => this.intent.moveForward = true);
+        this.input.keyboard.addKey('W').on('up', () => this.intent.moveForward = false);
+        this.input.keyboard.addKey('A').on('down', () => this.intent.rotateLeft = true);
+        this.input.keyboard.addKey('A').on('up', () => this.intent.rotateLeft = false);
+        this.input.keyboard.addKey('D').on('down', () => this.intent.rotateRight = true);
+        this.input.keyboard.addKey('D').on('up', () => this.intent.rotateRight = false);
 
         this.graphics = this.add.graphics();
         this.graphics.z = 10;
 
         console.log("CREATE")
-        this.player.position.x = 40;
-        this.player.position.y = 30;
-       // this.player.angle = Math.PI / 4;
-        //this.player.velocity.x = 10;
+        this.player.position.x = 5 * UNIT_SCALE;
+        this.player.position.y = 5 * UNIT_SCALE;
+        this.player.angle = Math.PI / 4;
         this.player.angularVelocity = 0;
         this.playerSprite = this.add.sprite(this.player.position.x, this.player.position.y, 'spaceshipParts', 14);
         this.playerSprite.setScale(0);
         this.playerSprite.z = 0;
-
-        this.input.on('pointerdown', () => {
-            this.player.angularVelocity = parseFloat(window.prompt("Angular Velocity", "0"));
-            this.player.velocity.x = parseFloat(window.prompt("Velocity X", "0"));
-            this.player.velocity.y = parseFloat(window.prompt("Velocity Y", "0"));
-        });
+        
     }
 
     update(time: number, delta: number){
@@ -81,18 +81,17 @@ export default class SpaceScene extends Phaser.Scene {
                 x, y, x+velocity.x * 1, y+velocity.y * 1
             )
         }
+        */
         this.graphics.lineStyle(3, 0xffffff, 1);
         for(let component of this.player.components){
             const {x,y} = this.player.position;
             const force = component.getTotalForce(this.intent, this.player);
+            const F_SCALE = 0.3;
             this.graphics.lineBetween(
-                x + force.offsetX,
-                y + force.offsetY, 
-                x + force.offsetX + force.x * 10, 
-                y + force.offsetY + force.y * 10
+                (x + force.offsetX) * DRAW_SCALE, (y + force.offsetY) * DRAW_SCALE,
+                (x + force.offsetX + force.x * F_SCALE) * DRAW_SCALE, (y + force.offsetY + force.y * F_SCALE) * DRAW_SCALE
             )
         }
-        */
         this.graphics.fillStyle(0xffff00, 1);
         this.graphics.fillCircle(this.player.position.x * DRAW_SCALE, this.player.position.y * DRAW_SCALE, 10);
     }
