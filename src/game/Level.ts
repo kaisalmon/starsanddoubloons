@@ -1,4 +1,3 @@
-import { IdleAI } from "./AI/ai";
 import { PLAYER_AI } from "./AI/PlayerAI";
 import { SpaceShip } from "./SpaceShip";
 import SpaceshipIntent from "./SpaceshipIntent";

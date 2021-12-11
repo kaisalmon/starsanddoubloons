@@ -32,8 +32,12 @@ export default class SpaceScene extends Phaser.Scene {
         this.level = {
             player: newBasicEnemy(),
             playerIntent: {...EMPTY_INTENT},
-            enemies: [],
+            enemies: [
+                newBasicEnemy(),
+            ],
         }
+        this.level.enemies[0].position.x = 50 * UNIT_SCALE;
+        this.level.enemies[0].position.y = 10 * UNIT_SCALE;
         initLevel(this.level);
     }
 

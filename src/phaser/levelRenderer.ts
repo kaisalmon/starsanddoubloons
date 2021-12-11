@@ -5,13 +5,20 @@ import ShipRenderer from "./shipRenderer";
 
 export class LevelRenderer{
     playerRenderer: ShipRenderer;
+    enemyRenderers: ShipRenderer[];
+
+    get renderers() {
+        return [].concat([this.playerRenderer], this.enemyRenderers);
+    }
+
     constructor(private level: Level){
         this.playerRenderer = new ShipRenderer(level.player)
+        this.enemyRenderers = level.enemies.map(ship => new ShipRenderer(ship));
     }
     onCreate(scene: SpaceScene) {
-        this.playerRenderer.onCreate(scene);
+        this.renderers.forEach(renderer => renderer.onCreate(scene));
     }
     onUpdate(scene: SpaceScene) {
-        this.playerRenderer.onUpdate(scene);
+        this.renderers.forEach(renderer => renderer.onUpdate(scene));
     }
 }
