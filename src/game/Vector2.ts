@@ -11,6 +11,13 @@ export function getMagnitude(a: Vector2) {
     return Math.sqrt(dot(a, a));
 }
 
+export function getDistance(a: Vector2, b: Vector2) {
+    return getMagnitude({
+        x: a.x - b.x,
+        y: a.y - b.y
+    });
+}
+
 export function getNormalized(a: Vector2) {
     const len = getMagnitude(a);
     return {
@@ -84,4 +91,11 @@ export function getLinearVelocityFromAngularVelocity({
         x: angularVelocity * radius * Math.sin(angle + Math.PI / 2),
         y: angularVelocity * radius * Math.cos(angle + Math.PI / 2)
     };
+}
+
+
+export function normalizeAngle(angle: number) {
+    const a = (angle + Math.PI * 2) % (Math.PI * 2);
+    if( a > 0) return a;
+    return a + Math.PI * 2;
 }

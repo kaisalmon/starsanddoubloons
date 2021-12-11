@@ -1,5 +1,7 @@
+import { AI } from "./AI/ai";
 import Component, { UNIT_SCALE } from "./Component";
 import Force, { calculateTorques, sum } from "./Force";
+import { Level } from "./Level";
 import SpaceshipIntent from "./SpaceshipIntent";
 import Vector2 from "./Vector2";
 
@@ -7,6 +9,8 @@ const ROTATION_FACTOR = 0.2;
 
 export class SpaceShip { 
     components: Component[];
+    ai: AI;
+    level: Level;
     
     position: Vector2;
     velocity: Vector2; //Absolute velocity
@@ -22,7 +26,12 @@ export class SpaceShip {
             acc + component.getKeneticEnergy(this), 0);
     }
 
-    constructor(components: Component[]) {
+    get intent(): SpaceshipIntent {
+        return this.ai.getIntent(this, this.level);
+    }
+
+    constructor(components: Component[], ai: AI) {
+        this.ai = ai;
         this.components = components;
         this.velocity = {x: 0, y: 0};
         this.angle = 0;
@@ -52,25 +61,24 @@ export class SpaceShip {
     }
 
     getCenterOfMassWorldSpace(): Vector2 {
-        const centerOfMass: Vector2 = this.getCenterOfMassInRotatedShipSpace();
         return {
             x: this.position.x,
             y: this.position.y
         };
     }
 
-    getAllForces(intent: SpaceshipIntent): Force[] {
-        return this.components.map(component => component.getTotalForce(intent, this));
+    getAllForces(): Force[] {
+        return this.components.map(component => component.getTotalForce(this.intent, this));
     }
 
-    getTorque(intent: SpaceshipIntent): number {
-        const forces: Force[] = this.getAllForces(intent);
+    getTorque(): number {
+        const forces: Force[] = this.getAllForces();
         return  calculateTorques(forces);
     }
 
-    update(intent: SpaceshipIntent, delta: number): void {
-        const forces: Force[] = this.getAllForces(intent);
-        const torque: number = this.getTorque(intent);
+    update( delta: number): void {
+        const forces: Force[] = this.getAllForces();
+        const torque: number = this.getTorque();
         const totalForce: Vector2 = sum(forces);
         this.velocity.x += totalForce.x / this.mass * delta;
         this.velocity.y += totalForce.y / this.mass * delta;

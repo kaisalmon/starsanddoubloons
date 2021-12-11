@@ -29,7 +29,7 @@ export default class Component {
 
     //Calculate the thrust of the component
     getThrust(intent: SpaceshipIntent, spaceship: SpaceShip): Force|undefined {
-        const force: Force = this.type.getThrust(intent, spaceship);
+        const force: Force = this.type.getThrust(intent, this, spaceship);
         if(!force){
             return undefined;
         }
@@ -44,6 +44,14 @@ export default class Component {
             offsetX: CoM.x - spaceship.position.x,
             offsetY: CoM.y - spaceship.position.y
         }
+    }
+
+    getCoMInUnitSpace(): Vector2 {
+        return {x: this.position.x + this.width/2, y: this.position.y + this.height/2};
+    }
+
+    isAheadOfShipCoM(ship:SpaceShip): boolean {
+        return this.getCoMInUnitSpace().y > ship.getCenterOfMassUnitSpace().y;
     }
 
     //Calculate the drag of the component, offset to this component's center x,y (not the x,y of the component)
