@@ -7,6 +7,7 @@ const config:Phaser.Types.Core.GameConfig = {
     backgroundColor: '#333333',
     width: 800,
     height: 800,
+    pixelArt: true,
     scene: new SpaceScene(),
     
 };

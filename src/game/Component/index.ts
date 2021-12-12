@@ -11,6 +11,7 @@ export const UNIT_SCALE = 1;
 export default class Component {
     type: ComponentType;
     position: Vector2; // Relative position of the component to the spaceship's top left corner
+    isPowered: boolean = false;
 
     constructor(type: ComponentType, position: Vector2) {
         this.type = type;
@@ -29,7 +30,8 @@ export default class Component {
 
     //Calculate the thrust of the component
     getThrust(intent: SpaceshipIntent, spaceship: SpaceShip): Force|undefined {
-        const force: Force = this.type.getThrust(intent, this, spaceship);
+        this.isPowered = this.type.isPowered(intent, this, spaceship);
+        const force: Force = this.type.getThrust(this.isPowered, intent, this, spaceship);
         if(!force){
             return undefined;
         }

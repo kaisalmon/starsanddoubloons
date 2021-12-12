@@ -1,34 +1,83 @@
 import Component from ".";
 import Force from "../Force";
 import { SpaceShip } from "../SpaceShip";
-import SpaceshipIntent from "../SpaceshipIntent";
+import SpaceshipIntent, { flipIntent } from "../SpaceshipIntent";
 
 export default interface ComponentType{
+    appearance: string;
     name: string;
     mass: number;
     drag: number;
     width: number;
     height: number;
-    getThrust(intent: SpaceshipIntent, component:Component, spaceship: SpaceShip): Force|undefined;
+    isFlipped: boolean;
+    isPowered(intent: SpaceshipIntent, component:Component, spaceship: SpaceShip):boolean;
+    getThrust(powered: boolean, intent: SpaceshipIntent, component:Component, spaceship: SpaceShip): Force|undefined;
+}
+
+export function flipped(base: ComponentType): ComponentType{
+    return {
+        ...base,
+        isFlipped: true,
+        isPowered(intent: SpaceshipIntent, component:Component, spaceship: SpaceShip):boolean{
+            const flippedIntent = flipIntent(intent);
+            return base.isPowered(flippedIntent, component, spaceship);
+        },
+        getThrust(powered: boolean, intent:SpaceshipIntent, component:Component, spaceship: SpaceShip): Force|undefined{
+            const flippedIntent = flipIntent(intent);
+            const baseThrust = base.getThrust(powered, flippedIntent, component, spaceship);
+            if(!baseThrust) return undefined;
+            return {
+                x: -1 * baseThrust.x,
+                y: baseThrust.y,
+                offsetX: -1 * baseThrust.offsetX,
+                offsetY: baseThrust.offsetY
+            }
+        }
+    }
 }
 
 export const block: ComponentType = {
     name: "Block",
+    appearance: "block",
+    isFlipped: false,
     mass: 1,
     drag: 0.1,
     width: 1,
     height: 1,
+    isPowered: (intent: SpaceshipIntent, component:Component, spaceship: SpaceShip) => {
+        return false;
+    },
     getThrust(): Force|undefined {
         return undefined;
     }
 }
-export const leftWing: ComponentType = {
-    name: "Left Wing",
+
+export const engine: ComponentType = {
+    ...block,
+    name: "Engine",
+    appearance: "engineRoom",
+    mass: 4,
+    width: 2,
+    height: 2, 
+}   
+
+export const bridge: ComponentType = {
+    ...block,
+    name: "Bridge",
+    appearance: "bridge",
+    mass: 4,
+    width: 2,
+    height: 2, 
+}   
+
+export const wing: ComponentType = {
+    name: "Wing",
     ...block,
     height: 2,
     width: 2,
-    getThrust(intent: SpaceshipIntent): Force|undefined {
-        if(intent.rotateLeft || intent.moveForward){
+    getThrust(powered: boolean): Force|undefined {
+        if(powered){
             return {
                 offsetY: 0,
                 offsetX: 0,
@@ -36,49 +85,32 @@ export const leftWing: ComponentType = {
                 y: 1
             }
         }
+    },
+    isPowered: (intent: SpaceshipIntent) => {
+        return intent.rotateLeft || intent.moveForward;
     }
 }
 
-export const rightWing: ComponentType = {
-    name: "Right Wing",
-    ...leftWing,
-    getThrust(intent: SpaceshipIntent): Force|undefined {
-        if(intent.rotateRight || intent.moveForward){
-            return {
-                offsetY: 0,
-                offsetX: 0,
-                x: 0,
-                y: 1
-            }
-        }
-    }
-}
 
-export const leftLateralThruster: ComponentType = {
+export const lateralThruster: ComponentType = {
     ...block,
-    name: "Left Lateral Thruster",
-    getThrust(intent: SpaceshipIntent, component:Component, spaceship: SpaceShip): Force|undefined {
+    mass: 0,
+    drag: 0,
+    name: "Lateral Thruster",
+    appearance: "lateralThrusters",
+    isPowered: (intent: SpaceshipIntent, component:Component, spaceship: SpaceShip) => {
         const isAheadOfShipCom = component.isAheadOfShipCoM(spaceship);
         if((intent.rotateLeft && isAheadOfShipCom) || (intent.rotateRight && !isAheadOfShipCom)){
-            return {
-                offsetY: 0,
-                offsetX: 0,
-                x: 1,
-                y: 0
-            }
+            return true;
         }
-    }
-}
-export const rightLateralThruster: ComponentType = {
-    ...leftLateralThruster,
-    name: "Left Lateral Thruster",
-    getThrust(intent: SpaceshipIntent, component:Component, spaceship: SpaceShip): Force|undefined {
-        const isAheadOfShipCom = component.isAheadOfShipCoM(spaceship);
-        if((intent.rotateRight && isAheadOfShipCom) || (intent.rotateLeft && !isAheadOfShipCom)){
+        return false;
+    },
+    getThrust(powered: boolean): Force|undefined {
+        if(powered){
             return {
                 offsetY: 0,
                 offsetX: 0,
-                x: -1,
+                x: 0.3,
                 y: 0
             }
         }
@@ -88,8 +120,12 @@ export const rightLateralThruster: ComponentType = {
 export const thruster: ComponentType = {
     ...block,
     name: "Thruster",
-    getThrust(intent: SpaceshipIntent, component:Component, spaceship: SpaceShip): Force|undefined {
-        if(intent.moveForward){
+    appearance: "thruster",
+    isPowered: (intent: SpaceshipIntent) => {
+        return intent.moveForward;
+    },
+    getThrust(powered: boolean): Force|undefined {
+        if(powered){
             return {
                 offsetY: 0,
                 offsetX: 0,

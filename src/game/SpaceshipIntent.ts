@@ -9,3 +9,11 @@ export const EMPTY_INTENT = {
     rotateLeft: false,
     rotateRight: false
 }
+
+export function flipIntent(intent: SpaceshipIntent): SpaceshipIntent{
+    return {
+        moveForward: intent.moveForward,
+        rotateLeft: intent.rotateRight,
+        rotateRight: intent.rotateLeft
+    }
+}
