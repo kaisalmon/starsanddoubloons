@@ -1,4 +1,5 @@
 import { AI } from "./AI/ai";
+import Collision, { BoundingBox, checkBoundingBoxCollision } from "./Collision";
 import Component, { UNIT_SCALE } from "./Component";
 import Force, { calculateTorques, sum } from "./Force";
 import { Level } from "./Level";
@@ -7,7 +8,7 @@ import Vector2 from "./Vector2";
 
 const ROTATION_FACTOR = 0.2;
 
-export class SpaceShip { 
+export class SpaceShip {
     components: Component[];
     ai: AI;
     level: Level;
@@ -16,6 +17,8 @@ export class SpaceShip {
     velocity: Vector2; //Absolute velocity
     angle: number;
     angularVelocity: number;
+
+    impulses: Force[] = [];
 
     get mass(): number {
         return this.components.reduce((acc, component) => acc + component.mass, 0);
@@ -30,6 +33,20 @@ export class SpaceShip {
         return this.ai.getIntent(this, this.level);
     }
 
+    get boundingBox(): BoundingBox {
+        const lowestX = this.components.reduce((acc, component) => Math.min(acc, component.position.x), Number.MAX_VALUE);
+        const highestX = this.components.reduce((acc, component) => Math.max(acc, component.position.x + component.width), Number.MIN_VALUE);
+        const lowestY = this.components.reduce((acc, component) => Math.min(acc, component.position.y), Number.MAX_VALUE);
+        const highestY = this.components.reduce((acc, component) => Math.max(acc, component.position.y + component.height), Number.MIN_VALUE);
+        const width = (highestX - lowestX) * UNIT_SCALE;
+        const height = (highestY - lowestY) * UNIT_SCALE;
+        return {
+            position: this.position,
+            angle: this.angle,
+            width,
+            height
+        }
+    }
     constructor(components: Component[], ai: AI) {
         this.ai = ai;
         this.components = components;
@@ -68,7 +85,8 @@ export class SpaceShip {
     }
 
     getAllForces(): Force[] {
-        return this.components.map(component => component.getTotalForce(this.intent, this));
+        const componentForces =  this.components.map(component => component.getTotalForce(this.intent, this));
+        return [].concat(componentForces, this.impulses);
     }
 
     getTorque(): number {
@@ -88,5 +106,36 @@ export class SpaceShip {
 
         const angularVelocity = this.angularVelocity;
         this.angle -= angularVelocity * delta * ROTATION_FACTOR;
+
+        this.impulses = [];
+    }
+
+
+    collidesWith(other: SpaceShip):Collision|undefined {
+        const boundingBox = this.boundingBox;
+        const otherBoundingBox = other.boundingBox;
+        if(!checkBoundingBoxCollision(boundingBox, otherBoundingBox)){
+            return undefined;
+        }
+        for(let component of this.components){
+            for(let otherComponent of other.components){
+                const box = component.getBoundingBox(this);
+                const otherBox = otherComponent.getBoundingBox(other);
+                const collision = checkBoundingBoxCollision(box, otherBox);
+                if(collision){
+                    return collision;
+                }
+            }
+        }
+    } 
+
+
+    onCollision(collision: Collision, component: Component): void {
+        this.impulses.push({
+            x: collision.normal.x * 10,
+            y: collision.normal.y * 10,
+            offsetX: collision.position.x - this.position.x,
+            offsetY: collision.position.y - this.position.y
+        });
     }
 }

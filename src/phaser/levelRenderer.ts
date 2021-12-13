@@ -19,6 +19,7 @@ export class LevelRenderer{
         this.renderers.forEach(renderer => renderer.onCreate(scene));
     }
     onUpdate(scene: SpaceScene) {
+        scene.graphics.clear();
         this.renderers.forEach(renderer => renderer.onUpdate(scene));
     }
 }

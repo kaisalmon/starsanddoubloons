@@ -1,4 +1,5 @@
 import { Vector } from "matter";
+import { BoundingBox } from "../Collision";
 import Force, { rotate, sum } from "../Force";
 import { SpaceShip } from "../SpaceShip";
 import SpaceshipIntent from "../SpaceshipIntent";
@@ -27,6 +28,7 @@ export default class Component {
     get mass(): number {
         return this.type.mass;
     }
+    
 
     //Calculate the thrust of the component
     getThrust(intent: SpaceshipIntent, spaceship: SpaceShip): Force|undefined {
@@ -127,6 +129,19 @@ export default class Component {
     getKeneticEnergy(spaceship:SpaceShip): number {
         const vel = this.getEffectiveVelocity(spaceship);
         return 0.5 * this.mass * (vel.x * vel.x + vel.y * vel.y);
+    }
+
+    getBoundingBox(spaceship:SpaceShip): BoundingBox{
+        const position = this.getCenterOfMassInWorldSpace(spaceship);
+        const angle = spaceship.angle;
+        const width = this.width * UNIT_SCALE;
+        const height = this.height * UNIT_SCALE;
+        return {
+            position,
+            angle,
+            width,
+            height
+        }
     }
 }
 
