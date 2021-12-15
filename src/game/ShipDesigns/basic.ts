@@ -14,5 +14,5 @@ export const newBasicEnemy = ()=>new SpaceShip([
         new Component(flipped(lateralThruster), {x: 2, y: 0}),
         new Component(bridge, {x: 0, y: 2}),
     ],
-    IDLE_AI
+    createCombatAI()
 );

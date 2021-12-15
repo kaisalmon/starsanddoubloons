@@ -1,4 +1,3 @@
-import { Vector } from "matter";
 import { BoundingBox } from "../Collision";
 import Force, { rotate, sum } from "../Force";
 import { SpaceShip } from "../SpaceShip";
@@ -132,10 +131,25 @@ export default class Component {
     }
 
     getBoundingBox(spaceship:SpaceShip): BoundingBox{
-        const position = this.getCenterOfMassInWorldSpace(spaceship);
-        const angle = spaceship.angle;
-        const width = this.width * UNIT_SCALE;
-        const height = this.height * UNIT_SCALE;
+        const unitSpaceHitbox = this.type.hitbox || {
+            width: this.width,
+            height: this.height,
+            position: {x: 0, y: 0},
+            angle: 0
+        };
+        const angle = spaceship.angle + unitSpaceHitbox.angle;
+        const com = this.getCenterOfMassInWorldSpace(spaceship);
+        const position = {
+            x: com.x + 
+                (unitSpaceHitbox.position.x * Math.cos(spaceship.angle) 
+                - unitSpaceHitbox.position.y * Math.sin(spaceship.angle))* UNIT_SCALE,
+
+            y: com.y + 
+            (unitSpaceHitbox.position.x * Math.sin(spaceship.angle) 
+            + unitSpaceHitbox.position.y * Math.cos(spaceship.angle))* UNIT_SCALE,
+        }
+        const width = unitSpaceHitbox.width * UNIT_SCALE;
+        const height = unitSpaceHitbox.height * UNIT_SCALE;
         return {
             position,
             angle,

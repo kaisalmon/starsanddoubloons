@@ -1,7 +1,9 @@
 import Component from ".";
+import { BoundingBox } from "../Collision";
 import Force from "../Force";
 import { SpaceShip } from "../SpaceShip";
 import SpaceshipIntent, { flipIntent } from "../SpaceshipIntent";
+
 
 export default interface ComponentType{
     appearance: string;
@@ -10,6 +12,7 @@ export default interface ComponentType{
     drag: number;
     width: number;
     height: number;
+    hitbox?: BoundingBox;
     isFlipped: boolean;
     isPowered(intent: SpaceshipIntent, component:Component, spaceship: SpaceShip):boolean;
     getThrust(powered: boolean, intent: SpaceshipIntent, component:Component, spaceship: SpaceShip): Force|undefined;
@@ -19,6 +22,14 @@ export function flipped(base: ComponentType): ComponentType{
     return {
         ...base,
         isFlipped: true,
+        hitbox: base.hitbox && {
+            ...base.hitbox,
+            angle: base.hitbox.angle + Math.PI,
+            position:{
+                x: -base.hitbox.position.x,
+                y: -base.hitbox.position.y
+            }
+        },
         isPowered(intent: SpaceshipIntent, component:Component, spaceship: SpaceShip):boolean{
             const flippedIntent = flipIntent(intent);
             return base.isPowered(flippedIntent, component, spaceship);
@@ -98,6 +109,12 @@ export const lateralThruster: ComponentType = {
     drag: 0,
     name: "Lateral Thruster",
     appearance: "lateralThrusters",
+    hitbox: {
+        position: {x: 0.5 - 0.25/2, y:0},
+        angle: 0,
+        width: 0.25,
+        height: 1
+    },
     isPowered: (intent: SpaceshipIntent, component:Component, spaceship: SpaceShip) => {
         const isAheadOfShipCom = component.isAheadOfShipCoM(spaceship);
         if((intent.rotateLeft && isAheadOfShipCom) || (intent.rotateRight && !isAheadOfShipCom)){
@@ -121,6 +138,14 @@ export const thruster: ComponentType = {
     ...block,
     name: "Thruster",
     appearance: "thruster",
+
+    hitbox: {
+        position: {x: 0, y: 0.25},
+        angle: 0,
+        width: 1,
+        height: 0.5
+    },
+    
     isPowered: (intent: SpaceshipIntent) => {
         return intent.moveForward;
     },
