@@ -1,12 +1,13 @@
 import { AI } from "./AI/ai";
-import Collision, { BoundingBox, checkBoundingBoxCollision } from "./Collision";
+import Collision, { BoundingBox, doRectanglesIntersect } from "./Collision";
 import Component, { UNIT_SCALE } from "./Component";
 import Force, { calculateTorques, sum } from "./Force";
 import { Level } from "./Level";
 import SpaceshipIntent from "./SpaceshipIntent";
-import Vector2 from "./Vector2";
+import Vector2, { getMagnitude } from "./Vector2";
 
 const ROTATION_FACTOR = 0.2;
+const COLLISION_KNOCKBACK = 0.3;
 
 export class SpaceShip {
     components: Component[];
@@ -111,29 +112,44 @@ export class SpaceShip {
     }
 
 
-    collidesWith(other: SpaceShip):Collision|undefined {
+    collidesWith(other: SpaceShip):[Collision, Component, Component]|undefined {
         const boundingBox = this.boundingBox;
         const otherBoundingBox = other.boundingBox;
-        if(!checkBoundingBoxCollision(boundingBox, otherBoundingBox)){
+        if(!doRectanglesIntersect(boundingBox, otherBoundingBox)){
             return undefined;
         }
         for(let component of this.components){
             for(let otherComponent of other.components){
                 const box = component.getBoundingBox(this);
                 const otherBox = otherComponent.getBoundingBox(other);
-                const collision = checkBoundingBoxCollision(box, otherBox);
-                if(collision){
-                    return collision;
+                const intersection = doRectanglesIntersect(box, otherBox);
+                if(intersection){
+                    const relativeVelocity = {
+                        x: component.getEffectiveVelocity(this).x - otherComponent.getEffectiveVelocity(other).x,
+                        y: component.getEffectiveVelocity(this).y - otherComponent.getEffectiveVelocity(other).y
+                    }
+                    const speed = getMagnitude(relativeVelocity);
+                    const collission:Collision = {
+                        position: {
+                            x: (box.position.x + other.position.x) / 2,
+                            y: (box.position.y + other.position.y) / 2
+                        },
+                        normal: {
+                            x: (box.position.x - other.position.x),
+                            y: (box.position.y - other.position.y)
+                        },
+                        momentum: speed * (this.mass * other.mass) /2 
+                    }
+                    return [collission, component, otherComponent];
                 }
             }
         }
     } 
 
-
     onCollision(collision: Collision, component: Component): void {
         this.impulses.push({
-            x: collision.normal.x * 10,
-            y: collision.normal.y * 10,
+            x: collision.normal.x * collision.momentum * COLLISION_KNOCKBACK,
+            y: collision.normal.y * collision.momentum * COLLISION_KNOCKBACK,
             offsetX: collision.position.x - this.position.x,
             offsetY: collision.position.y - this.position.y
         });
