@@ -6,8 +6,12 @@ export interface AI {
     getIntent(ship:SpaceShip, level:Level): SpaceshipIntent;
 }
 
-export const IDLE_AI:AI = {
-    getIntent(): SpaceshipIntent {
-        return EMPTY_INTENT
+export function constantAI(intent:SpaceshipIntent):AI{
+    return {
+        getIntent():SpaceshipIntent{
+            return intent;
+        }
     }
 }
+
+export const IDLE_AI:AI = constantAI(EMPTY_INTENT);

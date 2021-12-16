@@ -4,6 +4,7 @@ import { sum } from "../game/Force";
 import { SpaceShip } from "../game/SpaceShip"
 import { EMPTY_INTENT } from "../game/SpaceshipIntent";
 import * as expect from "expect";
+import { constantAI } from "../game/AI/ai";
 
 const startingPosition = { x: 100, y: 400}
 const FORWARD_INTENT = {
@@ -24,47 +25,41 @@ describe("Physics Sanity Test - Thrust", () => {
         });
 
         it("should have a thrust of 0, with no intent", () => {
-            const forces = ship.getAllForces(EMPTY_INTENT)
+            const forces = ship.getAllForces()
             const totalForce = sum(forces);
             expect(totalForce.x).toBe(0);
             expect(totalForce.y).toBe(0);
         });
 
         it("Should have positive thrust, with intent to go forward", () => {
-            const forces = ship.getAllForces({
-                ...EMPTY_INTENT,
-                moveForward: true,
-            })
+            ship.ai = constantAI(FORWARD_INTENT);
+            const forces = ship.getAllForces()
             const totalForce = sum(forces);
             expect(totalForce.x).toBe(0);
             expect(totalForce.y).toBeGreaterThan(0);
         });
 
         it("Should have zero torque, with intent to go forwards", () => {
-            const torque = ship.getTorque({
-                ...EMPTY_INTENT,
-                moveForward: true,
-            });
+            ship.ai = constantAI(FORWARD_INTENT);
+            const torque = ship.getTorque();
             expect(torque).toBe(0);
         });
 
         it("Should rapidly accelorate", () => {
+            ship.ai = constantAI(FORWARD_INTENT);
             for(let i = 0; i < 1000; i++){
                 const prevY = ship.position.y;
                 const prevVelY = ship.velocity.y;
-                ship.update({
-                    ...EMPTY_INTENT,
-                    moveForward: true,
-                }, 0.1)
+                ship.update( 0.1)
                 try{
-                    expect(ship.getTorque(FORWARD_INTENT)).toBe(0);
+                    expect(ship.getTorque()).toBe(0);
                     expect(ship.angle).toBe(0);
                     expect(ship.position.y).toBeGreaterThan(prevY);
                     expect(ship.velocity.y).toBeGreaterThanOrEqual(prevVelY);
                     expect(ship.position.x).toBeCloseTo(startingPosition.x, 1)
                 }catch(e){
                     console.log(ship.angle)
-                    console.log(ship.getAllForces(FORWARD_INTENT))
+                    console.log(ship.getAllForces())
                     throw e;
                 }
             }

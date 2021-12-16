@@ -82,7 +82,7 @@ export const bridge: ComponentType = {
     height: 2, 
 }   
 
-export const wing: ComponentType = {
+export const rightWing: ComponentType = {
     name: "Wing",
     ...block,
     height: 2,
@@ -102,6 +102,7 @@ export const wing: ComponentType = {
     }
 }
 
+export const leftWing = flipped(rightWing);
 
 export const lateralThruster: ComponentType = {
     ...block,

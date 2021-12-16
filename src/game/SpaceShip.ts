@@ -1,4 +1,4 @@
-import { AI } from "./AI/ai";
+import { AI, IDLE_AI } from "./AI/ai";
 import Collision, { BoundingBox, doRectanglesIntersect } from "./Collision";
 import Component, { UNIT_SCALE } from "./Component";
 import Force, { calculateTorques, sum } from "./Force";
@@ -48,7 +48,7 @@ export class SpaceShip {
             height
         }
     }
-    constructor(components: Component[], ai: AI) {
+    constructor(components: Component[], ai: AI = IDLE_AI) {
         this.ai = ai;
         this.components = components;
         this.velocity = {x: 0, y: 0};
