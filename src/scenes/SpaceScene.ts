@@ -34,8 +34,8 @@ export default class SpaceScene extends Phaser.Scene {
                 newBasicEnemy(),
             ],
         }
-        this.level.enemies[0].position.x = 20 * UNIT_SCALE;
-        this.level.enemies[0].position.y = 20 * UNIT_SCALE;
+        this.level.enemies[0].position.x = 30 * UNIT_SCALE;
+        this.level.enemies[0].position.y = 30 * UNIT_SCALE;
         initLevel(this.level);
     }
 
@@ -60,8 +60,8 @@ export default class SpaceScene extends Phaser.Scene {
         this.graphics.z = 10;
 
         console.log("CREATE")
-        this.player.position.x = 10 * UNIT_SCALE;
-        this.player.position.y = 10 * UNIT_SCALE;
+        this.player.position.x = 20 * UNIT_SCALE;
+        this.player.position.y = 20 * UNIT_SCALE;
         this.player.angularVelocity = 0;
        
         
