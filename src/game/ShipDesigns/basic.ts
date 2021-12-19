@@ -1,7 +1,7 @@
 import { IDLE_AI } from "../AI/ai";
 import { createCombatAI } from "../AI/CombatAI";
 import Component from "../Component";
-import { block, bridge, engine, flipped, lateralThruster, thruster } from "../Component/ComponentType";
+import { block, bridge, cannon, engine, flipped, lateralThruster, thruster } from "../Component/ComponentType";
 import { SpaceShip } from "../SpaceShip";
 
 export const newBasicEnemy = ()=>new SpaceShip([
@@ -12,6 +12,8 @@ export const newBasicEnemy = ()=>new SpaceShip([
         new Component(flipped(lateralThruster), {x: 2, y: 2}),
         new Component(lateralThruster, {x: -1, y: 0}),
         new Component(flipped(lateralThruster), {x: 2, y: 0}),
+        new Component(flipped(cannon), {x: 2, y: 1}),
+        new Component(cannon, {x: -1, y: 1}),
         new Component(bridge, {x: 0, y: 2}),
     ],
     createCombatAI()

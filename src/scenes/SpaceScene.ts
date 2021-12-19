@@ -1,9 +1,11 @@
+import { IDLE_AI } from "../game/AI/ai";
 import { ChaserAI } from "../game/AI/ChaserAI";
 import { UNIT_SCALE } from "../game/Component";
 import { initLevel, Level, updateLevel } from "../game/Level";
 import { newBasicEnemy } from "../game/ShipDesigns/basic";
 import { SpaceShip } from "../game/SpaceShip";
 import SpaceshipIntent, { EMPTY_INTENT } from "../game/SpaceshipIntent";
+import { DRAW_SCALE } from "../phaser/constants";
 import { LevelRenderer } from "../phaser/levelRenderer";
 
 const GAME_SPEED = 1/100;
@@ -36,6 +38,7 @@ export default class SpaceScene extends Phaser.Scene {
         }
         this.level.enemies[0].position.x = 30 * UNIT_SCALE;
         this.level.enemies[0].position.y = 30 * UNIT_SCALE;
+        //this.level.enemies[0].ai = IDLE_AI;
         initLevel(this.level);
     }
 
@@ -46,6 +49,11 @@ export default class SpaceScene extends Phaser.Scene {
         this.load.spritesheet('lateralThrusters', 'assets/components/laterialThrusters.png', { frameWidth: 16, frameHeight: 16 });
         this.load.spritesheet('engineRoom', 'assets/components/engineRoom.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('bridge', 'assets/components/bridge.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.spritesheet('cannon', 'assets/components/cannon.png', { frameWidth: 16, frameHeight: 16 });
+
+        this.load.image('space1', 'assets/backgrounds/space1.jpeg');
+        this.load.image('space2', 'assets/backgrounds/space2.jpeg');
+        this.load.image('grid', 'assets/backgrounds/grid.png');
     }
 
     create(){
@@ -59,12 +67,11 @@ export default class SpaceScene extends Phaser.Scene {
         this.graphics = this.add.graphics();
         this.graphics.z = 10;
 
-        console.log("CREATE")
         this.player.position.x = 20 * UNIT_SCALE;
         this.player.position.y = 20 * UNIT_SCALE;
         this.player.angularVelocity = 0;
        
-        
+
         this.levelRenderer = new LevelRenderer(this.level);
         this.levelRenderer.onCreate(this)
     }
@@ -72,7 +79,8 @@ export default class SpaceScene extends Phaser.Scene {
     update(time: number, delta: number){
         delta *= GAME_SPEED;
         updateLevel(this.level, delta);
-        this.levelRenderer.onUpdate(this)
+        this.levelRenderer.onUpdate(this, delta)
+
     }
 
     

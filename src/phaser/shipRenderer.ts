@@ -15,7 +15,7 @@ export default class ShipRenderer {
     onCreate(scene: SpaceScene) {
         this.sprites = this.spaceship.components.map((c)=>{
             const sprite = scene.add.sprite(this.spaceship.position.x, this.spaceship.position.y, c.type.appearance, 0);
-            sprite.z = -1;
+            sprite.z = 1;
             sprite.setScale(DRAW_SCALE * UNIT_SCALE / sprite.width * c.type.width, DRAW_SCALE * UNIT_SCALE / sprite.height * c.type.height);
             if(c.type.isFlipped) {
                 sprite.flipX = true;

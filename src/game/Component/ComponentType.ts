@@ -161,3 +161,9 @@ export const thruster: ComponentType = {
         }
     }
 }
+
+export const cannon: ComponentType = {
+    ...block,
+    name: "Cannon",
+    appearance: "cannon",
+}
