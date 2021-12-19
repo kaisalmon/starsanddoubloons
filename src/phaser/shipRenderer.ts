@@ -10,30 +10,45 @@ var customRound = function(value, roundTo) {
 const RENDER_DEBUG_LINES = false;
 
 export default class ShipRenderer {
-    sprites: Phaser.GameObjects.Sprite[];
+    private group: Phaser.GameObjects.Container
+    
+    get gameObject(): Phaser.GameObjects.GameObject {
+        return this.group;
+    }
     constructor(private spaceship:SpaceShip){}
     onCreate(scene: SpaceScene) {
-        this.sprites = this.spaceship.components.map((c)=>{
-            const sprite = scene.add.sprite(this.spaceship.position.x, this.spaceship.position.y, c.type.appearance, 0);
-            sprite.z = 1;
-            sprite.setScale(DRAW_SCALE * UNIT_SCALE / sprite.width * c.type.width, DRAW_SCALE * UNIT_SCALE / sprite.height * c.type.height);
-            if(c.type.isFlipped) {
-                sprite.flipX = true;
-            }
-            return sprite;
-        }); 
+        const spaceshipUnitSpaceCoM = this.spaceship.getCenterOfMassUnitSpace();
+        this.group = scene.add.container(this.spaceship.position.x, 
+            this.spaceship.position.y,
+            this.spaceship.components.map((c)=>{
+                const sprite = scene.add.sprite(this.spaceship.position.x, this.spaceship.position.y, c.type.appearance, 0);
+                sprite.setScale(DRAW_SCALE * UNIT_SCALE / sprite.width * c.type.width, DRAW_SCALE * UNIT_SCALE / sprite.height * c.type.height);
+                
+                const {x,y} = c.getCoMInUnitSpace() 
+                sprite.setPosition(
+                    (x - spaceshipUnitSpaceCoM.x) * UNIT_SCALE * DRAW_SCALE, 
+                    (y - spaceshipUnitSpaceCoM.y) * UNIT_SCALE * DRAW_SCALE
+                );
+
+                if(c.type.isFlipped) {
+                    sprite.flipX = true;
+                }
+                return sprite;
+            }));
+        this.group.setZ(1)
         this.onUpdate(scene);
     }
     onUpdate(scene: SpaceScene) {
+        const sprites = this.group.getAll() as Phaser.GameObjects.Sprite[]
         this.spaceship.components.forEach((component, index)=>{
-            const sprite = this.sprites[index];
+            const sprite = sprites[index];
             const spriteIndex = component.isPowered ? 1 : 0;
             sprite.setFrame(spriteIndex);
-            const {x,y} = component.getCenterOfMassInWorldSpace(this.spaceship);
-            sprite.setPosition(x * DRAW_SCALE,y * DRAW_SCALE);
-          //  const downscaledAngle = customRound(this.spaceship.angle, Math.PI/8)
-            sprite.setRotation(this.spaceship.angle);
         });
+        
+        const {x,y} = this.spaceship.position;
+        this.group.setPosition(x * DRAW_SCALE,y * DRAW_SCALE);
+        this.group.setRotation(this.spaceship.angle);
         
         if(RENDER_DEBUG_LINES)this.renderDebugLines(scene);
     }

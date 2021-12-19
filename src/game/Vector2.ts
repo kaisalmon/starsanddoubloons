@@ -99,3 +99,28 @@ export function normalizeAngle(angle: number) {
     if( a > 0) return a;
     return a + Math.PI * 2;
 }
+
+/*
+static func lerp_angle(a, b, t):
+    if abs(a-b) >= PI:
+        if a > b:
+            a = normalize_angle(a) - 2.0 * PI
+        else:
+            b = normalize_angle(b) - 2.0 * PI
+    return lerp(a, b, t)
+*/
+
+export function lerpAngle(a:number, b:number, t:number){
+    if(Math.abs(a-b) >= Math.PI){
+        if(a > b){
+            a = normalizeAngle(a) - 2.0 * Math.PI;
+        }else{
+            b = normalizeAngle(b) - 2.0 * Math.PI;
+        }
+    }
+    return lerp(a, b, t);
+}
+
+export function lerp(a:number, b:number, t:number){
+    return a + (b - a) * t;
+}

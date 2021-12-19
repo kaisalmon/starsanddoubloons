@@ -1,8 +1,9 @@
 
 
 import { MOMENTUM_TO_DAMAGE } from "../game/Collision";
+import { UNIT_SCALE } from "../game/Component";
 import { GameLevel } from "../game/Level";
-import Vector2 from "../game/Vector2";
+import Vector2, { lerpAngle, normalizeAngle } from "../game/Vector2";
 import SpaceScene from "../scenes/SpaceScene";
 import { DRAW_SCALE, RAD_TO_DEG } from "./constants";
 import ShipRenderer from "./shipRenderer";
@@ -12,11 +13,15 @@ type ScrollLayer = {
     scrollSpeed: number;
 }
 
+const FOLLOW_OFFSET = 10 * UNIT_SCALE * DRAW_SCALE;
+
 export class LevelRenderer{
     playerRenderer: ShipRenderer;
-    enemyRenderers: ShipRenderer[];
+    enemyRenderers: ShipRenderer[]
 
     backgroundLayers: ScrollLayer[] = [];
+    
+    private cameraAngle = 0;
 
     get renderers() {
         return [].concat([this.playerRenderer], this.enemyRenderers);
@@ -66,7 +71,6 @@ export class LevelRenderer{
             y: this.level.player.position.y,
             active: false,
         });
-        
 
         
         this.level.addEventListener('collision', ([a, b, collision])=>{
@@ -84,19 +88,21 @@ export class LevelRenderer{
                 emitter.explode(10, x * DRAW_SCALE, y * DRAW_SCALE);
             }
         })
+
+        scene.cameras.main.startFollow(this.playerRenderer.gameObject,true, 0.04, 0.04, 0, FOLLOW_OFFSET)
+
+
     }
     onUpdate(scene: SpaceScene, delta:number) {
         scene.graphics.clear();
         this.renderers.forEach(renderer => renderer.onUpdate(scene));
 
-        const targetAngle = Math.PI  - this.level.player.angle;
-        const targetCamera = {
-            x: this.level.player.position.x * DRAW_SCALE,
-            y: this.level.player.position.y * DRAW_SCALE
-        }
-        scene.cameras.main.centerOn(targetCamera.x, targetCamera.y);
-        scene.cameras.main.setRotation(targetAngle);
-        
+        const targetAngle = normalizeAngle(Math.PI  - this.level.player.angle);
+   
+        this.cameraAngle = lerpAngle(this.cameraAngle, targetAngle, 0.1);
+        scene.cameras.main.setRotation(this.cameraAngle);
+        scene.cameras.main.followOffset.x = FOLLOW_OFFSET * Math.sin(this.cameraAngle);
+        scene.cameras.main.followOffset.y = FOLLOW_OFFSET * Math.cos(this.cameraAngle);
 
         this.backgroundLayers.forEach(layer => {
             layer.image.tilePositionX = scene.cameras.main.scrollX * layer.scrollSpeed;
