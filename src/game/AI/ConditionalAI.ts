@@ -1,9 +1,9 @@
-import { Level } from "../Level";
+import {GameLevel} from "../Level";
 import { SpaceShip } from "../SpaceShip";
 import SpaceshipIntent, { EMPTY_INTENT } from "../SpaceshipIntent";
 import { AI } from "./ai";
 
-export type ConditionalAIClause = [AI, (ship:SpaceShip, level:Level)=>boolean];
+export type ConditionalAIClause = [AI, (ship:SpaceShip, level:GameLevel)=>boolean];
 
 export default class ConditionalAI implements AI {
     private clauses: ConditionalAIClause[];
@@ -13,7 +13,7 @@ export default class ConditionalAI implements AI {
         this.fallback = fallback;
     }
 
-    getIntent(ship:SpaceShip, level:Level): SpaceshipIntent {
+    getIntent(ship:SpaceShip, level:GameLevel): SpaceshipIntent {
         for (let clause of this.clauses) {
             if (clause[1](ship, level)) {
                 return clause[0].getIntent(ship, level);

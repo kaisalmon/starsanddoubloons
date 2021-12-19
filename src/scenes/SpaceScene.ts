@@ -1,7 +1,7 @@
 import { IDLE_AI } from "../game/AI/ai";
 import { ChaserAI } from "../game/AI/ChaserAI";
 import { UNIT_SCALE } from "../game/Component";
-import { initLevel, Level, updateLevel } from "../game/Level";
+import { GameLevel } from "../game/Level";
 import { newBasicEnemy } from "../game/ShipDesigns/basic";
 import { SpaceShip } from "../game/SpaceShip";
 import SpaceshipIntent, { EMPTY_INTENT } from "../game/SpaceshipIntent";
@@ -13,7 +13,7 @@ const GAME_SPEED = 1/100;
 
 export default class SpaceScene extends Phaser.Scene {
     name = "SpaceScene";
-    level: Level;
+    level: GameLevel;
     
     graphics: Phaser.GameObjects.Graphics;
     ai: ChaserAI;
@@ -29,17 +29,14 @@ export default class SpaceScene extends Phaser.Scene {
     
     constructor(){
         super({ key: "SpaceScene" });
-        this.level = {
-            player: newBasicEnemy(),
-            playerIntent: {...EMPTY_INTENT},
-            enemies: [
+        this.level = new GameLevel(
+           newBasicEnemy(),[
                 newBasicEnemy(),
             ],
-        }
+        )
         this.level.enemies[0].position.x = 30 * UNIT_SCALE;
         this.level.enemies[0].position.y = 30 * UNIT_SCALE;
         //this.level.enemies[0].ai = IDLE_AI;
-        initLevel(this.level);
     }
 
     preload(){
@@ -78,7 +75,7 @@ export default class SpaceScene extends Phaser.Scene {
 
     update(time: number, delta: number){
         delta *= GAME_SPEED;
-        updateLevel(this.level, delta);
+        this.level.update(delta);
         this.levelRenderer.onUpdate(this, delta)
 
     }

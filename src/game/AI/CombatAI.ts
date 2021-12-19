@@ -1,4 +1,4 @@
-import { Level } from "../Level";
+import { GameLevel } from "../Level";
 import Vector2, { getDistance, getMagnitude } from "../Vector2";
 import { AI, IDLE_AI } from "./ai";
 import { ChaserAI } from "./ChaserAI";
@@ -6,7 +6,7 @@ import ConditionalAI from "./ConditionalAI";
 
 const CHASE_DISTANCE = 5;
 
-function getPlayerVector(level:Level): Vector2 {
+function getPlayerVector(level:GameLevel): Vector2 {
     return level.player.position
 }
 

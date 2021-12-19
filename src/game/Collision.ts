@@ -1,5 +1,8 @@
 import Vector2, { rotate } from "./Vector2";
 
+export const MOMENTUM_TO_DAMAGE = 100;
+
+
 export default interface Collision {
     position: Vector2;
     normal: Vector2;

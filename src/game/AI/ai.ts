@@ -1,9 +1,9 @@
-import { Level } from "../Level";
+import {GameLevel} from "../Level";
 import { SpaceShip } from "../SpaceShip";
 import SpaceshipIntent, { EMPTY_INTENT } from "../SpaceshipIntent";
 
 export interface AI {
-    getIntent(ship:SpaceShip, level:Level): SpaceshipIntent;
+    getIntent(ship:SpaceShip, level:GameLevel): SpaceshipIntent;
 }
 
 export function constantAI(intent:SpaceshipIntent):AI{

@@ -1,5 +1,5 @@
 import { UNIT_SCALE } from "../Component";
-import { Level } from "../Level";
+import {GameLevel} from "../Level";
 import { SpaceShip } from "../SpaceShip";
 import SpaceshipIntent, { EMPTY_INTENT } from "../SpaceshipIntent";
 import Vector2, { getDistance, normalizeAngle } from "../Vector2";
@@ -13,7 +13,7 @@ export class ChaserAI implements AI{
     constructor( getTarget:(level)=>Vector2, private angleOffset: number = 0) {
         this.getTarget = getTarget;
     }
-    getIntent(ship: SpaceShip, level:Level): SpaceshipIntent {
+    getIntent(ship: SpaceShip, level:GameLevel): SpaceshipIntent {
         const target = this.getTarget(level);
         const pos = ship.position;
         const shipAngle = normalizeAngle(ship.angle)

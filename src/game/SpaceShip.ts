@@ -2,7 +2,7 @@ import { AI, IDLE_AI } from "./AI/ai";
 import Collision, { BoundingBox, doRectanglesIntersect } from "./Collision";
 import Component, { UNIT_SCALE } from "./Component";
 import Force, { calculateTorques, sum } from "./Force";
-import { Level } from "./Level";
+import {GameLevel } from "./Level";
 import SpaceshipIntent from "./SpaceshipIntent";
 import Vector2, { getMagnitude } from "./Vector2";
 
@@ -12,7 +12,7 @@ const COLLISION_KNOCKBACK = 0.3;
 export class SpaceShip {
     components: Component[];
     ai: AI;
-    level: Level;
+    level:GameLevel;
     
     position: Vector2;
     velocity: Vector2; //Absolute velocity

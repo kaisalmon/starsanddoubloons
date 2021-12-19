@@ -1,6 +1,7 @@
 
 
-import { Level } from "../game/Level";
+import { MOMENTUM_TO_DAMAGE } from "../game/Collision";
+import { GameLevel } from "../game/Level";
 import Vector2 from "../game/Vector2";
 import SpaceScene from "../scenes/SpaceScene";
 import { DRAW_SCALE, RAD_TO_DEG } from "./constants";
@@ -21,7 +22,7 @@ export class LevelRenderer{
         return [].concat([this.playerRenderer], this.enemyRenderers);
     }
 
-    constructor(private level: Level){
+    constructor(private level: GameLevel){
         this.playerRenderer = new ShipRenderer(level.player)
         this.enemyRenderers = level.enemies.map(ship => new ShipRenderer(ship));
     }
@@ -53,6 +54,35 @@ export class LevelRenderer{
                 .setTileScale(0.3,0.3)
                 .setDepth(-8),
             scrollSpeed: 0.95/0.3
+        })
+
+        const emitter = scene.add.particles('block').createEmitter({
+            speed: { min: -300, max: 300 },
+            angle: { min: 0, max: 360 },
+            scale: { start: 0.4, end: 0 },
+            blendMode: 'SCREEN',
+            lifespan: 300,
+            x: this.level.player.position.x,
+            y: this.level.player.position.y,
+            active: false,
+        });
+        
+
+        
+        this.level.addEventListener('collision', ([a, b, collision])=>{
+            const {x,y} = collision.position;
+            emitter.active = true;
+            console.log({m:collision.momentum})
+            if(collision.momentum > MOMENTUM_TO_DAMAGE){
+                emitter.setSpeed({min: -300, max: 300})
+                emitter.explode(100, x * DRAW_SCALE, y * DRAW_SCALE);
+            }else if(collision.momentum > MOMENTUM_TO_DAMAGE / 3){
+                emitter.setSpeed({min: -150, max: 150})
+                emitter.explode(75, x * DRAW_SCALE, y * DRAW_SCALE);
+            }else{
+                emitter.setSpeed({min: -20, max: 20})
+                emitter.explode(30, x * DRAW_SCALE, y * DRAW_SCALE);
+            }
         })
     }
     onUpdate(scene: SpaceScene, delta:number) {
