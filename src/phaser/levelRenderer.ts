@@ -80,8 +80,8 @@ export class LevelRenderer{
                 emitter.setSpeed({min: -150, max: 150})
                 emitter.explode(75, x * DRAW_SCALE, y * DRAW_SCALE);
             }else{
-                emitter.setSpeed({min: -20, max: 20})
-                emitter.explode(30, x * DRAW_SCALE, y * DRAW_SCALE);
+                emitter.setSpeed({min: -50, max: 50})
+                emitter.explode(10, x * DRAW_SCALE, y * DRAW_SCALE);
             }
         })
     }

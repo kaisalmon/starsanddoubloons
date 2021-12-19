@@ -32,11 +32,14 @@ export default class SpaceScene extends Phaser.Scene {
         this.level = new GameLevel(
            newBasicEnemy(),[
                 newBasicEnemy(),
+                newBasicEnemy(),
+                newBasicEnemy(),
             ],
         )
-        this.level.enemies[0].position.x = 30 * UNIT_SCALE;
-        this.level.enemies[0].position.y = 30 * UNIT_SCALE;
-        //this.level.enemies[0].ai = IDLE_AI;
+        this.level.enemies.forEach(e => {
+            e.position.x = Math.random() * 30 * UNIT_SCALE;
+            e.position.y = Math.random() * 30 * UNIT_SCALE;
+        });
     }
 
     preload(){
