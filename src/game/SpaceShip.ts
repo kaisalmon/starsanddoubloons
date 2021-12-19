@@ -7,7 +7,7 @@ import SpaceshipIntent from "./SpaceshipIntent";
 import Vector2, { getMagnitude } from "./Vector2";
 
 const ROTATION_FACTOR = 0.2;
-const COLLISION_KNOCKBACK = 0.3;
+const COLLISION_KNOCKBACK = 0.1;
 
 export class SpaceShip {
     components: Component[];
