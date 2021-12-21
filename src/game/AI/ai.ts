@@ -14,4 +14,4 @@ export function constantAI(intent:SpaceshipIntent):AI{
     }
 }
 
-export const IDLE_AI:AI = constantAI(EMPTY_INTENT);
+export const IDLE_AI:AI = constantAI({...EMPTY_INTENT});

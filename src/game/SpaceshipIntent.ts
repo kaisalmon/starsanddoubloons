@@ -1,10 +1,10 @@
 export default interface SpaceshipIntent{
-    moveForward: boolean;
-    rotateLeft: boolean;
-    rotateRight: boolean;
+    readonly moveForward: boolean;
+    readonly rotateLeft: boolean;
+    readonly rotateRight: boolean;
 }
 
-export const EMPTY_INTENT = {
+export const EMPTY_INTENT: SpaceshipIntent = {
     moveForward: false,
     rotateLeft: false,
     rotateRight: false

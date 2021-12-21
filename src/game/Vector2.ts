@@ -118,7 +118,7 @@ export function lerpAngle(a:number, b:number, t:number){
             b = normalizeAngle(b) - 2.0 * Math.PI;
         }
     }
-    return lerp(a, b, t);
+    return normalizeAngle(lerp(a, b, t));
 }
 
 export function lerp(a:number, b:number, t:number){

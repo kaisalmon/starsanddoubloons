@@ -51,7 +51,7 @@ export class GameLevel {
     }
     
     update(delta: number): void {
-        this.player.update( delta);
+        this.player.update(delta);
         this.enemies.forEach(enemy => enemy.update( delta));
         this.resolveCollisions();
     }

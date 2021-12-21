@@ -26,6 +26,9 @@ export default class SpaceScene extends Phaser.Scene {
     get intent(): SpaceshipIntent{
         return this.level.playerIntent;
     }
+    set intent(intent:SpaceshipIntent){
+        this.level.playerIntent = intent;
+    }
     
     constructor(){
         super({ key: "SpaceScene" });
@@ -57,12 +60,24 @@ export default class SpaceScene extends Phaser.Scene {
     }
 
     create(){
-        this.input.keyboard.addKey('W').on('down', () => this.intent.moveForward = true);
-        this.input.keyboard.addKey('W').on('up', () => this.intent.moveForward = false);
-        this.input.keyboard.addKey('A').on('down', () => this.intent.rotateLeft = true);
-        this.input.keyboard.addKey('A').on('up', () => this.intent.rotateLeft = false);
-        this.input.keyboard.addKey('D').on('down', () => this.intent.rotateRight = true);
-        this.input.keyboard.addKey('D').on('up', () => this.intent.rotateRight = false);
+        this.input.keyboard.addKey('W').on('down', () => {
+            this.intent = {...this.intent, moveForward: true}
+        });
+        this.input.keyboard.addKey('W').on('up', () => {
+            this.intent = {...this.intent, moveForward: false}
+        });
+        this.input.keyboard.addKey('D').on('down', () => {
+            this.intent = {...this.intent, rotateRight: true}
+        });
+        this.input.keyboard.addKey('D').on('up', () => {
+            this.intent = {...this.intent, rotateRight: false}
+        });
+        this.input.keyboard.addKey('A').on('down', () => {
+            this.intent = {...this.intent, rotateLeft: true}
+        });
+        this.input.keyboard.addKey('A').on('up', () => {
+            this.intent = {...this.intent, rotateLeft: false}
+        });
 
         this.graphics = this.add.graphics();
         this.graphics.z = 10;
@@ -80,7 +95,6 @@ export default class SpaceScene extends Phaser.Scene {
         delta *= GAME_SPEED;
         this.level.update(delta);
         this.levelRenderer.onUpdate(this, delta)
-
     }
 
     

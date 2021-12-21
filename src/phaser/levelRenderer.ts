@@ -3,7 +3,7 @@
 import { MOMENTUM_TO_DAMAGE } from "../game/Collision";
 import { UNIT_SCALE } from "../game/Component";
 import { GameLevel } from "../game/Level";
-import Vector2, { getMagnitude, lerpAngle, normalizeAngle } from "../game/Vector2";
+import Vector2, { getMagnitude, lerp, lerpAngle, normalizeAngle } from "../game/Vector2";
 import SpaceScene from "../scenes/SpaceScene";
 import { DRAW_SCALE, RAD_TO_DEG } from "./constants";
 import ShipRenderer from "./shipRenderer";
@@ -15,6 +15,8 @@ type ScrollLayer = {
 
 const lOOKAHEAD_SCALE = 3 * UNIT_SCALE * DRAW_SCALE;
 const LOOKAHEAD_EXP = 2;
+const MIN_ZOOM = 1/2;
+const MAX_ZOOM = 2;
 
 export class LevelRenderer{
     playerRenderer: ShipRenderer;
@@ -26,6 +28,10 @@ export class LevelRenderer{
 
     get renderers() {
         return [].concat([this.playerRenderer], this.enemyRenderers);
+    }
+
+    get desiredZoom(): number{
+        return 1
     }
 
     private get followOffset(){
@@ -82,7 +88,6 @@ export class LevelRenderer{
         this.level.addEventListener('collision', ([a, b, collision])=>{
             const {x,y} = collision.position;
             emitter.active = true;
-            console.log({m:collision.momentum})
             if(collision.momentum > MOMENTUM_TO_DAMAGE){
                 emitter.setSpeed({min: -300, max: 300})
                 emitter.explode(100, x * DRAW_SCALE, y * DRAW_SCALE);
@@ -109,6 +114,8 @@ export class LevelRenderer{
         scene.cameras.main.setRotation(this.cameraAngle);
         scene.cameras.main.followOffset.x = this.followOffset * Math.sin(this.cameraAngle);
         scene.cameras.main.followOffset.y = this.followOffset * Math.cos(this.cameraAngle);
+
+        scene.cameras.main.setZoom(lerp(scene.cameras.main.zoom, this.desiredZoom, 0.01));
 
         this.backgroundLayers.forEach(layer => {
             layer.image.tilePositionX = scene.cameras.main.scrollX * layer.scrollSpeed;
