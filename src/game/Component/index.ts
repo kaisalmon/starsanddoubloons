@@ -169,26 +169,24 @@ export default class Component {
         if(this.type.weaponType !== weapon){
             return
         }
-        setTimeout(() => {
-            const {x,y} = this.getCenterOfMassInWorldSpace(spaceship);
-            const angle = spaceship.angle + WEAPON_ANGLES[weapon];
-            const velocity = this.getEffectiveVelocity(spaceship);
-            const cannonball = new Cannonball({
-                x, y
-            },{
-                x: velocity.x + Math.cos(angle) * CANNONBALL_SPEED,
-                y: velocity.y + Math.sin(angle) * CANNONBALL_SPEED
-            },
-                spaceship,
-            );
-            spaceship.addCannonball(cannonball);
-            spaceship.impulses.push({
-                x: -cannonball.velocity.x * CANNONBALL_KNOCKBACK,
-                y: -cannonball.velocity.y  * CANNONBALL_KNOCKBACK,
-                offsetX: cannonball.position.x - spaceship.position.x,
-                offsetY: cannonball.position.y - spaceship.position.y
-            });
-        }, this.type.fireDelay());
+        const {x,y} = this.getCenterOfMassInWorldSpace(spaceship);
+        const angle = spaceship.angle + WEAPON_ANGLES[weapon];
+        const velocity = this.getEffectiveVelocity(spaceship);
+        const cannonball = new Cannonball({
+            x, y
+        },{
+            x: velocity.x + Math.cos(angle) * CANNONBALL_SPEED,
+            y: velocity.y + Math.sin(angle) * CANNONBALL_SPEED
+        },
+            spaceship,
+        );
+        spaceship.addCannonball(cannonball);
+        spaceship.impulses.push({
+            x: -cannonball.velocity.x * CANNONBALL_KNOCKBACK,
+            y: -cannonball.velocity.y  * CANNONBALL_KNOCKBACK,
+            offsetX: cannonball.position.x - spaceship.position.x,
+            offsetY: cannonball.position.y - spaceship.position.y
+        });
     }
 
 

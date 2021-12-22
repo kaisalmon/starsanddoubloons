@@ -10,7 +10,7 @@ import Vector2, { getDistance, getMagnitude } from "./Vector2";
 export type Weapon = 'left' | 'right';
 
 const ROTATION_FACTOR = 0.2;
-const COLLISION_KNOCKBACK = 0.1;
+const COLLISION_KNOCKBACK = 0.01;
 
 export class SpaceShip {
     components: Component[];
@@ -114,19 +114,22 @@ export class SpaceShip {
                 offsetX: force.offsetX,
                 offsetY: force.offsetY   
             }))
-        return [].concat(componentForces, this.impulses);
+        const forces = [].concat(componentForces, this.impulses);
+        return forces;
     }
 
     getTorque(delta:number): number {
         const forces: Force[] = this.getAllForces(delta);
-        return  calculateTorques(forces);
+        return calculateTorques(forces);
     }
 
     update( delta: number): void {
+        this.updateWeapons(delta);
+        
         const forces: Force[] = this.getAllForces(delta);
+        const torque: number = this.getTorque(delta);
         this.impulses = [];
 
-        const torque: number = this.getTorque(delta);
         const totalForce: Vector2 = sum(forces);
         this.velocity.x += totalForce.x / this.mass;
         this.velocity.y += totalForce.y / this.mass;
@@ -134,26 +137,28 @@ export class SpaceShip {
         this.position.x += this.velocity.x * delta;
         this.position.y += this.velocity.y * delta;
 
-        const angularVelocity = this.angularVelocity;
-        this.angle -= angularVelocity * delta * ROTATION_FACTOR;
+        this.angle -= this.angularVelocity * delta * ROTATION_FACTOR;
 
-        for(let key in this.weaponCalldowns){
-            if(this.weaponCalldowns[key] !== undefined){
+
+    }
+
+
+    private updateWeapons(delta: number) {
+        for (let key in this.weaponCalldowns) {
+            if (this.weaponCalldowns[key] !== undefined) {
                 this.weaponCalldowns[key] -= delta;
-                if(this.weaponCalldowns[key] <= 0){
+                if (this.weaponCalldowns[key] <= 0) {
                     this.weaponCalldowns[key] = undefined;
                 }
             }
         }
-        if(this.intent.fireLeft){
+        if (this.intent.fireLeft) {
             this.attemptToFire('left');
         }
-        if(this.intent.fireRight){
+        if (this.intent.fireRight) {
             this.attemptToFire('right');
         }
-
     }
-
 
     collidesWith(other: SpaceShip):[Collision, Component, Component]|undefined {
         const boundingBox = this.boundingBox;

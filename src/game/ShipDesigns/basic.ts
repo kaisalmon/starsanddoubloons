@@ -21,3 +21,13 @@ export const newBasicEnemy = ()=>new SpaceShip([
     ],
     createCombatAI()
 );
+
+export const newSpinnyBlock = ()=>new SpaceShip([
+        new Component(engine, {x: 0, y: 0}),
+        new Component(cannon, {x: -1, y: 0}),
+        new Component(flipped(cannon), {x: 2, y: 1}),
+        new Component(lateralThruster, {x: -1, y: 1}),
+        new Component(flipped(lateralThruster), {x: 2, y: 0}),
+    ],
+    createCombatAI()
+);

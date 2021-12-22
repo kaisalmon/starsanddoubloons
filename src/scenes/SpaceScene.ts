@@ -2,7 +2,7 @@ import { IDLE_AI } from "../game/AI/ai";
 import { ChaserAI } from "../game/AI/ChaserAI";
 import { UNIT_SCALE } from "../game/Component";
 import { GameLevel } from "../game/Level";
-import { newBasicEnemy } from "../game/ShipDesigns/basic";
+import { newBasicEnemy, newSpinnyBlock } from "../game/ShipDesigns/basic";
 import { SpaceShip } from "../game/SpaceShip";
 import SpaceshipIntent, { EMPTY_INTENT } from "../game/SpaceshipIntent";
 import { DRAW_SCALE } from "../phaser/constants";
@@ -33,10 +33,12 @@ export default class SpaceScene extends Phaser.Scene {
     constructor(){
         super({ key: "SpaceScene" });
         this.level = new GameLevel(
-           newBasicEnemy(),[
+            newBasicEnemy(),[
+               /*
                 newBasicEnemy(),
                 newBasicEnemy(),
                 newBasicEnemy(),
+                */
             ],
         )
         this.level.enemies.forEach(e => {
