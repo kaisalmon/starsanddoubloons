@@ -20,11 +20,6 @@ export default class Component {
     isPowered: boolean = false;
 
     damage: number = 0;
-    
-    get isCollidable(): boolean {
-        return this.isDestroyed();
-    }
-
 
     constructor(type: ComponentType, position: Vector2) {
         this.type = type;
@@ -38,7 +33,7 @@ export default class Component {
         return this.type.height;
     }
     get mass(): number {
-        if(this.isDestroyed){
+        if(this.isDestroyed()){
             return 0;
         }
         return this.type.mass;
@@ -47,7 +42,7 @@ export default class Component {
 
     //Calculate the thrust of the component
     getThrust(intent: SpaceshipIntent, spaceship: SpaceShip): Force|undefined {
-        if(this.isDestroyed){
+        if(this.isDestroyed()){
             return undefined;
         }
         this.isPowered = this.type.isPowered(intent, this, spaceship);
@@ -78,7 +73,7 @@ export default class Component {
 
     //Calculate the drag of the component, offset to this component's center x,y (not the x,y of the component)
     getDrag(spaceship: SpaceShip): Force {
-        if(this.isDestroyed){
+        if(this.isDestroyed()){
             return {x: 0, y: 0, offsetX: 0, offsetY: 0};
         }
         const dragCoefficient: number = this.type.drag;
@@ -152,10 +147,7 @@ export default class Component {
         return 0.5 * this.mass * (vel.x * vel.x + vel.y * vel.y);
     }
 
-    getBoundingBox(spaceship:SpaceShip): BoundingBox|undefined {
-        if(this.isDestroyed){
-            return undefined
-        }
+    getBoundingBox(spaceship:SpaceShip): BoundingBox {
         const unitSpaceHitbox = this.type.hitbox || {
             width: this.width,
             height: this.height,
@@ -185,7 +177,7 @@ export default class Component {
 
 
     fire(weapon: Weapon, spaceship: SpaceShip): void {
-        if(this.isDestroyed){
+        if(this.isDestroyed()){
             return;
         }
         if(this.type.weaponType !== weapon){
@@ -218,14 +210,29 @@ export default class Component {
      
     dealDamage(damage: number, spaceship: SpaceShip) {
         const wasDestroyed = this.isDestroyed();
+        const CoM = spaceship.getCenterOfMassInRotatedShipSpace();
+        const mass = spaceship.mass;
         this.damage += damage;
         if(this.isDestroyed() && !wasDestroyed){
+            const newCoM = spaceship.getCenterOfMassInRotatedShipSpace();
+            const newMass = spaceship.mass;
+            const offset = {
+                x: CoM.x - newCoM.x,
+                y: CoM.y - newCoM.y
+            }
+            spaceship.position = {
+                x: spaceship.position.x - offset.x,
+                y: spaceship.position.y - offset.y
+            }
             spaceship.onComponentDestroyed(this);
         }
     }
 
     isDestroyed(): boolean {
         return this.damage >= this.type.health;
+    }    
+    isCollidable(): boolean {
+        return !this.isDestroyed();
     }
 }
 

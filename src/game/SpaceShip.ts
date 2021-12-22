@@ -43,10 +43,12 @@ export class SpaceShip {
     }
 
     get boundingBox(): BoundingBox {
-        const lowestX = this.components.reduce((acc, component) => Math.min(acc, component.position.x), Number.MAX_VALUE);
-        const highestX = this.components.reduce((acc, component) => Math.max(acc, component.position.x + component.width), Number.MIN_VALUE);
-        const lowestY = this.components.reduce((acc, component) => Math.min(acc, component.position.y), Number.MAX_VALUE);
-        const highestY = this.components.reduce((acc, component) => Math.max(acc, component.position.y + component.height), Number.MIN_VALUE);
+        const components = this.components
+            .filter(component => component.isDestroyed() === false);
+        const lowestX = components.reduce((acc, component) => Math.min(acc, component.position.x), Number.MAX_VALUE);
+        const highestX = components.reduce((acc, component) => Math.max(acc, component.position.x + component.width), Number.MIN_VALUE);
+        const lowestY = components.reduce((acc, component) => Math.min(acc, component.position.y), Number.MAX_VALUE);
+        const highestY = components.reduce((acc, component) => Math.max(acc, component.position.y + component.height), Number.MIN_VALUE);
         const width = (highestX - lowestX) * UNIT_SCALE;
         const height = (highestY - lowestY) * UNIT_SCALE;
         return {
@@ -167,10 +169,10 @@ export class SpaceShip {
         }
         for(let component of this.components){
             const box = component.getBoundingBox(this);
-            if(!box) continue;
+            if(!component.isCollidable()) continue;
             for(let otherComponent of other.components){
                 const otherBox = otherComponent.getBoundingBox(other);
-                if(!otherBox) continue;
+                if(!otherComponent.isCollidable()) continue;
                 const intersection = doRectanglesIntersect(box, otherBox);
                 if(intersection){
                     const relativeVelocity = {
@@ -234,7 +236,7 @@ export class SpaceShip {
             {x: cannonball.position.x, y: cannonball.position.y},
         ]
         const components = this.components
-            .filter(component => component.isCollidable)
+            .filter(component => component.isCollidable())
             .filter(component => doPolygonsIntersect(rectangleToPolygon(component.getBoundingBox(this)), cannonBallLine));
         if(components.length === 0){
             return;

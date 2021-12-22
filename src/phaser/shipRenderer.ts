@@ -40,10 +40,17 @@ export default class ShipRenderer {
     }
     onUpdate(scene: SpaceScene) {
         const sprites = this.group.getAll() as Phaser.GameObjects.Sprite[]
+        const spaceshipUnitSpaceCoM = this.spaceship.getCenterOfMassUnitSpace();
+
         this.spaceship.components.forEach((component, index)=>{
             const sprite = sprites[index];
             const spriteIndex = component.isPowered ? 1 : 0;
-           // sprite.setAlpha(component.isDestroyed() ? 0.5 : 1);
+            sprite.setAlpha(component.isDestroyed() ? 0.2 : 1);
+            const {x,y} = component.getCoMInUnitSpace() 
+            sprite.setPosition(
+                (x - spaceshipUnitSpaceCoM.x) * UNIT_SCALE * DRAW_SCALE, 
+                (y - spaceshipUnitSpaceCoM.y) * UNIT_SCALE * DRAW_SCALE
+            );
             sprite.setFrame(spriteIndex);
         });
         
@@ -66,7 +73,7 @@ export default class ShipRenderer {
 
         scene.graphics.lineStyle(2, 0xFF44FF, 1.0);
         this.spaceship.components.forEach((component) => {
-            if(!component.isCollidable){
+            if(!component.isCollidable()){
                 return;
             }
             const lines = polygonToLines(rectangleToPolygon(component.getBoundingBox(this.spaceship)));
