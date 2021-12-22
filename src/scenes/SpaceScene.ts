@@ -15,9 +15,8 @@ export default class SpaceScene extends Phaser.Scene {
     name = "SpaceScene";
     level: GameLevel;
     
-    graphics: Phaser.GameObjects.Graphics;
-    ai: ChaserAI;
-    levelRenderer: LevelRenderer;
+    graphics!: Phaser.GameObjects.Graphics;
+    levelRenderer!: LevelRenderer;
     
     get player(): SpaceShip{
         return this.level.player;

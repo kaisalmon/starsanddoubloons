@@ -38,7 +38,7 @@ export default class Component {
     //Calculate the thrust of the component
     getThrust(intent: SpaceshipIntent, spaceship: SpaceShip): Force|undefined {
         this.isPowered = this.type.isPowered(intent, this, spaceship);
-        const force: Force = this.type.getThrust(this.isPowered, intent, this, spaceship);
+        const force = this.type.getThrust(this.isPowered, intent, this, spaceship);
         if(!force){
             return undefined;
         }

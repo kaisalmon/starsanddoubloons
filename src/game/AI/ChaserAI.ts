@@ -9,8 +9,8 @@ const SLOW_RADIUS = 40 * UNIT_SCALE;
 const SLOW_ARC = Math.PI / 2;
 
 export class ChaserAI implements AI{
-    getTarget:(level)=>Vector2;
-    constructor( getTarget:(level)=>Vector2, private angleOffset: number = 0) {
+    getTarget:(level: GameLevel)=>Vector2;
+    constructor( getTarget:(level:GameLevel)=>Vector2, private angleOffset: number = 0) {
         this.getTarget = getTarget;
     }
     getIntent(ship: SpaceShip, level:GameLevel): SpaceshipIntent {

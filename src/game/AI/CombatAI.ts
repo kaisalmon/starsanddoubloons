@@ -1,4 +1,5 @@
 import { GameLevel } from "../Level";
+import { SpaceShip } from "../SpaceShip";
 import Vector2, { getDistance, getMagnitude } from "../Vector2";
 import { AI, IDLE_AI } from "./ai";
 import { ChaserAI } from "./ChaserAI";
@@ -13,7 +14,7 @@ function getPlayerVector(level:GameLevel): Vector2 {
 export function createCombatAI():AI{
     const chase = new ChaserAI(getPlayerVector);
     const orbit = new ChaserAI(getPlayerVector, Math.PI/2);
-    const isFarFromPlayer = (ship, level)=>getDistance(ship.position, level.player.position) > CHASE_DISTANCE
+    const isFarFromPlayer = (ship:SpaceShip, level: GameLevel)=>getDistance(ship.position, level.player.position) > CHASE_DISTANCE
     return chase;
 
     return new ConditionalAI([
