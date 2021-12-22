@@ -10,6 +10,7 @@ type EventListeners = {
     "collision"?: ((args:[SpaceShip, SpaceShip, Collision])=>void)[]
     "cannonballFired"?: ((args:[SpaceShip, Cannonball])=>void)[],
     "cannonballRemoved"?: ((args:[Cannonball, number])=>void)[],
+    "componentDestroyed"?: ((args:[Component, SpaceShip])=>void)[],
 }
 type Events = keyof EventListeners;
 type EventCallback<T extends Events> = EventListeners[T][0]

@@ -125,7 +125,7 @@ export class SpaceShip {
 
     update( delta: number): void {
         this.updateWeapons(delta);
-        
+
         const forces: Force[] = this.getAllForces(delta);
         const torque: number = this.getTorque(delta);
         this.impulses = [];
@@ -167,9 +167,11 @@ export class SpaceShip {
             return undefined;
         }
         for(let component of this.components){
+            const box = component.getBoundingBox(this);
+            if(!box) continue;
             for(let otherComponent of other.components){
-                const box = component.getBoundingBox(this);
                 const otherBox = otherComponent.getBoundingBox(other);
+                if(!otherBox) continue;
                 const intersection = doRectanglesIntersect(box, otherBox);
                 if(intersection){
                     const relativeVelocity = {
@@ -232,7 +234,9 @@ export class SpaceShip {
             {x: cannonball.position.x - cannonball.velocity.x, y: cannonball.position.y - cannonball.velocity.y},
             {x: cannonball.position.x, y: cannonball.position.y},
         ]
-        const components = this.components.filter(component => doPolygonsIntersect(rectangleToPolygon(component.getBoundingBox(this)), cannonBallLine));
+        const components = this.components
+            .filter(component => component.isCollidable)
+            .filter(component => doPolygonsIntersect(rectangleToPolygon(component.getBoundingBox(this)), cannonBallLine));
         if(components.length === 0){
             return;
         }
@@ -243,7 +247,7 @@ export class SpaceShip {
             return aDistance - bDistance;
         });
 
-        components[0].onHit(cannonball);
+        components[0].onHit(cannonball, this);
 
         this.impulses.push({
             x: cannonball.velocity.x * CANNONBALL_KNOCKBACK,
@@ -254,5 +258,9 @@ export class SpaceShip {
 
 
         this.level.removeCannonball(cannonball);
+    }
+
+    onComponentDestroyed(component: Component) {
+        this.level.triggerEvent('componentDestroyed', [component, this]);
     }
 }

@@ -11,6 +11,7 @@ export class Cannonball {
     velocity: Vector2;
     firer: SpaceShip;
     age: number = 0;
+    damage: number = 1;
 
     get angle(): number {
         return Math.atan2(this.velocity.y, this.velocity.x);

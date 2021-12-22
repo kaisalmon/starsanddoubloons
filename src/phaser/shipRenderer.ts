@@ -43,6 +43,7 @@ export default class ShipRenderer {
         this.spaceship.components.forEach((component, index)=>{
             const sprite = sprites[index];
             const spriteIndex = component.isPowered ? 1 : 0;
+           // sprite.setAlpha(component.isDestroyed() ? 0.5 : 1);
             sprite.setFrame(spriteIndex);
         });
         
@@ -65,6 +66,9 @@ export default class ShipRenderer {
 
         scene.graphics.lineStyle(2, 0xFF44FF, 1.0);
         this.spaceship.components.forEach((component) => {
+            if(!component.isCollidable){
+                return;
+            }
             const lines = polygonToLines(rectangleToPolygon(component.getBoundingBox(this.spaceship)));
             lines.forEach(([p1, p2]) => {
                 scene.graphics.lineBetween(p1.x * DRAW_SCALE, p1.y * DRAW_SCALE, p2.x * DRAW_SCALE, p2.y * DRAW_SCALE);

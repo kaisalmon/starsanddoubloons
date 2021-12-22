@@ -6,6 +6,7 @@ import SpaceshipIntent, { flipIntent } from "../SpaceshipIntent";
 
 
 export default interface ComponentType{
+    health: number;
     fireDelay(): number;
     weaponType?: Weapon;
     appearance: string;
@@ -61,6 +62,7 @@ export const block: ComponentType = {
     drag: 0.1,
     width: 1,
     height: 1,
+    health: 1,
     isPowered: (intent: SpaceshipIntent, component:Component, spaceship: SpaceShip) => {
         return false;
     },
