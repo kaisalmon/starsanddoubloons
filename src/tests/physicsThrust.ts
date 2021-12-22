@@ -25,7 +25,7 @@ describe("Physics Sanity Test - Thrust", () => {
         });
 
         it("should have a thrust of 0, with no intent", () => {
-            const forces = ship.getAllForces()
+            const forces = ship.getAllForces(1)
             const totalForce = sum(forces);
             expect(totalForce.x).toBe(0);
             expect(totalForce.y).toBe(0);
@@ -33,7 +33,7 @@ describe("Physics Sanity Test - Thrust", () => {
 
         it("Should have positive thrust, with intent to go forward", () => {
             ship.ai = constantAI(FORWARD_INTENT);
-            const forces = ship.getAllForces()
+            const forces = ship.getAllForces(1)
             const totalForce = sum(forces);
             expect(totalForce.x).toBe(0);
             expect(totalForce.y).toBeGreaterThan(0);
@@ -41,7 +41,7 @@ describe("Physics Sanity Test - Thrust", () => {
 
         it("Should have zero torque, with intent to go forwards", () => {
             ship.ai = constantAI(FORWARD_INTENT);
-            const torque = ship.getTorque();
+            const torque = ship.getTorque(1);
             expect(torque).toBe(0);
         });
 
@@ -52,14 +52,14 @@ describe("Physics Sanity Test - Thrust", () => {
                 const prevVelY = ship.velocity.y;
                 ship.update( 0.1)
                 try{
-                    expect(ship.getTorque()).toBe(0);
+                    expect(ship.getTorque(1)).toBe(0);
                     expect(ship.angle).toBe(0);
                     expect(ship.position.y).toBeGreaterThan(prevY);
                     expect(ship.velocity.y).toBeGreaterThanOrEqual(prevVelY);
                     expect(ship.position.x).toBeCloseTo(startingPosition.x, 1)
                 }catch(e){
                     console.log(ship.angle)
-                    console.log(ship.getAllForces())
+                    console.log(ship.getAllForces(1))
                     throw e;
                 }
             }

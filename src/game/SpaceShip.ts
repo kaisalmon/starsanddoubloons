@@ -105,25 +105,32 @@ export class SpaceShip {
         };
     }
 
-    getAllForces(): Force[] {
-        const componentForces =  this.components.map(component => component.getTotalForce(this.intent, this));
+    getAllForces(delta: number): Force[] {
+        const componentForces =  this.components
+            .map(component => component.getTotalForce(this.intent, this))
+            .map(force => ({
+                x: force.x * delta,
+                y: force.y * delta,
+                offsetX: force.offsetX,
+                offsetY: force.offsetY   
+            }))
         return [].concat(componentForces, this.impulses);
     }
 
-    getTorque(): number {
-        const forces: Force[] = this.getAllForces();
+    getTorque(delta:number): number {
+        const forces: Force[] = this.getAllForces(delta);
         return  calculateTorques(forces);
     }
 
     update( delta: number): void {
-        const forces: Force[] = this.getAllForces();
+        const forces: Force[] = this.getAllForces(delta);
         this.impulses = [];
 
-        const torque: number = this.getTorque();
+        const torque: number = this.getTorque(delta);
         const totalForce: Vector2 = sum(forces);
-        this.velocity.x += totalForce.x / this.mass * delta;
-        this.velocity.y += totalForce.y / this.mass * delta;
-        this.angularVelocity += torque / this.mass * delta;
+        this.velocity.x += totalForce.x / this.mass;
+        this.velocity.y += totalForce.y / this.mass;
+        this.angularVelocity += torque / this.mass;
         this.position.x += this.velocity.x * delta;
         this.position.y += this.velocity.y * delta;
 

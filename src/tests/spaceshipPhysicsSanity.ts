@@ -21,27 +21,27 @@ describe("Space Ship Sanity tests", () => {
     });
 
     it("Expect there to only be one force acting on the ship", () => {
-      const forces = ship.getAllForces();
+      const forces = ship.getAllForces(1);
       expect(forces.length).toBe(1);
     });
 
     it("The force position should be the same as the center position of the first component", () => {
-      const forces = ship.getAllForces();
+      const forces = ship.getAllForces(1);
       const comp = ship.components[0];
       expect(forces[0].offsetX).toBe(0);
     });
 
     it("Expect there to be no y component to the drag", () => {
-      const forces = ship.getAllForces();
+      const forces = ship.getAllForces(1);
       expect(forces[0].y).toBeCloseTo(0);
     });
     it("Expect there to be a x component to the drag, which should be negative", () => {
-      const forces = ship.getAllForces();
+      const forces = ship.getAllForces(1);
       expect(forces[0].x).toBeLessThan(1);
     });
 
     it("Expect no torque", () => {
-      const torque = ship.getTorque();
+      const torque = ship.getTorque(1);
       expect(torque).toBeCloseTo(0);
     });
 
@@ -110,7 +110,7 @@ describe("Space Ship Sanity tests", () => {
     });
 
     it("Expect two forces acting on the ship", () => {
-      const forces = ship.getAllForces();
+      const forces = ship.getAllForces(1);
       expect(forces.length).toBe(2);
     });
 
@@ -132,12 +132,12 @@ describe("Space Ship Sanity tests", () => {
         });
 
       it("Expect the torque to still be counter clockwise, even after setting the angle", () => {
-        const torque = ship.getTorque()
+        const torque = ship.getTorque(1)
         expect(torque).toBeCloseTo(-1.5 * UNIT_SCALE * block.drag);
       });
 
       it("expect the forces to be perpendicular to the origin", () => {
-        const forces = ship.getAllForces();
+        const forces = ship.getAllForces(1);
         forces.forEach((f) => {
           const vectorToOrigin = { x: f.offsetX, y: f.offsetY };
           const forceVector = { x: f.x, y: f.y };
@@ -160,7 +160,7 @@ describe("Space Ship Sanity tests", () => {
           const lastAngVel = ship.angularVelocity;
           const lastAngle = ship.angle;
           const lastEnergy = ship.keneticEnergy;
-          const lastForces = ship.getAllForces();
+          const lastForces = ship.getAllForces(1);
           const lastTorque = calculateTorques(
             lastForces,
             ship.getCenterOfMassUnitSpace()
@@ -169,7 +169,7 @@ describe("Space Ship Sanity tests", () => {
           if (ship.angularVelocity < 0.001) {
             return;
           }
-          const forces = ship.getAllForces();
+          const forces = ship.getAllForces(1);
           const torque = calculateTorques(
             forces,
             ship.getCenterOfMassUnitSpace()
