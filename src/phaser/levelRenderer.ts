@@ -29,7 +29,7 @@ export class LevelRenderer{
     private cameraAngle = 0;
 
     get renderers() {
-        return [].concat([this.playerRenderer], this.enemyRenderers);
+        return ([] as ShipRenderer[]).concat([this.playerRenderer], this.enemyRenderers);
     }
 
     get desiredZoom(): number{

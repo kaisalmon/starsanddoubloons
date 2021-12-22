@@ -93,8 +93,8 @@ export const bridge: ComponentType = {
 }   
 
 export const rightWing: ComponentType = {
-    name: "Wing",
     ...block,
+    name: "Wing",
     height: 2,
     width: 2,
     getThrust(powered: boolean): Force|undefined {

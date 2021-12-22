@@ -15,16 +15,14 @@ const COLLISION_KNOCKBACK = 0.01;
 export class SpaceShip {
     components: Component[];
     ai: AI;
-    level:GameLevel;
+    level!:GameLevel;
     
     position: Vector2;
     velocity: Vector2; //Absolute velocity
     angle: number;
     angularVelocity: number;
 
-    weaponCalldowns: {
-        [K in Weapon]: number|undefined
-    } = {
+    weaponCalldowns: Record<Weapon, undefined|number> = {
         'left': undefined,
         'right': undefined
     }
@@ -114,7 +112,7 @@ export class SpaceShip {
                 offsetX: force.offsetX,
                 offsetY: force.offsetY   
             }))
-        const forces = [].concat(componentForces, this.impulses);
+        const forces = ([] as Force[]).concat(componentForces, this.impulses);
         return forces;
     }
 
@@ -144,10 +142,11 @@ export class SpaceShip {
 
 
     private updateWeapons(delta: number) {
-        for (let key in this.weaponCalldowns) {
+        for (let _key in this.weaponCalldowns) {
+            const key = _key as Weapon;
             if (this.weaponCalldowns[key] !== undefined) {
-                this.weaponCalldowns[key] -= delta;
-                if (this.weaponCalldowns[key] <= 0) {
+                this.weaponCalldowns[key]! -= delta;
+                if (this.weaponCalldowns[key]! <= 0) {
                     this.weaponCalldowns[key] = undefined;
                 }
             }

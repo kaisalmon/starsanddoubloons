@@ -86,6 +86,10 @@ export function getLinearVelocityFromAngularVelocity({
     angularVelocity,
     radius,
     angle
+}:{
+    angularVelocity: number;
+    radius: number;
+    angle: number;
 }) {
     return {
         x: angularVelocity * radius * Math.sin(angle + Math.PI / 2),
