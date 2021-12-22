@@ -23,6 +23,8 @@ export class LevelRenderer{
     enemyRenderers: ShipRenderer[]
 
     backgroundLayers: ScrollLayer[] = [];
+
+    cannonballSprites: Phaser.GameObjects.Sprite[] = [];
     
     private cameraAngle = 0;
 
@@ -73,7 +75,17 @@ export class LevelRenderer{
             scrollSpeed: 0.95/0.3
         })
 
-        const emitter = scene.add.particles('block').createEmitter({
+        const crashEmitter = scene.add.particles('block').createEmitter({
+            speed: { min: -300, max: 300 },
+            angle: { min: 0, max: 360 },
+            scale: { start: 0.4, end: 0 },
+            blendMode: 'SCREEN',
+            lifespan: 300,
+            x: this.level.player.position.x,
+            y: this.level.player.position.y,
+            active: false,
+        });
+        const fireEmitter = scene.add.particles('cannonball').createEmitter({
             speed: { min: -300, max: 300 },
             angle: { min: 0, max: 360 },
             scale: { start: 0.4, end: 0 },
@@ -87,18 +99,34 @@ export class LevelRenderer{
         
         this.level.addEventListener('collision', ([a, b, collision])=>{
             const {x,y} = collision.position;
-            emitter.active = true;
+            crashEmitter.active = true;
             if(collision.momentum > MOMENTUM_TO_DAMAGE){
-                emitter.setSpeed({min: -300, max: 300})
-                emitter.explode(100, x * DRAW_SCALE, y * DRAW_SCALE);
+                crashEmitter.setSpeed({min: -300, max: 300})
+                crashEmitter.explode(100, x * DRAW_SCALE, y * DRAW_SCALE);
             }else if(collision.momentum > MOMENTUM_TO_DAMAGE / 3){
-                emitter.setSpeed({min: -150, max: 150})
-                emitter.explode(75, x * DRAW_SCALE, y * DRAW_SCALE);
+                crashEmitter.setSpeed({min: -150, max: 150})
+                crashEmitter.explode(75, x * DRAW_SCALE, y * DRAW_SCALE);
             }else{
-                emitter.setSpeed({min: -50, max: 50})
-                emitter.explode(10, x * DRAW_SCALE, y * DRAW_SCALE);
+                crashEmitter.setSpeed({min: -50, max: 50})
+                crashEmitter.explode(10, x * DRAW_SCALE, y * DRAW_SCALE);
             }
         })
+
+        this.level.addEventListener('cannonballFired', ([spaceship, cannonball])=>{
+            const sprite = scene.add.sprite(cannonball.position.x * DRAW_SCALE, cannonball.position.y * DRAW_SCALE, 'cannonball');
+            sprite.setBlendMode('ADD');
+            sprite.setDepth(-1);
+            this.cannonballSprites.push(sprite);
+            
+        });
+
+        this.level.addEventListener('cannonballRemoved', ([cannonball, index])=>{
+            this.cannonballSprites[index].destroy();
+            this.cannonballSprites.splice(index,  1);
+            fireEmitter.active = true;
+            fireEmitter.setSpeed({min: -100 , max: 100 });
+            fireEmitter.explode(50, cannonball.position.x * DRAW_SCALE, cannonball.position.y * DRAW_SCALE);
+        });
 
         scene.cameras.main.startFollow(this.playerRenderer.gameObject,true, 0.04, 0.04, 0, this.followOffset)
         this.cameraAngle = normalizeAngle(Math.PI  - this.level.player.angle)
@@ -107,6 +135,11 @@ export class LevelRenderer{
     onUpdate(scene: SpaceScene, delta:number) {
         scene.graphics.clear();
         this.renderers.forEach(renderer => renderer.onUpdate(scene));
+        this.cannonballSprites.forEach((sprite, i) => {
+            const cannonball = this.level.cannonballs[i];
+            sprite.setX(cannonball.position.x * DRAW_SCALE);
+            sprite.setY(cannonball.position.y * DRAW_SCALE);
+        });
 
         const targetAngle = normalizeAngle(Math.PI  - this.level.player.angle);
    
@@ -114,7 +147,7 @@ export class LevelRenderer{
         scene.cameras.main.setRotation(this.cameraAngle);
         scene.cameras.main.followOffset.x = this.followOffset * Math.sin(this.cameraAngle);
         scene.cameras.main.followOffset.y = this.followOffset * Math.cos(this.cameraAngle);
-
+ 
         scene.cameras.main.setZoom(lerp(scene.cameras.main.zoom, this.desiredZoom, 0.01));
 
         this.backgroundLayers.forEach(layer => {

@@ -5,16 +5,19 @@ import { block, bridge, cannon, engine, flipped, lateralThruster, thruster } fro
 import { SpaceShip } from "../SpaceShip";
 
 export const newBasicEnemy = ()=>new SpaceShip([
-        new Component(engine, {x: 0, y: 0}),
         new Component(thruster, {x: 0, y: -1}),
         new Component(thruster, {x: 1, y: -1}),
-        new Component(lateralThruster, {x: -1, y: 2}),
-        new Component(flipped(lateralThruster), {x: 2, y: 2}),
-        new Component(lateralThruster, {x: -1, y: 0}),
-        new Component(flipped(lateralThruster), {x: 2, y: 0}),
-        new Component(flipped(cannon), {x: 2, y: 1}),
+        new Component(engine, {x: 0, y: 0}),
+        new Component(cannon, {x: -1, y: 0}),
+        new Component(flipped(cannon), {x: 2, y: 0}),
         new Component(cannon, {x: -1, y: 1}),
-        new Component(bridge, {x: 0, y: 2}),
+        new Component(flipped(cannon), {x: 2, y: 1}),
+        new Component(cannon, {x: -1, y: 2}),
+        new Component(flipped(cannon), {x: 2, y: 2}),
+        new Component(engine, {x: 0, y: 2}),
+        new Component(lateralThruster, {x: -1, y: 3}),
+        new Component(flipped(lateralThruster), {x: 2, y: 3}),
+        new Component(bridge, {x: 0, y: 4}),
     ],
     createCombatAI()
 );

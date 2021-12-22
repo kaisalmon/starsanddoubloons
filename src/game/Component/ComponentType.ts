@@ -1,11 +1,13 @@
 import Component from ".";
 import { BoundingBox } from "../Collision";
 import Force from "../Force";
-import { SpaceShip } from "../SpaceShip";
+import { SpaceShip, Weapon } from "../SpaceShip";
 import SpaceshipIntent, { flipIntent } from "../SpaceshipIntent";
 
 
 export default interface ComponentType{
+    fireDelay(): number;
+    weaponType?: Weapon;
     appearance: string;
     name: string;
     mass: number;
@@ -22,6 +24,9 @@ export function flipped(base: ComponentType): ComponentType{
     return {
         ...base,
         isFlipped: true,
+        weaponType: base.weaponType === 'left' ? 'right' : 
+                    base.weaponType === 'right' ? 'left' :
+                    base.weaponType,
         hitbox: base.hitbox && {
             ...base.hitbox,
             angle: base.hitbox.angle + Math.PI,
@@ -61,6 +66,9 @@ export const block: ComponentType = {
     },
     getThrust(): Force|undefined {
         return undefined;
+    },
+    fireDelay(): number {
+        return Math.random() * 300;
     }
 }
 
@@ -166,4 +174,5 @@ export const cannon: ComponentType = {
     ...block,
     name: "Cannon",
     appearance: "cannon",
+    weaponType: 'right',
 }

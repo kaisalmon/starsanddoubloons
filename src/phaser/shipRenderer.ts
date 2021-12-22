@@ -2,7 +2,7 @@ import { polygonToLines, rectangleToPolygon } from "../game/Collision";
 import { UNIT_SCALE } from "../game/Component";
 import { SpaceShip } from "../game/SpaceShip";
 import SpaceScene from "../scenes/SpaceScene";
-import {DRAW_SCALE, RAD_TO_DEG} from "./constants";
+import {DRAW_SCALE} from "./constants";
 
 var customRound = function(value, roundTo) {
     return Math.round(value / roundTo) * roundTo;
@@ -61,6 +61,7 @@ export default class ShipRenderer {
         lines.forEach(([p1, p2]) => {
             scene.graphics.lineBetween(p1.x * DRAW_SCALE, p1.y * DRAW_SCALE, p2.x * DRAW_SCALE, p2.y * DRAW_SCALE);
         });
+        scene.graphics.strokeCircle(this.spaceship.position.x * DRAW_SCALE, this.spaceship.position.y * DRAW_SCALE, this.spaceship.radius * DRAW_SCALE);
 
         scene.graphics.lineStyle(2, 0xFF44FF, 1.0);
         this.spaceship.components.forEach((component) => {

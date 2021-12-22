@@ -1,10 +1,13 @@
 import { AI, IDLE_AI } from "./AI/ai";
-import Collision, { BoundingBox, doRectanglesIntersect } from "./Collision";
+import { Cannonball, CANNONBALL_FRIENDLY_FIRE_TIME, CANNONBALL_KNOCKBACK } from "./Cannonball";
+import Collision, { BoundingBox, doPolygonsIntersect, doRectanglesIntersect, Line, rectangleToPolygon } from "./Collision";
 import Component, { UNIT_SCALE } from "./Component";
 import Force, { calculateTorques, sum } from "./Force";
 import {GameLevel } from "./Level";
 import SpaceshipIntent from "./SpaceshipIntent";
-import Vector2, { getMagnitude } from "./Vector2";
+import Vector2, { getDistance, getMagnitude } from "./Vector2";
+
+export type Weapon = 'left' | 'right';
 
 const ROTATION_FACTOR = 0.2;
 const COLLISION_KNOCKBACK = 0.1;
@@ -18,6 +21,13 @@ export class SpaceShip {
     velocity: Vector2; //Absolute velocity
     angle: number;
     angularVelocity: number;
+
+    weaponCalldowns: {
+        [K in Weapon]: number|undefined
+    } = {
+        'left': undefined,
+        'right': undefined
+    }
 
     impulses: Force[] = [];
 
@@ -48,6 +58,16 @@ export class SpaceShip {
             height
         }
     }
+
+    get radius():number {
+        const box = this.boundingBox;
+        return Math.sqrt(box.width/2 * box.width/2 + box.height/2 * box.height/2) * UNIT_SCALE;
+    }
+
+    get calldownTime():number {
+        return 2;
+    }
+
     constructor(components: Component[], ai: AI = IDLE_AI) {
         this.ai = ai;
         this.components = components;
@@ -97,6 +117,8 @@ export class SpaceShip {
 
     update( delta: number): void {
         const forces: Force[] = this.getAllForces();
+        this.impulses = [];
+
         const torque: number = this.getTorque();
         const totalForce: Vector2 = sum(forces);
         this.velocity.x += totalForce.x / this.mass * delta;
@@ -108,7 +130,21 @@ export class SpaceShip {
         const angularVelocity = this.angularVelocity;
         this.angle -= angularVelocity * delta * ROTATION_FACTOR;
 
-        this.impulses = [];
+        for(let key in this.weaponCalldowns){
+            if(this.weaponCalldowns[key] !== undefined){
+                this.weaponCalldowns[key] -= delta;
+                if(this.weaponCalldowns[key] <= 0){
+                    this.weaponCalldowns[key] = undefined;
+                }
+            }
+        }
+        if(this.intent.fireLeft){
+            this.attemptToFire('left');
+        }
+        if(this.intent.fireRight){
+            this.attemptToFire('right');
+        }
+
     }
 
 
@@ -153,5 +189,58 @@ export class SpaceShip {
             offsetX: collision.position.x - this.position.x,
             offsetY: collision.position.y - this.position.y
         });
+    }
+
+    attemptToFire(weapon: Weapon) {
+        if(this.weaponCalldowns[weapon] === undefined){
+            this.weaponCalldowns[weapon] = this.calldownTime;
+            this.fire(weapon);
+        }
+    }
+
+    fire(weapon: Weapon) {
+        this.components.forEach(component => {
+            component.fire(weapon, this);
+        });
+    }
+
+    addCannonball(cannonball: Cannonball) {
+        this.level.addCannonball(cannonball, this)
+    }
+
+    checkCannonballColission(cannonball: Cannonball) {
+        if(cannonball.firer === this && cannonball.age < CANNONBALL_FRIENDLY_FIRE_TIME){
+            return;
+        }
+        const distance = getDistance(this.position, cannonball.position);
+        if(distance > this.radius){
+            return;
+        }
+        const cannonBallLine: Line = [
+            {x: cannonball.position.x - cannonball.velocity.x, y: cannonball.position.y - cannonball.velocity.y},
+            {x: cannonball.position.x, y: cannonball.position.y},
+        ]
+        const components = this.components.filter(component => doPolygonsIntersect(rectangleToPolygon(component.getBoundingBox(this)), cannonBallLine));
+        if(components.length === 0){
+            return;
+        }
+        components.sort((a, b) => {
+            const cannonballPrevPosition = cannonBallLine[0];
+            const aDistance = getDistance(a.getCenterOfMassInWorldSpace(this), cannonballPrevPosition);
+            const bDistance = getDistance(b.getCenterOfMassInWorldSpace(this), cannonballPrevPosition);
+            return aDistance - bDistance;
+        });
+
+        components[0].onHit(cannonball);
+
+        this.impulses.push({
+            x: cannonball.velocity.x * CANNONBALL_KNOCKBACK,
+            y: cannonball.velocity.y  * CANNONBALL_KNOCKBACK,
+            offsetX: cannonball.position.x - this.position.x,
+            offsetY: cannonball.position.y - this.position.y
+        });
+
+
+        this.level.removeCannonball(cannonball);
     }
 }

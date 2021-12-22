@@ -16,9 +16,9 @@ export interface BoundingBox {
     angle: number;
 }
 
-type Polygon = Vector2[];
-type Line = [Vector2, Vector2];
-type Lines = Line[];
+export type Polygon = Vector2[];
+export type Line = [Vector2, Vector2];
+export type Lines = Line[];
 
 export function rectangleToPolygon(rect: BoundingBox): Polygon {
     const {

@@ -53,6 +53,7 @@ export default class SpaceScene extends Phaser.Scene {
         this.load.spritesheet('engineRoom', 'assets/components/engineRoom.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('bridge', 'assets/components/bridge.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('cannon', 'assets/components/cannon.png', { frameWidth: 16, frameHeight: 16 });
+        this.load.spritesheet('cannonball', 'assets/bullet.png', { frameWidth: 8, frameHeight: 8 });
 
         this.load.image('space1', 'assets/backgrounds/space1.jpeg');
         this.load.image('space2', 'assets/backgrounds/space2.jpeg');
@@ -78,7 +79,19 @@ export default class SpaceScene extends Phaser.Scene {
         this.input.keyboard.addKey('A').on('up', () => {
             this.intent = {...this.intent, rotateLeft: false}
         });
-
+        this.input.keyboard.addKey('left').on('down', () => {
+            this.intent = {...this.intent, fireLeft: true}
+        });
+        this.input.keyboard.addKey('left').on('up', () => {
+            this.intent = {...this.intent, fireLeft: false}
+        });
+        this.input.keyboard.addKey('right').on('down', () => {
+            this.intent = {...this.intent, fireRight: true}
+        });
+        this.input.keyboard.addKey('right').on('up', () => {
+            this.intent = {...this.intent, fireRight: false}
+        });
+        
         this.graphics = this.add.graphics();
         this.graphics.z = 10;
 

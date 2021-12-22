@@ -1,4 +1,5 @@
 import { PLAYER_AI } from "./AI/PlayerAI";
+import { Cannonball, CANNONBALL_AGE } from "./Cannonball";
 import Collision from "./Collision";
 import { SpaceShip } from "./SpaceShip";
 import SpaceshipIntent, { EMPTY_INTENT } from "./SpaceshipIntent";
@@ -7,6 +8,8 @@ import Component, { UNIT_SCALE } from "/Users/kaisalmon/Documents/Phaser/StarsAn
 
 type EventListeners = {
     "collision"?: ((args:[SpaceShip, SpaceShip, Collision])=>void)[]
+    "cannonballFired"?: ((args:[SpaceShip, Cannonball])=>void)[],
+    "cannonballRemoved"?: ((args:[Cannonball, number])=>void)[],
 }
 type Events = keyof EventListeners;
 type EventCallback<T extends Events> = EventListeners[T][0]
@@ -19,18 +22,19 @@ export class GameLevel {
     enemies: SpaceShip[];
 
     private listeners:EventListeners = {}
+    cannonballs: Cannonball[] = [];
 
     addEventListener<E extends Events>(event: E, callback: EventCallback<E>) {
         if(!this.listeners[event]){
             this.listeners[event] = [];
         }
-        this.listeners[event].push(callback);
+        this.listeners[event].push(callback as EventCallback<any>);
     }
     removeEventListener<E extends Events>(event: E, callback: EventCallback<E>) {
         if(!this.listeners[event]){
             return;
         }
-        this.listeners[event] = this.listeners[event].filter(e=>e!==callback);
+        this.listeners[event] = (this.listeners[event] as EventCallback<E>[]).filter(e=>e!==callback) as EventCallback<any>
     }
     triggerEvent<E extends Events>(event: E, param: EventParams<E>) {
         const listeners = this.listeners[event];
@@ -53,6 +57,12 @@ export class GameLevel {
     update(delta: number): void {
         this.player.update(delta);
         this.enemies.forEach(enemy => enemy.update( delta));
+        this.cannonballs.forEach(c => c.update( delta));
+        [].concat(this.cannonballs).forEach(c => {
+            if(c.age > CANNONBALL_AGE){
+                this.removeCannonball(c);
+            }
+        });
         this.resolveCollisions();
     }
 
@@ -64,6 +74,9 @@ export class GameLevel {
                 if (collisionResult) {
                     this.resolveCollission(collisionResult, ships[i],ships[j]);
                 }
+            }
+            for (let j = 0; j < this.cannonballs.length; j++) {
+                ships[i].checkCannonballColission(this.cannonballs[j]);
             }
         }
     }
@@ -97,4 +110,16 @@ export class GameLevel {
         this.triggerEvent('collision', [shipA, shipB, collision])
     }
 
+    addCannonball(cannonball: Cannonball, spaceship:SpaceShip) {
+        this.cannonballs.push(cannonball)
+        this.triggerEvent('cannonballFired', [spaceship, cannonball])
+    }
+
+    removeCannonball(cannonball: Cannonball) {
+        const index = this.cannonballs.indexOf(cannonball);
+        if(index !== -1){
+            this.cannonballs.splice(index, 1);
+            this.triggerEvent('cannonballRemoved', [cannonball, index])
+        }
+    }
 }
