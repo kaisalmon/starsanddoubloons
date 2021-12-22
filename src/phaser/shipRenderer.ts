@@ -1,5 +1,5 @@
 import { polygonToLines, rectangleToPolygon } from "../game/Collision";
-import { UNIT_SCALE } from "../game/Component";
+import Component, { UNIT_SCALE } from "../game/Component";
 import { SpaceShip } from "../game/SpaceShip";
 import SpaceScene from "../scenes/SpaceScene";
 import {DRAW_SCALE} from "./constants";
@@ -12,11 +12,25 @@ const RENDER_DEBUG_LINES = false;
 export default class ShipRenderer {
     private group!: Phaser.GameObjects.Container;
     
+    private crashEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
+
     get gameObject(): Phaser.GameObjects.GameObject {
         return this.group;
     }
-    constructor(private spaceship:SpaceShip){}
+    constructor(public spaceship:SpaceShip){}
     onCreate(scene: SpaceScene) {
+        this.crashEmitter = scene.add.particles('block').createEmitter({
+            speed: { min: -30, max: 30 },
+            angle: { min: 0, max: 360 },
+            scale: { start: 0.4, end: 0.1 },
+            alpha: { start: 1, end: 0 },
+            lifespan: 800,
+            x: this.spaceship.position.x,
+            y: this.spaceship.position.y,
+            active: false,
+
+        });
+
         const spaceshipUnitSpaceCoM = this.spaceship.getCenterOfMassUnitSpace();
         this.group = scene.add.container(this.spaceship.position.x, 
             this.spaceship.position.y,
@@ -81,5 +95,18 @@ export default class ShipRenderer {
                 scene.graphics.lineBetween(p1.x * DRAW_SCALE, p1.y * DRAW_SCALE, p2.x * DRAW_SCALE, p2.y * DRAW_SCALE);
             });
         });
+    }
+
+    onComponentDestroyed(component: Component) {
+        const {x,y} = component.getCenterOfMassInWorldSpace(this.spaceship);
+        this.crashEmitter.active = true;
+        const boundingBox = component.getBoundingBox(this.spaceship);
+        const w = boundingBox.width * DRAW_SCALE;
+        const h = boundingBox.height * DRAW_SCALE;
+        const emitZone = new Phaser.Geom.Rectangle(-w/2, -h/2, w, h);
+        this.crashEmitter.setEmitZone({source: emitZone} as any);
+        this.crashEmitter.texture = component.type.appearance as any;
+        const area = boundingBox.width * boundingBox.height;
+        this.crashEmitter.explode(area * 50, x * DRAW_SCALE,y * DRAW_SCALE);
     }
 }

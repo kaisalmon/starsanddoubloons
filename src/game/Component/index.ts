@@ -1,5 +1,5 @@
 import { Cannonball, CANNONBALL_KNOCKBACK, CANNONBALL_SPEED } from "../Cannonball";
-import { BoundingBox } from "../Collision";
+import Collision, { BoundingBox, MOMENTUM_TO_DAMAGE } from "../Collision";
 import Force, { rotate, sum } from "../Force";
 import { SpaceShip, Weapon } from "../SpaceShip";
 import SpaceshipIntent from "../SpaceshipIntent";
@@ -206,6 +206,12 @@ export default class Component {
 
     onHit(cannonball: Cannonball, spaceship: SpaceShip): void {
         this.dealDamage(cannonball.damage, spaceship);
+    }
+
+    onCollision(collision: Collision, spaceship: SpaceShip): void {
+        if(collision.momentum > MOMENTUM_TO_DAMAGE){
+            this.dealDamage(1, spaceship);
+        }
     }
      
     dealDamage(damage: number, spaceship: SpaceShip) {

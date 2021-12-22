@@ -204,6 +204,7 @@ export class SpaceShip {
             offsetX: collision.position.x - this.position.x,
             offsetY: collision.position.y - this.position.y
         });
+        component.onCollision(collision, this);
     }
 
     attemptToFire(weapon: Weapon) {

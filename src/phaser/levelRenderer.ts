@@ -28,7 +28,7 @@ export class LevelRenderer{
     
     private cameraAngle = 0;
 
-    get renderers() {
+    get renderers(): ShipRenderer[] {
         return ([] as ShipRenderer[]).concat([this.playerRenderer], this.enemyRenderers);
     }
 
@@ -126,6 +126,13 @@ export class LevelRenderer{
             fireEmitter.active = true;
             fireEmitter.setSpeed({min: -100 , max: 100 });
             fireEmitter.explode(50, cannonball.position.x * DRAW_SCALE, cannonball.position.y * DRAW_SCALE);
+        });
+
+        this.level.addEventListener('componentDestroyed', ([component, spaceship])=>{
+            const renderer = this.renderers.find(renderer => renderer.spaceship === spaceship);
+            if(renderer){
+                renderer.onComponentDestroyed(component);
+            }
         });
 
         scene.cameras.main.startFollow(this.playerRenderer.gameObject,true, 0.04, 0.04, 0, this.followOffset)
