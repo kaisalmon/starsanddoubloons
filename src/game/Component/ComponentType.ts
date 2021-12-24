@@ -16,6 +16,8 @@ export default interface ComponentType{
     width: number;
     height: number;
     hitbox?: BoundingBox;
+    isBridge: boolean;
+    isEngine: boolean;
     isFlipped: boolean;
     isPowered(intent: SpaceshipIntent, component:Component, spaceship: SpaceShip):boolean;
     getThrust(powered: boolean, intent: SpaceshipIntent, component:Component, spaceship: SpaceShip): Force|undefined;
@@ -58,11 +60,13 @@ export const block: ComponentType = {
     name: "Block",
     appearance: "block",
     isFlipped: false,
+    isBridge: false,
+    isEngine: false,
     mass: 1,
     drag: 0.1,
     width: 1,
     height: 1,
-    health: 1,
+    health: 2,
     isPowered: (intent: SpaceshipIntent, component:Component, spaceship: SpaceShip) => {
         return false;
     },
@@ -81,12 +85,14 @@ export const engine: ComponentType = {
     mass: 4,
     width: 2,
     height: 2, 
+    isEngine: true,
 }   
 
 export const bridge: ComponentType = {
     ...block,
     name: "Bridge",
     appearance: "bridge",
+    isBridge: true,
     mass: 4,
     width: 2,
     height: 2, 

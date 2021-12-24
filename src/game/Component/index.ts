@@ -216,6 +216,7 @@ export default class Component {
      
     dealDamage(damage: number, spaceship: SpaceShip) {
         const wasDestroyed = this.isDestroyed();
+        const spaceshipWasDestroyed = spaceship.isDestroyed();
         const CoM = spaceship.getCenterOfMassInRotatedShipSpace();
         const mass = spaceship.mass;
         this.damage += damage;
@@ -231,6 +232,10 @@ export default class Component {
                 y: spaceship.position.y - offset.y
             }
             spaceship.onComponentDestroyed(this);
+            const spaceshipDestroyed = spaceship.isDestroyed();
+            if(spaceshipDestroyed && !spaceshipWasDestroyed){
+                spaceship.onDestroyed();
+            }
         }
     }
 

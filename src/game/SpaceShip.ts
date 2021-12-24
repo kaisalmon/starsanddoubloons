@@ -269,7 +269,6 @@ export class SpaceShip {
         })
     }
 
-
     isAimingAt(position: Vector2, weapon: Weapon): boolean {
         const delta = {
             x: position.x - this.position.x,
@@ -279,7 +278,18 @@ export class SpaceShip {
         const angleDiff = normalizeAngle(Math.abs(angle - this.angle));
         const targetDiff = weapon === 'left' ? 0 : Math.PI;
         const diffDiff = Math.abs(angleDiff - targetDiff);
-        console.log({angle, angleDiff, targetDiff, diffDiff})
         return diffDiff < AIMING_TOLERANCE;
+    }
+
+    isDestroyed(): boolean {
+        const hasBridge = this.components.some(component => component.type.isBridge && !component.isDestroyed());
+        const hasEngine = this.components.some(component => component.type.isEngine && !component.isDestroyed());
+        return !hasBridge || !hasEngine;
+    }
+
+    onDestroyed() {
+        this.components
+            .filter(c=>!c.isDestroyed())
+            .forEach(c=>c.dealDamage(100, this));
     }
 }

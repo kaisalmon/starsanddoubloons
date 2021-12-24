@@ -34,18 +34,28 @@ export default class SpaceScene extends Phaser.Scene {
         this.level = new GameLevel(
             newBasicEnemy(),[
                 newBasicEnemy(),
-             //   newBasicEnemy(),
-            //    newBasicEnemy(),
+                newBasicEnemy(),
+               newBasicEnemy(),
+               newBasicEnemy(),
+               newBasicEnemy(),
+              newBasicEnemy(),
+              newBasicEnemy(),
+              newBasicEnemy(),
+             newBasicEnemy(),
+             newBasicEnemy(),
+             newBasicEnemy(),
+            newBasicEnemy(),
             ],
         )
         this.level.enemies.forEach(e => {
-            e.position.x = Math.random() * 60 * UNIT_SCALE;
-            e.position.y = Math.random() * 60 * UNIT_SCALE;
+            e.position.x = Math.random() * 120 * UNIT_SCALE;
+            e.position.y = Math.random() * 120 * UNIT_SCALE;
+            e.angle = Math.random() * Math.PI * 2;
+            e.velocity = {x:Math.sin(e.angle), y:Math.cos(e.angle)};
         });
     }
 
     preload(){
-        console.log("preload");
         this.load.spritesheet('block', 'assets/components/block.png', { frameWidth: 16, frameHeight: 16 });
         this.load.spritesheet('thruster', 'assets/components/thruster.png', { frameWidth: 16, frameHeight: 16 });
         this.load.spritesheet('lateralThrusters', 'assets/components/laterialThrusters.png', { frameWidth: 16, frameHeight: 16 });

@@ -25,7 +25,6 @@ export class FiniteStateMachineAI implements AI {
         this.states[this.currentState].ai.update?.(delta, ship, level);
         const nextState = this.states[this.currentState].getNextState(ship, level);
         if (nextState !== undefined && nextState !== this.currentState) {
-            console.log(`Switching from ${this.currentState} to ${nextState}`);
             this.states[this.currentState].ai.onDeactivated?.(ship, level);
             this.currentState = nextState;
             this.states[this.currentState].ai.onActivated?.(ship, level);

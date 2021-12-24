@@ -47,8 +47,8 @@ export class LevelRenderer{
     }
     onCreate(scene: SpaceScene) {
         this.renderers.forEach(renderer => renderer.onCreate(scene));
-        const width = scene.scale.width
-        const height = scene.scale.height
+        const width = Math.max(scene.scale.width, scene.scale.height);
+        const height = width;
     
         this.backgroundLayers.push({
             image: scene.add.tileSprite(0, 0, width*3, height*3, 'space1')
