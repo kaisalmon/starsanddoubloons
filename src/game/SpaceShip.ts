@@ -5,12 +5,13 @@ import Component, { UNIT_SCALE } from "./Component";
 import Force, { calculateTorques, sum } from "./Force";
 import {GameLevel } from "./Level";
 import SpaceshipIntent from "./SpaceshipIntent";
-import Vector2, { getDistance, getMagnitude } from "./Vector2";
+import Vector2, { getDistance, getMagnitude, normalizeAngle } from "./Vector2";
 
 export type Weapon = 'left' | 'right';
 
 const ROTATION_FACTOR = 0.2;
 const COLLISION_KNOCKBACK = 0.01;
+const AIMING_TOLERANCE = 0.1;
 
 export class SpaceShip {
     components: Component[];
@@ -22,10 +23,7 @@ export class SpaceShip {
     angle: number;
     angularVelocity: number;
 
-    weaponCalldowns: Record<Weapon, undefined|number> = {
-        'left': undefined,
-        'right': undefined
-    }
+    weaponCalldown: undefined|number;
 
     impulses: Force[] = [];
 
@@ -65,7 +63,7 @@ export class SpaceShip {
     }
 
     get calldownTime():number {
-        return 2;
+        return 10;
     }
 
     constructor(components: Component[], ai: AI = IDLE_AI) {
@@ -124,6 +122,7 @@ export class SpaceShip {
     }
 
     update( delta: number): void {
+        this.ai.update?.(delta, this, this.level);
         this.updateWeapons(delta);
 
         const forces: Force[] = this.getAllForces(delta);
@@ -144,13 +143,10 @@ export class SpaceShip {
 
 
     private updateWeapons(delta: number) {
-        for (let _key in this.weaponCalldowns) {
-            const key = _key as Weapon;
-            if (this.weaponCalldowns[key] !== undefined) {
-                this.weaponCalldowns[key]! -= delta;
-                if (this.weaponCalldowns[key]! <= 0) {
-                    this.weaponCalldowns[key] = undefined;
-                }
+        if (this.weaponCalldown !== undefined) {
+            this.weaponCalldown -= delta;
+            if (this.weaponCalldown! <= 0) {
+                this.weaponCalldown = undefined;
             }
         }
         if (this.intent.fireLeft) {
@@ -208,8 +204,8 @@ export class SpaceShip {
     }
 
     attemptToFire(weapon: Weapon) {
-        if(this.weaponCalldowns[weapon] === undefined){
-            this.weaponCalldowns[weapon] = this.calldownTime;
+        if(this.weaponCalldown=== undefined){
+            this.weaponCalldown = this.calldownTime;
             this.fire(weapon);
         }
     }
@@ -264,5 +260,26 @@ export class SpaceShip {
 
     onComponentDestroyed(component: Component) {
         this.level.triggerEvent('componentDestroyed', [component, this]);
+    }
+
+
+    hasWeapons(weapon: Weapon): boolean {
+        return this.components.some(component => {
+            return component.type.weaponType === weapon && !component.isDestroyed();
+        })
+    }
+
+
+    isAimingAt(position: Vector2, weapon: Weapon): boolean {
+        const delta = {
+            x: position.x - this.position.x,
+            y: position.y - this.position.y
+        }
+        const angle = Math.atan2(delta.y, delta.x);
+        const angleDiff = normalizeAngle(Math.abs(angle - this.angle));
+        const targetDiff = weapon === 'left' ? 0 : Math.PI;
+        const diffDiff = Math.abs(angleDiff - targetDiff);
+        console.log({angle, angleDiff, targetDiff, diffDiff})
+        return diffDiff < AIMING_TOLERANCE;
     }
 }

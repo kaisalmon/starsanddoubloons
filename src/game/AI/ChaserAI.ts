@@ -5,22 +5,21 @@ import SpaceshipIntent, { EMPTY_INTENT } from "../SpaceshipIntent";
 import Vector2, { getDistance, normalizeAngle } from "../Vector2";
 import { AI } from "./ai";
 
-const SLOW_RADIUS = 40 * UNIT_SCALE;
 const SLOW_ARC = Math.PI / 2;
 
 export class ChaserAI implements AI{
     getTarget:(level: GameLevel)=>Vector2;
-    constructor( getTarget:(level:GameLevel)=>Vector2, private angleOffset: number = 0) {
+    constructor( getTarget:(level:GameLevel)=>Vector2) {
         this.getTarget = getTarget;
     }
     getIntent(ship: SpaceShip, level:GameLevel): SpaceshipIntent {
         const target = this.getTarget(level);
         const pos = ship.position;
         const shipAngle = normalizeAngle(ship.angle)
-        const targetAngle = normalizeAngle(Math.atan2(target.y - pos.y, target.x - pos.x) - Math.PI/2 + this.angleOffset);
+        const targetAngle = normalizeAngle(Math.atan2(target.y - pos.y, target.x - pos.x) - Math.PI/2 );
         const delta = normalizeAngle(shipAngle - targetAngle);
 
-        const moveForward =  Math.abs(delta) < Math.PI/10;
+        const moveForward =  Math.abs(delta) < Math.PI/5;
 
         const rotateProbability = Math.abs(delta) > SLOW_ARC ? 1 : Math.abs(delta)/SLOW_ARC;
         const wouldRotate = Math.random() < rotateProbability;

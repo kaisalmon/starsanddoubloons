@@ -34,7 +34,7 @@ export default class Component {
     }
     get mass(): number {
         if(this.isDestroyed()){
-            return 0;
+            return this.type.mass/3;
         }
         return this.type.mass;
     }

@@ -19,8 +19,7 @@ export const newBasicEnemy = ()=>new SpaceShip([
         new Component(flipped(lateralThruster), {x: 2, y: 3}),
         new Component(bridge, {x: 0, y: 4}),
     ],
-    //createCombatAI()
-    IDLE_AI
+    createCombatAI()
 );
 
 export const newSpinnyBlock = ()=>new SpaceShip([

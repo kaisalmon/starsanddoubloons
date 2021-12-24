@@ -34,13 +34,13 @@ export default class SpaceScene extends Phaser.Scene {
         this.level = new GameLevel(
             newBasicEnemy(),[
                 newBasicEnemy(),
-                newBasicEnemy(),
-                newBasicEnemy(),
+             //   newBasicEnemy(),
+            //    newBasicEnemy(),
             ],
         )
         this.level.enemies.forEach(e => {
-            e.position.x = Math.random() * 30 * UNIT_SCALE;
-            e.position.y = Math.random() * 30 * UNIT_SCALE;
+            e.position.x = Math.random() * 60 * UNIT_SCALE;
+            e.position.y = Math.random() * 60 * UNIT_SCALE;
         });
     }
 
