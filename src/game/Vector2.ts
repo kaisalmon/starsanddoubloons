@@ -128,3 +128,23 @@ export function lerpAngle(a:number, b:number, t:number){
 export function lerp(a:number, b:number, t:number){
     return a + (b - a) * t;
 }
+
+
+export function findShortestDistanceBetweenTwoMovingObjects(aPos: Vector2, aVel: Vector2, bPos:Vector2, bVel: Vector2): number|null {
+    const pos = sub(bPos, aPos);
+    const vel = sub(bVel, aVel);
+
+    const distanceSquared = (t: number)=> getMagnitude({
+        x: pos.x + vel.x * t,
+        y: pos.y + vel.y * t
+    })
+    
+    const t = -1 * (pos.x * vel.x + pos.y * vel.y) / (vel.x * vel.x + vel.y * vel.y);
+    
+    if(t < 0){
+        return null;
+    }
+    const shortestDistanceSquared = distanceSquared(t);
+    return Math.sqrt(shortestDistanceSquared);
+}
+

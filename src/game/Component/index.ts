@@ -3,7 +3,7 @@ import Collision, { BoundingBox, MOMENTUM_TO_DAMAGE } from "../Collision";
 import Force, { rotate, sum } from "../Force";
 import { SpaceShip, Weapon } from "../SpaceShip";
 import SpaceshipIntent from "../SpaceshipIntent";
-import Vector2, { getLinearVelocityFromAngularVelocity } from "../Vector2";
+import Vector2, { findShortestDistanceBetweenTwoMovingObjects, getLinearVelocityFromAngularVelocity } from "../Vector2";
 import ComponentType from "./ComponentType";
 
 const WEAPON_ANGLES = {
@@ -18,7 +18,6 @@ export default class Component {
     type: ComponentType;
     position: Vector2; // Relative position of the component to the spaceship's top left corner
     isPowered: boolean = false;
-
     damage: number = 0;
 
     constructor(type: ComponentType, position: Vector2) {
@@ -184,17 +183,13 @@ export default class Component {
             return
         }
         const {x,y} = this.getCenterOfMassInWorldSpace(spaceship);
-        const angle = spaceship.angle + WEAPON_ANGLES[weapon];
         const velocity = this.getEffectiveVelocity(spaceship);
         const cannonball = new Cannonball({
             x, y
-        },{
-            x: velocity.x + Math.cos(angle) * CANNONBALL_SPEED,
-            y: velocity.y + Math.sin(angle) * CANNONBALL_SPEED
-        },
+        },this.getCannonballVelocity(spaceship, weapon),
             spaceship,
         );
-        spaceship.addCannonball(cannonball);
+        spaceship.addCannonball(cannonball, this);
         spaceship.impulses.push({
             x: -cannonball.velocity.x * CANNONBALL_KNOCKBACK,
             y: -cannonball.velocity.y  * CANNONBALL_KNOCKBACK,
@@ -203,6 +198,14 @@ export default class Component {
         });
     }
 
+
+    private getCannonballVelocity(spaceship:SpaceShip, weapon:Weapon): Vector2 {
+        const angle = spaceship.angle + WEAPON_ANGLES[weapon];
+        return {
+            x: spaceship.velocity.x + Math.cos(angle) * CANNONBALL_SPEED,
+            y: spaceship.velocity.y + Math.sin(angle) * CANNONBALL_SPEED
+        };
+    }
 
     onHit(cannonball: Cannonball, spaceship: SpaceShip): void {
         this.dealDamage(cannonball.damage, spaceship);
@@ -217,26 +220,30 @@ export default class Component {
     dealDamage(damage: number, spaceship: SpaceShip) {
         const wasDestroyed = this.isDestroyed();
         const spaceshipWasDestroyed = spaceship.isDestroyed();
-        const CoM = spaceship.getCenterOfMassInRotatedShipSpace();
-        const mass = spaceship.mass;
         this.damage += damage;
+        this.damage = Math.min(this.damage, this.type.health);
         if(this.isDestroyed() && !wasDestroyed){
-            const newCoM = spaceship.getCenterOfMassInRotatedShipSpace();
-            const newMass = spaceship.mass;
-            const offset = {
-                x: CoM.x - newCoM.x,
-                y: CoM.y - newCoM.y
-            }
-            spaceship.position = {
-                x: spaceship.position.x - offset.x,
-                y: spaceship.position.y - offset.y
-            }
-            spaceship.onComponentDestroyed(this);
             const spaceshipDestroyed = spaceship.isDestroyed();
             if(spaceshipDestroyed && !spaceshipWasDestroyed){
                 spaceship.onDestroyed();
             }
         }
+    }
+    
+    onDestroyed(spaceship: SpaceShip): void {
+        this.isPowered = false;
+
+        const CoM = spaceship.getCenterOfMassInRotatedShipSpace();
+        const newCoM = spaceship.getCenterOfMassInRotatedShipSpace();
+        const offset = {
+            x: CoM.x - newCoM.x,
+            y: CoM.y - newCoM.y
+        }
+        spaceship.position = {
+            x: spaceship.position.x - offset.x,
+            y: spaceship.position.y - offset.y
+        }
+        spaceship.onComponentDestroyed(this);
     }
 
     isDestroyed(): boolean {
@@ -244,6 +251,24 @@ export default class Component {
     }    
     isCollidable(): boolean {
         return !this.isDestroyed();
+    }
+
+    isAimingAt(target: SpaceShip, spaceship: SpaceShip): boolean {
+        if(this.isDestroyed()){
+            return false;
+        }
+        if(this.type.weaponType === undefined){
+            return false;
+        }
+        const cannonballPosition = this.getCenterOfMassInWorldSpace(spaceship);
+        const cannonballVelocity = this.getCannonballVelocity(spaceship, this.type.weaponType);
+        const targetPosition = target.position
+        const targetVelocity = target.velocity
+        const shortestDistance = findShortestDistanceBetweenTwoMovingObjects(cannonballPosition, cannonballVelocity, targetPosition, targetVelocity);
+        if(shortestDistance === null){
+            return false
+        }
+        return shortestDistance <= target.radius/6
     }
 }
 

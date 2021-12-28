@@ -2,13 +2,13 @@ import { IDLE_AI } from "../game/AI/ai";
 import { ChaserAI } from "../game/AI/ChaserAI";
 import { UNIT_SCALE } from "../game/Component";
 import { GameLevel } from "../game/Level";
-import { newBasicEnemy, newSpinnyBlock } from "../game/ShipDesigns/basic";
+import { newBasicEnemy, newPlayerShip, newSpinnyBlock } from "../game/ShipDesigns/basic";
 import { SpaceShip } from "../game/SpaceShip";
 import SpaceshipIntent, { EMPTY_INTENT } from "../game/SpaceshipIntent";
 import { DRAW_SCALE } from "../phaser/constants";
 import { LevelRenderer } from "../phaser/levelRenderer";
 
-const GAME_SPEED = 1/100;
+const GAME_SPEED = 1/80;
 
 
 export default class SpaceScene extends Phaser.Scene {
@@ -32,19 +32,10 @@ export default class SpaceScene extends Phaser.Scene {
     constructor(){
         super({ key: "SpaceScene" });
         this.level = new GameLevel(
-            newBasicEnemy(),[
+            newPlayerShip(),[
                 newBasicEnemy(),
                 newBasicEnemy(),
-               newBasicEnemy(),
-               newBasicEnemy(),
-               newBasicEnemy(),
-              newBasicEnemy(),
-              newBasicEnemy(),
-              newBasicEnemy(),
-             newBasicEnemy(),
-             newBasicEnemy(),
-             newBasicEnemy(),
-            newBasicEnemy(),
+                newBasicEnemy(),
             ],
         )
         this.level.enemies.forEach(e => {
@@ -63,6 +54,7 @@ export default class SpaceScene extends Phaser.Scene {
         this.load.spritesheet('bridge', 'assets/components/bridge.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('cannon', 'assets/components/cannon.png', { frameWidth: 16, frameHeight: 16 });
         this.load.spritesheet('cannonball', 'assets/bullet.png', { frameWidth: 8, frameHeight: 8 });
+        this.load.spritesheet('smoke', 'assets/smoke.png', { frameWidth: 8, frameHeight: 8 });
 
         this.load.image('space1', 'assets/backgrounds/space1.jpeg');
         this.load.image('space2', 'assets/backgrounds/space2.jpeg');

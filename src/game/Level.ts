@@ -1,4 +1,5 @@
 import { PLAYER_AI } from "./AI/PlayerAI";
+import { WanderAI } from "./AI/WanderAI";
 import { Cannonball, CANNONBALL_AGE } from "./Cannonball";
 import Collision from "./Collision";
 import { SpaceShip } from "./SpaceShip";
@@ -8,7 +9,7 @@ import Component, { UNIT_SCALE } from "/Users/kaisalmon/Documents/Phaser/StarsAn
 type Unarray<T> = T extends Array<infer U> ? U : T;
 type EventListeners = {
     "collision": ((args:[SpaceShip, SpaceShip, Collision])=>void)[]
-    "cannonballFired": ((args:[SpaceShip, Cannonball])=>void)[],
+    "cannonballFired": ((args:[SpaceShip, Cannonball, Component])=>void)[],
     "cannonballRemoved": ((args:[Cannonball, number])=>void)[],
     "componentDestroyed": ((args:[Component, SpaceShip])=>void)[],
 }
@@ -57,7 +58,7 @@ export class GameLevel {
         this.player = player;
         this.enemies.forEach(enemy => enemy.level = this);
         this.player.level = this;
-        this.player.ai = PLAYER_AI
+        this.player.ai =  PLAYER_AI
     }
     
     update(delta: number): void {
@@ -118,9 +119,9 @@ export class GameLevel {
         this.triggerEvent('collision', [shipA, shipB, collision])
     }
 
-    addCannonball(cannonball: Cannonball, spaceship:SpaceShip) {
+    addCannonball(cannonball: Cannonball, spaceship:SpaceShip, component:Component) {
         this.cannonballs.push(cannonball)
-        this.triggerEvent('cannonballFired', [spaceship, cannonball])
+        this.triggerEvent('cannonballFired', [spaceship, cannonball, component])
     }
 
     removeCannonball(cannonball: Cannonball) {
@@ -129,5 +130,10 @@ export class GameLevel {
             this.cannonballs.splice(index, 1);
             this.triggerEvent('cannonballRemoved', [cannonball, index])
         }
+    }
+
+    getAllSpaceships(): SpaceShip[] {
+        return ([] as SpaceShip[]).concat(this.enemies, [this.player])
+            .filter(ship => !ship.isDestroyed());
     }
 }

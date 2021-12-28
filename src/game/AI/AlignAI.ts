@@ -17,7 +17,7 @@ export class AlignAI implements AI{
         const targetAngle = normalizeAngle(Math.atan2(target.y - pos.y, target.x - pos.x) - Math.PI/2 + this.alignAngle );
         const delta = normalizeAngle(shipAngle - targetAngle);
 
-        const moveForward = false; 
+        const moveForward = true; 
         const wouldRotate = true;
 
         if(Math.abs(delta) < 0.05) {

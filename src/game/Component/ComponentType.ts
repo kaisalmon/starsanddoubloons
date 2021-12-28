@@ -18,6 +18,7 @@ export default interface ComponentType{
     hitbox?: BoundingBox;
     isBridge: boolean;
     isEngine: boolean;
+    isThruster: boolean;
     isFlipped: boolean;
     isPowered(intent: SpaceshipIntent, component:Component, spaceship: SpaceShip):boolean;
     getThrust(powered: boolean, intent: SpaceshipIntent, component:Component, spaceship: SpaceShip): Force|undefined;
@@ -62,6 +63,7 @@ export const block: ComponentType = {
     isFlipped: false,
     isBridge: false,
     isEngine: false,
+    isThruster: false,
     mass: 1,
     drag: 0.1,
     width: 1,
@@ -144,7 +146,7 @@ export const lateralThruster: ComponentType = {
             return {
                 offsetY: 0,
                 offsetX: 0,
-                x: 0.3,
+                x: 1.8,
                 y: 0
             }
         }
@@ -155,7 +157,7 @@ export const thruster: ComponentType = {
     ...block,
     name: "Thruster",
     appearance: "thruster",
-
+    isThruster: true,
     hitbox: {
         position: {x: 0, y: 0.25},
         angle: 0,
@@ -172,7 +174,7 @@ export const thruster: ComponentType = {
                 offsetY: 0,
                 offsetX: 0,
                 x: 0,
-                y: 1
+                y: 2
             }
         }
     }

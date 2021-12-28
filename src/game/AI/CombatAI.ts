@@ -3,24 +3,27 @@ import { SpaceShip } from "../SpaceShip";
 import Vector2, { getDistance, getMagnitude } from "../Vector2";
 import { AI, IDLE_AI } from "./ai";
 import { AlignAI } from "./AlignAI";
+import { ArriveAI } from "./ArriveAI";
 import { ChaserAI } from "./ChaserAI";
+import { CollisionAvoidanceAI } from "./CollissionAvoidance";
 import ConditionalAI from "./ConditionalAI";
 import { FIRE_AI } from "./FireAI";
+import FleeAI from "./FleeAI";
 import { FiniteStateMachineAI } from "./FSMAI";
 
-const CHASE_DISTANCE = 20;
-const FIRE_DISTANCE = 15;
+const CHASE_DISTANCE = 45;
+const FIRE_DISTANCE = 40;
 
 function getPlayerVector(level:GameLevel): Vector2 {
     return level.player.position
 }
 
 export function createCombatAI():AI{
-    const chase = new ChaserAI(getPlayerVector);
-    const orbit = FIRE_AI;
-    const flee = new AlignAI(getPlayerVector, Math.PI);
+    const chase = new ArriveAI(getPlayerVector, 60);
+    const fireAi = FIRE_AI;
+    const flee = new FleeAI(getPlayerVector);
 
-    return new FiniteStateMachineAI({
+    const fsm = new FiniteStateMachineAI({
         "chase": {
             ai: chase,
             getNextState(ship:SpaceShip, level:GameLevel): string {
@@ -32,7 +35,7 @@ export function createCombatAI():AI{
             }
         },
         "fire": {
-            ai: orbit,
+            ai: fireAi,
             getNextState(ship:SpaceShip, level:GameLevel): string {
                 const distance = getDistance(ship.position, level.player.position);
                 if(distance > CHASE_DISTANCE){
@@ -47,11 +50,13 @@ export function createCombatAI():AI{
         "flee": {
             ai: flee,
             getNextState(ship:SpaceShip, level:GameLevel): string {
-                if(ship.weaponCalldown === undefined){
+                if(ship.weaponCalldown === undefined || ship.weaponCalldown < ship.calldownTime * 2 / 3){
                     return "chase";
                 }
                 return "flee";
             }
         }
     }, "chase")
+
+    return new CollisionAvoidanceAI(fsm);
 }

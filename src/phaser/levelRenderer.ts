@@ -33,7 +33,7 @@ export class LevelRenderer{
     }
 
     get desiredZoom(): number{
-        return 1
+        return .8
     }
 
     private get followOffset(){
@@ -51,13 +51,13 @@ export class LevelRenderer{
         const height = width;
     
         this.backgroundLayers.push({
-            image: scene.add.tileSprite(0, 0, width*3, height*3, 'space1')
+            image: scene.add.tileSprite(0, 0, width*4, height*4, 'space1')
                 .setScrollFactor(0)
                 .setDepth(-10),
             scrollSpeed: 0.1
         })
         this.backgroundLayers.push({
-            image: scene.add.tileSprite(0, 0, width*3, height*3, 'space2')
+            image: scene.add.tileSprite(0, 0, width*4, height*4, 'space2')
                 .setScrollFactor(0)
                 .setBlendMode('SCREEN')
                 .setAlpha(0.5)
@@ -66,7 +66,7 @@ export class LevelRenderer{
         })
 
         this.backgroundLayers.push({
-            image: scene.add.tileSprite(0, 0, width*3, height*3, 'grid')
+            image: scene.add.tileSprite(0, 0, width*4, height*4, 'grid')
                 .setScrollFactor(0)
                 .setBlendMode('SCREEN')
                 .setAlpha(0.1)
@@ -112,12 +112,16 @@ export class LevelRenderer{
             }
         })
 
-        this.level.addEventListener('cannonballFired', ([spaceship, cannonball])=>{
+        this.level.addEventListener('cannonballFired', ([spaceship, cannonball, component])=>{
             const sprite = scene.add.sprite(cannonball.position.x * DRAW_SCALE, cannonball.position.y * DRAW_SCALE, 'cannonball');
             sprite.setBlendMode('ADD');
             sprite.setDepth(-1);
             this.cannonballSprites.push(sprite);
-            
+            const r = this.renderers.find(r => r.spaceship === spaceship);
+            if(!r){
+                return;
+            }
+            r.onCannonballFired(component);
         });
 
         this.level.addEventListener('cannonballRemoved', ([cannonball, index])=>{

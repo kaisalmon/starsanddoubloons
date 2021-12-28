@@ -1,6 +1,6 @@
-import Vector2, { rotate } from "./Vector2";
+import Vector2, { dot, getDistance, getMagnitude, getNormalized, rotate, sub } from "./Vector2";
 
-export const MOMENTUM_TO_DAMAGE = 100;
+export const MOMENTUM_TO_DAMAGE = 200;
 
 
 export default interface Collision {
@@ -107,7 +107,7 @@ function orientation(p:Vector2, q:Vector2, r: Vector2){
  
     return false; // Doesn't fall in any of the above cases
     */
-function doLinesIntersect(line1: Line, line2: Line): boolean {
+export function doLinesIntersect(line1: Line, line2: Line): boolean {
     const [p1, q1] = line1;
     const [p2, q2] = line2;
     const o1 = orientation(p1, q1, p2);
@@ -152,4 +152,41 @@ export function doRectanglesIntersect(rect1: BoundingBox, rect2: BoundingBox): b
     const polygon1 = rectangleToPolygon(rect1);
     const polygon2 = rectangleToPolygon(rect2);
     return doPolygonsIntersect(polygon1, polygon2);
+}
+
+
+/**
+ * Finds the intersection between a circles border 
+ * and a line from the origin to the otherLineEndPoint.
+ * @param  {Vector} origin            - center of the circle and start of the line
+ * @param  {number} radius            - radius of the circle
+ * @param  {Vector} otherLineEndPoint - end of the line
+ * @return {Vector}                   - point of the intersection
+
+ function findIntersect (origin, radius, otherLineEndPoint) {
+    var v = otherLineEndPoint.subtract(origin);
+    var lineLength = v.length();    
+    if (lineLength === 0) throw new Error("Length has to be positive");
+    v = v.normalize();
+    return origin.add(v.multiplyScalar(radius)); 
+}
+ */
+
+export function doesLineIntersectCircle(line: Line, circlePosition: Vector2, circleRadius: number): boolean {
+    let dist: number;
+    const [A, B] = line;
+    const C = circlePosition;
+        const v1x = B.x - A.x;
+        const v1y = B.y - A.y;
+        const v2x = C.x - A.x;
+        const v2y = C.y - A.y;
+        const u = (v2x * v1x + v2y * v1y) / (v1y * v1y + v1x * v1x);
+        if(u >= 0 && u <= 1){
+            dist  = (A.x + v1x * u - C.x) ** 2 + (A.y + v1y * u - C.y) ** 2;
+        } else {
+            dist = u < 0 ?
+                  (A.x - C.x) ** 2 + (A.y - C.y) ** 2 :
+                  (B.x - C.x) ** 2 + (B.y - C.y) ** 2;
+        }
+        return dist < circleRadius * circleRadius;
 }

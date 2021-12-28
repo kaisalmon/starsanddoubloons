@@ -18,8 +18,7 @@ export class ChaserAI implements AI{
         const shipAngle = normalizeAngle(ship.angle)
         const targetAngle = normalizeAngle(Math.atan2(target.y - pos.y, target.x - pos.x) - Math.PI/2 );
         const delta = normalizeAngle(shipAngle - targetAngle);
-
-        const moveForward =  Math.abs(delta) < Math.PI/5;
+        const moveForward = true;
 
         const rotateProbability = Math.abs(delta) > SLOW_ARC ? 1 : Math.abs(delta)/SLOW_ARC;
         const wouldRotate = Math.random() < rotateProbability;

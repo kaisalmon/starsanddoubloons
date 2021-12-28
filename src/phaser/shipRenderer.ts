@@ -1,3 +1,4 @@
+import { CollisionAvoidanceAI, getSpaceshipRay } from "../game/AI/CollissionAvoidance";
 import { polygonToLines, rectangleToPolygon } from "../game/Collision";
 import Component, { UNIT_SCALE } from "../game/Component";
 import { SpaceShip } from "../game/SpaceShip";
@@ -13,6 +14,7 @@ export default class ShipRenderer {
     private group!: Phaser.GameObjects.Container;
     
     private crashEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
+    private smokeEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
 
     get gameObject(): Phaser.GameObjects.GameObject {
         return this.group;
@@ -29,6 +31,17 @@ export default class ShipRenderer {
             y: this.spaceship.position.y,
             active: false,
 
+        });
+        this.smokeEmitter = scene.add.particles('smoke').createEmitter({
+            speed: { min: -10, max: 10 },
+            angle: { min: 0, max: 360 },
+            scale: { start: 0.8, end: 0.5},
+            alpha: { start: 0.8, end: 0},
+            lifespan: 3000,
+            blendMode: 'SCREEN',
+            x: this.spaceship.position.x,
+            y: this.spaceship.position.y,
+            active: false,
         });
 
         const spaceshipUnitSpaceCoM = this.spaceship.getCenterOfMassUnitSpace();
@@ -58,19 +71,32 @@ export default class ShipRenderer {
 
         this.spaceship.components.forEach((component, index)=>{
             const sprite = sprites[index];
-            const spriteIndex = component.isPowered ? 1 : 0;
-            sprite.setAlpha(component.isDestroyed() ? 0.2 : 1);
+            const damage = component.damage
+            const health = component.type.health
+            const dim = component.damage > 0;
+            const spriteIndex = damage + (component.isPowered ? (health + 1) : 0);
             const {x,y} = component.getCoMInUnitSpace() 
             sprite.setPosition(
                 (x - spaceshipUnitSpaceCoM.x) * UNIT_SCALE * DRAW_SCALE, 
                 (y - spaceshipUnitSpaceCoM.y) * UNIT_SCALE * DRAW_SCALE
             );
             sprite.setFrame(spriteIndex);
+            sprite.setTint(dim ? 0xAAAAAA : 0xFFFFFF);
+            sprite.setDepth(component.isDestroyed() ? -2 : 0);
+
+           // if(!this.spaceship.isDestroyed){
+                const canSmoke = component.type.isThruster || component.type.weaponType !== undefined;
+                if(canSmoke && component.isDestroyed()) {
+                    this.smokeEmitter.explode(1, component.getCenterOfMassInWorldSpace(this.spaceship).x * DRAW_SCALE, component.getCenterOfMassInWorldSpace(this.spaceship).y * DRAW_SCALE);
+                   this.smokeEmitter.active = true;
+               }
+          //  }
         });
         
         const {x,y} = this.spaceship.position;
         this.group.setPosition(x * DRAW_SCALE,y * DRAW_SCALE);
         this.group.setRotation(this.spaceship.angle);
+        this.group.setDepth(this.spaceship.isDestroyed() ? -2 : 0);
         
         if(RENDER_DEBUG_LINES)this.renderDebugLines(scene);
     }
@@ -83,6 +109,11 @@ export default class ShipRenderer {
         lines.forEach(([p1, p2]) => {
             scene.graphics.lineBetween(p1.x * DRAW_SCALE, p1.y * DRAW_SCALE, p2.x * DRAW_SCALE, p2.y * DRAW_SCALE);
         });
+        if(this.spaceship.ai instanceof CollisionAvoidanceAI && this.spaceship.ai.wasRayHit){
+            scene.graphics.lineStyle(4, 0xFF0000, 2.0);
+        }
+        const ray = getSpaceshipRay(this.spaceship);
+        scene.graphics.lineBetween(ray[0].x * DRAW_SCALE, ray[0].y * DRAW_SCALE, ray[1].x * DRAW_SCALE, ray[1].y * DRAW_SCALE);
         scene.graphics.strokeCircle(this.spaceship.position.x * DRAW_SCALE, this.spaceship.position.y * DRAW_SCALE, this.spaceship.radius * DRAW_SCALE);
 
         scene.graphics.lineStyle(2, 0xFF44FF, 1.0);
@@ -108,5 +139,26 @@ export default class ShipRenderer {
         this.crashEmitter.texture = component.type.appearance as any;
         const area = boundingBox.width * boundingBox.height;
         this.crashEmitter.explode(area * 50, x * DRAW_SCALE,y * DRAW_SCALE);
+        
+
+        const index = this.spaceship.components.indexOf(component);
+        const sprite = this.group.getAll()[index] as Phaser.GameObjects.Sprite;
+        //sprite.setZ(-5);
+
+        if(this.spaceship.isDestroyed()){
+        //    this.group.setZ(-1);
+        }
+    }
+
+    onCannonballFired(component: Component) {
+        const index = this.spaceship.components.indexOf(component);
+        const sprite = this.group.getAll()[index] as Phaser.GameObjects.Sprite;
+        const damage = component.damage
+        const health = component.type.health
+        const spriteIndex = damage + health + 1
+        sprite.setFrame(spriteIndex);
+        setTimeout(()=>{
+            sprite.setFrame(damage);
+        }, 300);
     }
 }

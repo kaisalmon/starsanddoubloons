@@ -1,4 +1,5 @@
 import { AI, IDLE_AI } from "./AI/ai";
+import { PLAYER_AI } from "./AI/PlayerAI";
 import { Cannonball, CANNONBALL_FRIENDLY_FIRE_TIME, CANNONBALL_KNOCKBACK } from "./Cannonball";
 import Collision, { BoundingBox, doPolygonsIntersect, doRectanglesIntersect, Line, rectangleToPolygon } from "./Collision";
 import Component, { UNIT_SCALE } from "./Component";
@@ -11,7 +12,6 @@ export type Weapon = 'left' | 'right';
 
 const ROTATION_FACTOR = 0.2;
 const COLLISION_KNOCKBACK = 0.01;
-const AIMING_TOLERANCE = 0.1;
 
 export class SpaceShip {
     components: Component[];
@@ -63,7 +63,7 @@ export class SpaceShip {
     }
 
     get calldownTime():number {
-        return 10;
+        return 15;
     }
 
     constructor(components: Component[], ai: AI = IDLE_AI) {
@@ -185,7 +185,7 @@ export class SpaceShip {
                             x: (box.position.x - other.position.x),
                             y: (box.position.y - other.position.y)
                         },
-                        momentum: speed * (this.mass * other.mass) /2 
+                        momentum: speed * (this.mass + other.mass)
                     }
                     return [collission, component, otherComponent];
                 }
@@ -216,8 +216,8 @@ export class SpaceShip {
         });
     }
 
-    addCannonball(cannonball: Cannonball) {
-        this.level.addCannonball(cannonball, this)
+    addCannonball(cannonball: Cannonball, component: Component) {
+        this.level.addCannonball(cannonball, this, component);
     }
 
     checkCannonballColission(cannonball: Cannonball) {
@@ -245,7 +245,9 @@ export class SpaceShip {
             return aDistance - bDistance;
         });
 
-        components[0].onHit(cannonball, this);
+        if(!this.isInvincible()){
+            components[0].onHit(cannonball, this);
+        }
 
         this.impulses.push({
             x: cannonball.velocity.x * CANNONBALL_KNOCKBACK,
@@ -256,6 +258,9 @@ export class SpaceShip {
 
 
         this.level.removeCannonball(cannonball);
+    }
+    isInvincible(): boolean {
+        return false;
     }
 
     onComponentDestroyed(component: Component) {
@@ -269,16 +274,12 @@ export class SpaceShip {
         })
     }
 
-    isAimingAt(position: Vector2, weapon: Weapon): boolean {
-        const delta = {
-            x: position.x - this.position.x,
-            y: position.y - this.position.y
-        }
-        const angle = Math.atan2(delta.y, delta.x);
-        const angleDiff = normalizeAngle(Math.abs(angle - this.angle));
-        const targetDiff = weapon === 'left' ? 0 : Math.PI;
-        const diffDiff = Math.abs(angleDiff - targetDiff);
-        return diffDiff < AIMING_TOLERANCE;
+    isAimingAt(target: SpaceShip, weapon: Weapon): boolean {
+        return this.components.some(component => {
+            if(component.type.weaponType === weapon && !component.isDestroyed()){
+                return component.isAimingAt(target, this);
+            }
+        });
     }
 
     isDestroyed(): boolean {
