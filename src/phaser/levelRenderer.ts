@@ -3,9 +3,9 @@
 import { MOMENTUM_TO_DAMAGE } from "../game/Collision";
 import { UNIT_SCALE } from "../game/Component";
 import { GameLevel } from "../game/Level";
-import Vector2, { getMagnitude, lerp, lerpAngle, normalizeAngle } from "../game/Vector2";
+import { getMagnitude, lerp, lerpAngle, normalizeAngle } from "../game/Vector2";
 import SpaceScene from "../scenes/SpaceScene";
-import { DRAW_SCALE, RAD_TO_DEG } from "./constants";
+import { DRAW_SCALE } from "./constants";
 import ShipRenderer from "./shipRenderer";
 
 type ScrollLayer = {
@@ -15,8 +15,6 @@ type ScrollLayer = {
 
 const lOOKAHEAD_SCALE = 3 * UNIT_SCALE * DRAW_SCALE;
 const LOOKAHEAD_EXP = 2;
-const MIN_ZOOM = 1/2;
-const MAX_ZOOM = 2;
 
 export class LevelRenderer{
     playerRenderer: ShipRenderer;
@@ -97,7 +95,7 @@ export class LevelRenderer{
         });
 
         
-        this.level.addEventListener('collision', ([a, b, collision])=>{
+        this.level.addEventListener('collision', ([_shipA,_shipB, collision])=>{
             const {x,y} = collision.position;
             crashEmitter.active = true;
             if(collision.momentum > MOMENTUM_TO_DAMAGE){
@@ -143,7 +141,7 @@ export class LevelRenderer{
         this.cameraAngle = normalizeAngle(Math.PI  - this.level.player.angle)
 
     }
-    onUpdate(scene: SpaceScene, delta:number) {
+    onUpdate(scene: SpaceScene, _delta:number) {
         scene.graphics.clear();
         this.renderers.forEach(renderer => renderer.onUpdate(scene));
         this.cannonballSprites.forEach((sprite, i) => {

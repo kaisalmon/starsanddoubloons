@@ -4,8 +4,6 @@ import { SpaceShip } from "../game/SpaceShip";
 import * as expect from "expect";
 import { GameLevel } from "../game/Level";
 import * as sinon from 'sinon'
-import { constantAI } from "../game/AI/ai";
-import { EMPTY_INTENT } from "../game/SpaceshipIntent";
 import { calculateTorque } from "../game/Force";
 
 describe("Spaceaship with two cannon just firing to spin in a circle", ()=>{

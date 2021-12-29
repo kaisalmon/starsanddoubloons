@@ -69,7 +69,7 @@ export const block: ComponentType = {
     width: 1,
     height: 1,
     health: 2,
-    isPowered: (intent: SpaceshipIntent, component:Component, spaceship: SpaceShip) => {
+    isPowered: () => {
         return false;
     },
     getThrust(): Force|undefined {

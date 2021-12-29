@@ -5,9 +5,6 @@ import { SpaceShip } from "../game/SpaceShip";
 import SpaceScene from "../scenes/SpaceScene";
 import {DRAW_SCALE} from "./constants";
 
-const customRound = function(value: number, roundTo: number) {
-    return Math.round(value / roundTo) * roundTo;
-}
 const RENDER_DEBUG_LINES = false;
 
 export default class ShipRenderer {
@@ -136,8 +133,8 @@ export default class ShipRenderer {
         const w = boundingBox.width * DRAW_SCALE;
         const h = boundingBox.height * DRAW_SCALE;
         const emitZone = new Phaser.Geom.Rectangle(-w/2, -h/2, w, h);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.crashEmitter.setEmitZone({source: emitZone} as any);
-        this.crashEmitter.texture = component.type.appearance as any;
         const area = boundingBox.width * boundingBox.height;
         this.crashEmitter.explode(area * 50, x * DRAW_SCALE,y * DRAW_SCALE);
         

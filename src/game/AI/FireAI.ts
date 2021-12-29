@@ -26,10 +26,10 @@ export const FIRE_AI = new ConditionalAI([
     [constantAI({...EMPTY_INTENT, fireRight: true}), (ship, level) => {
         return ship.weaponCalldown === undefined && ship.hasWeapons("right") &&  isOnlyAimingAtPlayer(ship, level, "right")
     }],
-    [new AlignAI(getPlayerVector, Math.PI / 2), (ship, level) => {
+    [new AlignAI(getPlayerVector, Math.PI / 2), (ship) => {
         return ship.hasWeapons('left')
     }],
-    [new AlignAI(getPlayerVector, 1.5 * Math.PI), (ship, level) => {
+    [new AlignAI(getPlayerVector, 1.5 * Math.PI), (ship) => {
         return ship.hasWeapons('right')
     }]
 ], IDLE_AI);

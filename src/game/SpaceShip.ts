@@ -1,12 +1,11 @@
 import { AI, IDLE_AI } from "./AI/ai";
-import { PLAYER_AI } from "./AI/PlayerAI";
 import { Cannonball, CANNONBALL_FRIENDLY_FIRE_TIME, CANNONBALL_KNOCKBACK } from "./Cannonball";
 import Collision, { BoundingBox, doPolygonsIntersect, doRectanglesIntersect, Line, rectangleToPolygon } from "./Collision";
 import Component, { UNIT_SCALE } from "./Component";
 import Force, { calculateTorques, sum } from "./Force";
 import {GameLevel } from "./Level";
 import SpaceshipIntent from "./SpaceshipIntent";
-import Vector2, { getDistance, getMagnitude, normalizeAngle } from "./Vector2";
+import Vector2, { getDistance, getMagnitude } from "./Vector2";
 
 export type Weapon = 'left' | 'right';
 
@@ -145,7 +144,7 @@ export class SpaceShip {
     private updateWeapons(delta: number) {
         if (this.weaponCalldown !== undefined) {
             this.weaponCalldown -= delta;
-            if (this.weaponCalldown! <= 0) {
+            if (this.weaponCalldown <= 0) {
                 this.weaponCalldown = undefined;
             }
         }

@@ -1,12 +1,9 @@
 import { GameLevel } from "../Level";
 import { SpaceShip } from "../SpaceShip";
-import Vector2, { getDistance, getMagnitude } from "../Vector2";
-import { AI, IDLE_AI } from "./ai";
-import { AlignAI } from "./AlignAI";
+import Vector2, { getDistance } from "../Vector2";
+import { AI } from "./ai";
 import { ArriveAI } from "./ArriveAI";
-import { ChaserAI } from "./ChaserAI";
 import { CollisionAvoidanceAI } from "./CollissionAvoidance";
-import ConditionalAI from "./ConditionalAI";
 import { FIRE_AI } from "./FireAI";
 import FleeAI from "./FleeAI";
 import { FiniteStateMachineAI } from "./FSMAI";
@@ -49,7 +46,7 @@ export function createCombatAI():AI{
         },
         "flee": {
             ai: flee,
-            getNextState(ship:SpaceShip, level:GameLevel): string {
+            getNextState(ship:SpaceShip): string {
                 if(ship.weaponCalldown === undefined || ship.weaponCalldown < ship.calldownTime * 2 / 3){
                     return "chase";
                 }

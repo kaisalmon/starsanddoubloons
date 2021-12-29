@@ -10,8 +10,6 @@ const WEAPON_ANGLES = {
     right: Math.PI,
     left: 0
 }
-
-const WEAPON_MAX_DELAY = 1;
 export const UNIT_SCALE = 1;
 
 export default class Component {
@@ -183,7 +181,6 @@ export default class Component {
             return
         }
         const {x,y} = this.getCenterOfMassInWorldSpace(spaceship);
-        const velocity = this.getEffectiveVelocity(spaceship);
         const cannonball = new Cannonball({
             x, y
         },this.getCannonballVelocity(spaceship, weapon),

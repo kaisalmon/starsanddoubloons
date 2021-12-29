@@ -1,5 +1,4 @@
 import { PLAYER_AI } from "./AI/PlayerAI";
-import { WanderAI } from "./AI/WanderAI";
 import { Cannonball, CANNONBALL_AGE } from "./Cannonball";
 import Collision from "./Collision";
 import { SpaceShip } from "./SpaceShip";
@@ -35,12 +34,14 @@ export class GameLevel {
         if(!this.listeners[event]){
             this.listeners[event] = [];
         }
-        this.listeners[event]!.push(callback as EventCallback<any>);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        this.listeners[event]?.push(callback as EventCallback<any>);
     }
     removeEventListener<E extends Events>(event: E, callback: EventCallback<E>) {
         if(!this.listeners[event]){
             return;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.listeners[event] = (this.listeners[event] as EventCallback<E>[]).filter(e=>e!==callback) as EventCallback<any>
     }
     triggerEvent<E extends Events>(event: E, param: EventParams<E>) {
@@ -49,6 +50,7 @@ export class GameLevel {
             return;
         }
         listeners.forEach(e=>{
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (e as any)(param)
         });
     }

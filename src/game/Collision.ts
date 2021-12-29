@@ -1,4 +1,4 @@
-import Vector2, { dot, getDistance, getMagnitude, getNormalized, rotate, sub } from "./Vector2";
+import Vector2, { rotate } from "./Vector2";
 
 export const MOMENTUM_TO_DAMAGE = 200;
 

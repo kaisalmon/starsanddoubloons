@@ -10,4 +10,4 @@ const config:Phaser.Types.Core.GameConfig = {
     scene: new SpaceScene(),
     
 };
-const game = new Phaser.Game(config);
+new Phaser.Game(config);

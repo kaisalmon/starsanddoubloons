@@ -1,7 +1,4 @@
-import { IDLE_AI } from "../AI/ai";
 import { createCombatAI } from "../AI/CombatAI";
-import FleeAI from "../AI/FleeAI";
-import { WanderAI } from "../AI/WanderAI";
 import Component from "../Component";
 import { block, bridge, cannon, engine, flipped, lateralThruster, thruster } from "../Component/ComponentType";
 import { SpaceShip } from "../SpaceShip";

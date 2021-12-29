@@ -21,5 +21,5 @@ import SpaceScene from './scenes/SpaceScene';
         scene: new SpaceScene(),
         
     };
-    const game = new Phaser.Game(config);
+    new Phaser.Game(config);
 })();

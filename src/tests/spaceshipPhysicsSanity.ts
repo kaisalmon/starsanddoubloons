@@ -3,7 +3,6 @@ import { block } from "../game/Component/ComponentType";
 import { SpaceShip } from "../game/SpaceShip";
 import * as expect from "expect";
 import { calculateTorques } from "../game/Force";
-import { EMPTY_INTENT } from "../game/SpaceshipIntent";
 
 const radToDeg = (rad: number) => rad * 180 / Math.PI;
 
@@ -25,10 +24,10 @@ describe("Space Ship Sanity tests", () => {
       expect(forces.length).toBe(1);
     });
 
-    it("The force position should be the same as the center position of the first component", () => {
+    it("The force position should be 0,0", () => {
       const forces = ship.getAllForces(1);
-      const comp = ship.components[0];
       expect(forces[0].offsetX).toBe(0);
+      expect(forces[0].offsetY).toBe(0);
     });
 
     it("Expect there to be no y component to the drag", () => {
@@ -123,7 +122,7 @@ describe("Space Ship Sanity tests", () => {
         2 * Math.PI,
         Math.E // arbitrary number that's not 0 or PI
     ]
-    for(var i = 0; i < startingAngles.length; i++) describe(
+    for(let i = 0; i < startingAngles.length; i++) describe(
         `Sub Case ${i+1} - Starting angle ${radToDeg(startingAngles[i]).toFixed(0)}°`,
     () => {
         const startingAngle = startingAngles[i];

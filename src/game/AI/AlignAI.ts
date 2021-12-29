@@ -1,8 +1,7 @@
-import { UNIT_SCALE } from "../Component";
 import {GameLevel} from "../Level";
 import { SpaceShip } from "../SpaceShip";
 import SpaceshipIntent, { EMPTY_INTENT } from "../SpaceshipIntent";
-import Vector2, { getDistance, normalizeAngle } from "../Vector2";
+import Vector2, { normalizeAngle } from "../Vector2";
 import { AI } from "./ai";
 
 export class AlignAI implements AI{

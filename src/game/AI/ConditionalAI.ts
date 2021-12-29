@@ -1,6 +1,6 @@
 import {GameLevel} from "../Level";
 import { SpaceShip } from "../SpaceShip";
-import SpaceshipIntent, { EMPTY_INTENT } from "../SpaceshipIntent";
+import SpaceshipIntent from "../SpaceshipIntent";
 import { AI } from "./ai";
 
 export type ConditionalAIClause = [AI, (ship:SpaceShip, level:GameLevel)=>boolean];

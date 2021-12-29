@@ -12,6 +12,7 @@ export class WanderAI implements AI {
     target?: Vector2;
     base: ArriveAI;
     constructor(){
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.base = new ArriveAI(()=>this.target!, 30);
     }
     getIntent(ship: SpaceShip, level: GameLevel): SpaceshipIntent {
@@ -21,10 +22,11 @@ export class WanderAI implements AI {
         return this.base.getIntent(ship, level);
     }
     
-    update(delta: number, ship: SpaceShip, level: GameLevel): void {
+    update(delta: number, ship: SpaceShip): void {
         if(this.target === undefined) {
             this.updateTarget(ship);
         }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const distance = getDistance(ship.position, this.target!);
         if(distance < MIN_DISTANCE){
             this.updateTarget(ship);
