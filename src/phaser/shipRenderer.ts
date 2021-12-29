@@ -74,7 +74,8 @@ export default class ShipRenderer {
             const damage = component.damage
             const health = component.type.health
             const dim = component.damage > 0;
-            const spriteIndex = damage + (component.isPowered ? (health + 1) : 0);
+            const activeSprite = component.isPowered || sprite.data?.get('isFiring');
+            const spriteIndex = damage + (activeSprite ? (health + 1) : 0);
             const {x,y} = component.getCoMInUnitSpace() 
             sprite.setPosition(
                 (x - spaceshipUnitSpaceCoM.x) * UNIT_SCALE * DRAW_SCALE, 
@@ -84,13 +85,13 @@ export default class ShipRenderer {
             sprite.setTint(dim ? 0xAAAAAA : 0xFFFFFF);
             sprite.setDepth(component.isDestroyed() ? -2 : 0);
 
-           // if(!this.spaceship.isDestroyed){
+            if(!this.spaceship.isDestroyed()){
                 const canSmoke = component.type.isThruster || component.type.weaponType !== undefined;
                 if(canSmoke && component.isDestroyed()) {
                     this.smokeEmitter.explode(1, component.getCenterOfMassInWorldSpace(this.spaceship).x * DRAW_SCALE, component.getCenterOfMassInWorldSpace(this.spaceship).y * DRAW_SCALE);
                    this.smokeEmitter.active = true;
                }
-          //  }
+            }
         });
         
         const {x,y} = this.spaceship.position;
@@ -140,25 +141,14 @@ export default class ShipRenderer {
         const area = boundingBox.width * boundingBox.height;
         this.crashEmitter.explode(area * 50, x * DRAW_SCALE,y * DRAW_SCALE);
         
-
-        const index = this.spaceship.components.indexOf(component);
-        const sprite = this.group.getAll()[index] as Phaser.GameObjects.Sprite;
-        //sprite.setZ(-5);
-
-        if(this.spaceship.isDestroyed()){
-        //    this.group.setZ(-1);
-        }
     }
 
     onCannonballFired(component: Component) {
         const index = this.spaceship.components.indexOf(component);
         const sprite = this.group.getAll()[index] as Phaser.GameObjects.Sprite;
-        const damage = component.damage
-        const health = component.type.health
-        const spriteIndex = damage + health + 1
-        sprite.setFrame(spriteIndex);
+        sprite.setData('isFiring', true);
         setTimeout(()=>{
-            sprite.setFrame(damage);
-        }, 300);
+            sprite.setData('isFiring', false);
+        }, 100);
     }
 }
