@@ -5,7 +5,7 @@ import Component, { UNIT_SCALE } from "./Component";
 import Force, { calculateTorques, sum } from "./Force";
 import {GameLevel } from "./Level";
 import SpaceshipIntent from "./SpaceshipIntent";
-import Vector2, { getDistance, getMagnitude } from "./Vector2";
+import Vector2, { getDistance } from "./Vector2";
 
 export type Weapon = 'left' | 'right';
 
@@ -163,31 +163,9 @@ export class SpaceShip {
             return undefined;
         }
         for(const component of this.components){
-            const box = component.getBoundingBox(this);
-            if(!component.isCollidable()) continue;
-            for(const otherComponent of other.components){
-                const otherBox = otherComponent.getBoundingBox(other);
-                if(!otherComponent.isCollidable()) continue;
-                const intersection = doRectanglesIntersect(box, otherBox);
-                if(intersection){
-                    const relativeVelocity = {
-                        x: component.getEffectiveVelocity(this).x - otherComponent.getEffectiveVelocity(other).x,
-                        y: component.getEffectiveVelocity(this).y - otherComponent.getEffectiveVelocity(other).y
-                    }
-                    const speed = getMagnitude(relativeVelocity);
-                    const collission:Collision = {
-                        position: {
-                            x: (box.position.x + other.position.x) / 2,
-                            y: (box.position.y + other.position.y) / 2
-                        },
-                        normal: {
-                            x: (box.position.x - other.position.x),
-                            y: (box.position.y - other.position.y)
-                        },
-                        momentum: speed * (this.mass + other.mass)
-                    }
-                    return [collission, component, otherComponent];
-                }
+            const result = component.collidesWith(this, other);
+            if(result !== undefined){
+                return result;
             }
         }
     } 

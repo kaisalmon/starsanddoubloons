@@ -19,7 +19,7 @@ export function createCombatAI():AI{
     const chase = new ArriveAI(getPlayerVector, 60);
     const fireAi = FIRE_AI;
     const flee = new FleeAI(getPlayerVector);
-
+    return chase;
     const fsm = new FiniteStateMachineAI({
         "chase": {
             ai: chase,

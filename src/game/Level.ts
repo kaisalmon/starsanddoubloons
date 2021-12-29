@@ -81,14 +81,18 @@ export class GameLevel {
         const ships:SpaceShip[] = ([] as SpaceShip[]).concat(this.enemies, [this.player]);
         for (let i = 0; i < ships.length; i++) {
             for (let j = i + 1; j < ships.length; j++) {
-                const collisionResult = ships[i].collidesWith(ships[j]);
-                if (collisionResult) {
-                    this.resolveCollission(collisionResult, ships[i],ships[j]);
-                }
+                this.resolveCollisionsBetween(ships[i], ships[j]);
             }
             for (let j = 0; j < this.cannonballs.length; j++) {
                 ships[i].checkCannonballColission(this.cannonballs[j]);
             }
+        }
+    }
+
+    private resolveCollisionsBetween(a:SpaceShip, b:SpaceShip){
+        const collisionResult = a.collidesWith(b);
+        if (collisionResult) {
+            this.resolveCollission(collisionResult, a, b);
         }
     }
 

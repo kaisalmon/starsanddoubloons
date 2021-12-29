@@ -1,9 +1,9 @@
 import { Cannonball, CANNONBALL_KNOCKBACK, CANNONBALL_SPEED } from "../Cannonball";
-import Collision, { BoundingBox, MOMENTUM_TO_DAMAGE } from "../Collision";
+import Collision, { BoundingBox, doRectanglesIntersect, MOMENTUM_TO_DAMAGE } from "../Collision";
 import Force, { rotate, sum } from "../Force";
 import { SpaceShip, Weapon } from "../SpaceShip";
 import SpaceshipIntent from "../SpaceshipIntent";
-import Vector2, { findShortestDistanceBetweenTwoMovingObjects, getLinearVelocityFromAngularVelocity } from "../Vector2";
+import Vector2, { findShortestDistanceBetweenTwoMovingObjects, getLinearVelocityFromAngularVelocity, getMagnitude } from "../Vector2";
 import ComponentType from "./ComponentType";
 
 const WEAPON_ANGLES = {
@@ -206,6 +206,38 @@ export default class Component {
 
     onHit(cannonball: Cannonball, spaceship: SpaceShip): void {
         this.dealDamage(cannonball.damage, spaceship);
+    }
+
+    collidesWith(spaceship:SpaceShip, other: SpaceShip): [Collision, Component, Component] | undefined {
+        const box = this.getBoundingBox(spaceship);
+
+        if(!this.isCollidable()) return undefined;
+
+        for(const otherComponent of other.components){
+            const otherBox = otherComponent.getBoundingBox(other);
+            if(!otherComponent.isCollidable()) continue;
+            const intersection = doRectanglesIntersect(box, otherBox);
+            if(!intersection){
+                continue;
+            }
+            const relativeVelocity = {
+                x: this.getEffectiveVelocity(spaceship).x - otherComponent.getEffectiveVelocity(other).x,
+                y: this.getEffectiveVelocity(spaceship).y - otherComponent.getEffectiveVelocity(other).y
+            }
+            const speed = getMagnitude(relativeVelocity);
+            const collission:Collision = {
+                position: {
+                    x: (box.position.x + other.position.x) / 2,
+                    y: (box.position.y + other.position.y) / 2
+                },
+                normal: {
+                    x: (box.position.x - other.position.x),
+                    y: (box.position.y - other.position.y)
+                },
+                momentum: speed * (this.mass + other.mass)
+            }
+            return [collission, this, otherComponent];
+        }
     }
 
     onCollision(collision: Collision, spaceship: SpaceShip): void {
