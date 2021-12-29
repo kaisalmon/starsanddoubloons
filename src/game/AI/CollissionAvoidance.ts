@@ -9,7 +9,7 @@ const RAY_LENGTH = 15;
 
 export class CollisionAvoidanceAI implements AI {
 
-    wasRayHit: boolean = false;
+    wasRayHit = false;
     fleeAI?: FleeAI;
 
     constructor(private base: AI){}

@@ -14,7 +14,7 @@ export default class ConditionalAI implements AI {
     }
 
     getIntent(ship:SpaceShip, level:GameLevel): SpaceshipIntent {
-        for (let clause of this.clauses) {
+        for (const clause of this.clauses) {
             if (clause[1](ship, level)) {
                 return clause[0].getIntent(ship, level);
             }

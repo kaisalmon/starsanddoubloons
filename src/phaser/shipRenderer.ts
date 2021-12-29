@@ -5,7 +5,7 @@ import { SpaceShip } from "../game/SpaceShip";
 import SpaceScene from "../scenes/SpaceScene";
 import {DRAW_SCALE} from "./constants";
 
-var customRound = function(value: number, roundTo: number) {
+const customRound = function(value: number, roundTo: number) {
     return Math.round(value / roundTo) * roundTo;
 }
 const RENDER_DEBUG_LINES = false;

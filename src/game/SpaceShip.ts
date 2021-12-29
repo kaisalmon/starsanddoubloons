@@ -77,8 +77,8 @@ export class SpaceShip {
 
     // Return center of mass, measured in component units (not worldspace)
     getCenterOfMassUnitSpace(): Vector2 {
-        let centerOfMass: Vector2 = {x: 0, y: 0};
-        for(let component of this.components){
+        const centerOfMass: Vector2 = {x: 0, y: 0};
+        for(const component of this.components){
             centerOfMass.x += (component.position.x + component.width / 2) * component.mass;
             centerOfMass.y += (component.position.y + component.height / 2) * component.mass;
         }
@@ -163,10 +163,10 @@ export class SpaceShip {
         if(!doRectanglesIntersect(boundingBox, otherBoundingBox)){
             return undefined;
         }
-        for(let component of this.components){
+        for(const component of this.components){
             const box = component.getBoundingBox(this);
             if(!component.isCollidable()) continue;
-            for(let otherComponent of other.components){
+            for(const otherComponent of other.components){
                 const otherBox = otherComponent.getBoundingBox(other);
                 if(!otherComponent.isCollidable()) continue;
                 const intersection = doRectanglesIntersect(box, otherBox);

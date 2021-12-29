@@ -17,8 +17,8 @@ export const UNIT_SCALE = 1;
 export default class Component {
     type: ComponentType;
     position: Vector2; // Relative position of the component to the spaceship's top left corner
-    isPowered: boolean = false;
-    damage: number = 0;
+    isPowered = false;
+    damage = 0;
 
     constructor(type: ComponentType, position: Vector2) {
         this.type = type;
@@ -134,10 +134,10 @@ export default class Component {
 
     getCenterOfMassInWorldSpace(spaceship: SpaceShip): Vector2 {
         const centerOfMass = spaceship.getCenterOfMassUnitSpace();
-        let x = this.position.x - centerOfMass.x + this.width/2;
-        let y = this.position.y - centerOfMass.y + this.height/2;
-        let rotatedX = x * Math.cos(spaceship.angle) - y * Math.sin(spaceship.angle);
-        let rotatedY = x * Math.sin(spaceship.angle) + y * Math.cos(spaceship.angle);
+        const x = this.position.x - centerOfMass.x + this.width/2;
+        const y = this.position.y - centerOfMass.y + this.height/2;
+        const rotatedX = x * Math.cos(spaceship.angle) - y * Math.sin(spaceship.angle);
+        const rotatedY = x * Math.sin(spaceship.angle) + y * Math.cos(spaceship.angle);
         return {x: rotatedX * UNIT_SCALE + spaceship.position.x, y: rotatedY * UNIT_SCALE+ spaceship.position.y};
     }
 

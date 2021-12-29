@@ -8,7 +8,7 @@ export default interface Force{
 }
 
 export function fromMagnitudeAndAngle(magnitude: number, angle: number): Force{
-    let force: Force = {
+    const force: Force = {
         offsetX: 0,
         offsetY: 0,
         x: 0,
@@ -21,7 +21,7 @@ export function fromMagnitudeAndAngle(magnitude: number, angle: number): Force{
 
 // Returns a new force, where the offset and the force direction are rotated arround the origin 
 export function rotate(force: Force, angle: number): Force{
-    let rotatedForce: Force = {
+    const rotatedForce: Force = {
         offsetX: 0,
         offsetY: 0,
         x: 0,
@@ -36,13 +36,13 @@ export function rotate(force: Force, angle: number): Force{
 
 // Given an array of forces, return a new force which is the sum of all forces, and with an offset of 0
 export function sum(forces: Force[]): Force{
-    let sumForce: Force = {
+    const sumForce: Force = {
         offsetX: 0,
         offsetY: 0,
         x: 0,
         y: 0
     };
-    for(let force of forces){
+    for(const force of forces){
         sumForce.x += force.x;
         sumForce.y += force.y;
         sumForce.offsetX += force.offsetX;
@@ -60,8 +60,8 @@ export function calculateTorque(force: Force): number{
 
 // Given an array of forces, calculate the torque acted upon the origin point
 export function calculateTorques(forces: Force[], offset?:Vector2): number{
-    let torque: number = 0;
-    for(let force of forces){
+    let torque = 0;
+    for(const force of forces){
         const offsetForce = offset ? {
             offsetX: force.offsetX - offset.x,
             offsetY: force.offsetY - offset.y,

@@ -106,7 +106,7 @@ export class GameLevel {
             y: normalNormalized.y * 0.1 * UNIT_SCALE
         }
         for(let i = 0; i < 30; i++){
-            if(!shipA.collidesWith(shipB)) {break};
+            if(!shipA.collidesWith(shipB)) {break}
             shipA.position = {
                 x: shipA.position.x + moveAmount.x,
                 y: shipA.position.y + moveAmount.y
