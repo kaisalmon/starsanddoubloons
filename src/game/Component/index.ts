@@ -283,7 +283,7 @@ export default class Component {
     }
 
     isAimingAt(target: SpaceShip, spaceship: SpaceShip): boolean {
-        if(this.isDestroyed()){
+        if(this.isDestroyed() || target.isDestroyed()){
             return false;
         }
         if(this.type.weaponType === undefined){

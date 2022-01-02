@@ -139,7 +139,7 @@ export class LevelRenderer{
 
         scene.cameras.main.startFollow(this.playerRenderer.gameObject,true, 0.04, 0.04, 0, this.followOffset)
         this.cameraAngle = normalizeAngle(Math.PI  - this.level.player.angle)
-
+        scene.cameras.main.setZoom(this.desiredZoom)
     }
     onUpdate(scene: SpaceScene, _delta:number) {
         scene.graphics.clear();

@@ -17,7 +17,7 @@ export class CollisionAvoidanceAI implements AI {
         const baseIntent = this.base.getIntent(ship, level);
     
         const ray = getSpaceshipRay(ship);
-        const rayHit = level.getAllSpaceships().find(other => {
+        const rayHit = level.enemies.find(other => {
             if(other === ship) {
                 return false;
             }

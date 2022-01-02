@@ -4,7 +4,7 @@ import Vector2 from "./Vector2";
 export const CANNONBALL_AGE = 50;
 export const CANNONBALL_FRIENDLY_FIRE_TIME = 5;
 export const CANNONBALL_SPEED = 2;
-export const CANNONBALL_KNOCKBACK = 1;
+export const CANNONBALL_KNOCKBACK = 3;
 
 export class Cannonball { 
     position: Vector2;
