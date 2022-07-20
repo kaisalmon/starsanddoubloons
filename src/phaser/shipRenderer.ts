@@ -2,10 +2,13 @@ import { CollisionAvoidanceAI, getSpaceshipRay } from "../game/AI/CollissionAvoi
 import { polygonToLines, rectangleToPolygon } from "../game/Collision";
 import Component, { UNIT_SCALE } from "../game/Component";
 import { SpaceShip } from "../game/SpaceShip";
-import SpaceScene from "../scenes/SpaceScene";
 import {DRAW_SCALE} from "./constants";
 
 const RENDER_DEBUG_LINES = false;
+
+type PhaserSceneWithGraphics = Phaser.Scene & {
+    graphics: Phaser.GameObjects.Graphics
+}
 
 export default class ShipRenderer {
     private group!: Phaser.GameObjects.Container;
@@ -17,7 +20,19 @@ export default class ShipRenderer {
         return this.group;
     }
     constructor(public spaceship:SpaceShip){}
-    onCreate(scene: SpaceScene) {
+
+    static preload(scene: Phaser.Scene) {
+        scene.load.spritesheet('block', 'assets/components/block.png', { frameWidth: 16, frameHeight: 16 });
+        scene.load.spritesheet('thruster', 'assets/components/thruster.png', { frameWidth: 16, frameHeight: 16 });
+        scene.load.spritesheet('lateralThrusters', 'assets/components/laterialThrusters.png', { frameWidth: 16, frameHeight: 16 });
+        scene.load.spritesheet('engineRoom', 'assets/components/engineRoom.png', { frameWidth: 32, frameHeight: 32 });
+        scene.load.spritesheet('bridge', 'assets/components/bridge.png', { frameWidth: 32, frameHeight: 32 });
+        scene.load.spritesheet('cannon', 'assets/components/cannon.png', { frameWidth: 16, frameHeight: 16 });
+        scene.load.spritesheet('cannonball', 'assets/bullet.png', { frameWidth: 8, frameHeight: 8 });
+        scene.load.spritesheet('smoke', 'assets/smoke.png', { frameWidth: 8, frameHeight: 8 });
+    }
+
+    onCreate(scene: PhaserSceneWithGraphics) {
         this.crashEmitter = scene.add.particles('block').createEmitter({
             speed: { min: -30, max: 30 },
             angle: { min: 0, max: 360 },
@@ -62,7 +77,7 @@ export default class ShipRenderer {
         this.group.setZ(1)
         this.onUpdate(scene);
     }
-    onUpdate(scene: SpaceScene) {
+    onUpdate(scene: PhaserSceneWithGraphics) {
         const sprites = this.group.getAll() as Phaser.GameObjects.Sprite[]
         const spaceshipUnitSpaceCoM = this.spaceship.getCenterOfMassUnitSpace();
 
@@ -99,7 +114,7 @@ export default class ShipRenderer {
         if(RENDER_DEBUG_LINES)this.renderDebugLines(scene);
     }
 
-    private renderDebugLines(scene: SpaceScene) {
+    private renderDebugLines(scene: PhaserSceneWithGraphics) {
         scene.graphics.lineStyle(2, 0xFF00FF, 0.5);
 
         const boundingBox = this.spaceship.boundingBox;

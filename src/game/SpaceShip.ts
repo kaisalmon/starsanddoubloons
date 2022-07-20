@@ -26,6 +26,10 @@ export class SpaceShip {
 
     impulses: Force[] = [];
 
+    get functionalComponents(): Component[]{
+        return this.components.filter(c=>!c.isDestroyed())
+    }
+
     get mass(): number {
         return this.components.reduce((acc, component) => acc + component.mass, 0);
     }
@@ -40,8 +44,7 @@ export class SpaceShip {
     }
 
     get boundingBox(): BoundingBox {
-        const components = this.components
-            .filter(component => component.isDestroyed() === false);
+        const components = this.functionalComponents
         const lowestX = components.reduce((acc, component) => Math.min(acc, component.position.x), Number.MAX_VALUE);
         const highestX = components.reduce((acc, component) => Math.max(acc, component.position.x + component.width), Number.MIN_VALUE);
         const lowestY = components.reduce((acc, component) => Math.min(acc, component.position.y), Number.MAX_VALUE);

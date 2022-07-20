@@ -4,6 +4,7 @@ import { newBasicEnemy, newPlayerShip } from "../game/ShipDesigns/basic";
 import { SpaceShip } from "../game/SpaceShip";
 import SpaceshipIntent from "../game/SpaceshipIntent";
 import { LevelRenderer } from "../phaser/levelRenderer";
+import ShipRenderer from "../phaser/shipRenderer";
 
 const GAME_SPEED = 1/80;
 
@@ -44,18 +45,8 @@ export default class SpaceScene extends Phaser.Scene {
     }
 
     preload(){
-        this.load.spritesheet('block', 'assets/components/block.png', { frameWidth: 16, frameHeight: 16 });
-        this.load.spritesheet('thruster', 'assets/components/thruster.png', { frameWidth: 16, frameHeight: 16 });
-        this.load.spritesheet('lateralThrusters', 'assets/components/laterialThrusters.png', { frameWidth: 16, frameHeight: 16 });
-        this.load.spritesheet('engineRoom', 'assets/components/engineRoom.png', { frameWidth: 32, frameHeight: 32 });
-        this.load.spritesheet('bridge', 'assets/components/bridge.png', { frameWidth: 32, frameHeight: 32 });
-        this.load.spritesheet('cannon', 'assets/components/cannon.png', { frameWidth: 16, frameHeight: 16 });
-        this.load.spritesheet('cannonball', 'assets/bullet.png', { frameWidth: 8, frameHeight: 8 });
-        this.load.spritesheet('smoke', 'assets/smoke.png', { frameWidth: 8, frameHeight: 8 });
-
-        this.load.image('space1', 'assets/backgrounds/space1.jpeg');
-        this.load.image('space2', 'assets/backgrounds/space2.jpeg');
-        this.load.image('grid', 'assets/backgrounds/grid.png');
+        ShipRenderer.preload(this);
+        LevelRenderer.preload(this);
     }
 
     create(){

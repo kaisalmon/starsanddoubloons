@@ -43,6 +43,13 @@ export class LevelRenderer{
         this.playerRenderer = new ShipRenderer(level.player)
         this.enemyRenderers = level.enemies.map(ship => new ShipRenderer(ship));
     }
+
+    static preload(scene: Phaser.Scene){
+        scene.load.image('space1', 'assets/backgrounds/space1.jpeg');
+        scene.load.image('space2', 'assets/backgrounds/space2.jpeg');
+        scene.load.image('grid', 'assets/backgrounds/grid.png');
+    }
+
     onCreate(scene: SpaceScene) {
         this.renderers.forEach(renderer => renderer.onCreate(scene));
         const width = Math.max(scene.scale.width, scene.scale.height);
