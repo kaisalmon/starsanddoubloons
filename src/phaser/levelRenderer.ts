@@ -35,8 +35,9 @@ export class LevelRenderer{
     }
 
     private get followOffset(){
-        const speed = getMagnitude(this.level.player.velocity);
-        return Math.pow(speed, LOOKAHEAD_EXP) * lOOKAHEAD_SCALE;
+        return 0
+        // const speed = getMagnitude(this.level.player.velocity);
+        // return Math.pow(speed, LOOKAHEAD_EXP) * lOOKAHEAD_SCALE;
     }
 
     constructor(private level: GameLevel){

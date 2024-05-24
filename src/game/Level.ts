@@ -1,10 +1,10 @@
 import { PLAYER_AI } from "./AI/PlayerAI";
 import { Cannonball, CANNONBALL_AGE } from "./Cannonball";
 import Collision from "./Collision";
+import Component, { UNIT_SCALE } from "./Component";
 import { SpaceShip } from "./SpaceShip";
 import SpaceshipIntent, { EMPTY_INTENT } from "./SpaceshipIntent";
 import { getNormalized } from "./Vector2";
-import Component, { UNIT_SCALE } from "/Users/kaisalmon/Documents/Phaser/StarsAndDoubloons/src/game/Component/index";
 type Unarray<T> = T extends Array<infer U> ? U : T;
 type EventListeners = {
     "collision": ((args:[SpaceShip, SpaceShip, Collision])=>void)[]

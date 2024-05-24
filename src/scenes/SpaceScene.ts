@@ -52,6 +52,7 @@ export default class SpaceScene extends Phaser.Scene {
         this.load.spritesheet('cannon', 'assets/components/cannon.png', { frameWidth: 16, frameHeight: 16 });
         this.load.spritesheet('cannonball', 'assets/bullet.png', { frameWidth: 8, frameHeight: 8 });
         this.load.spritesheet('smoke', 'assets/smoke.png', { frameWidth: 8, frameHeight: 8 });
+        this.load.spritesheet('arrow', 'assets/arrow.png',{ frameWidth: 32, frameHeight: 32 });
 
         this.load.image('space1', 'assets/backgrounds/space1.jpeg');
         this.load.image('space2', 'assets/backgrounds/space2.jpeg');
