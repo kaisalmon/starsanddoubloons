@@ -31,8 +31,6 @@ export default class SpaceScene extends Phaser.Scene {
         this.level = new GameLevel(
             newPlayerShip(),[
                 newBasicEnemy(),
-                newBasicEnemy(),
-                newBasicEnemy(),
             ],
         )
         this.level.enemies.forEach(e => {

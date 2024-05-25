@@ -25,14 +25,12 @@ export class LevelRenderer{
     cannonballSprites: Phaser.GameObjects.Sprite[] = [];
     
     private cameraAngle = 0;
+    private desiredZoom = 0.8;
 
     get renderers(): ShipRenderer[] {
         return ([] as ShipRenderer[]).concat([this.playerRenderer], this.enemyRenderers);
     }
 
-    get desiredZoom(): number{
-        return .8
-    }
 
     private get followOffset(){
         return 0
@@ -137,12 +135,8 @@ export class LevelRenderer{
                 renderer.onComponentDestroyed(component);
             }
         });
-
-        scene.cameras.main.startFollow(this.playerRenderer.gameObject,true, 0.04, 0.04, 0, this.followOffset)
-        this.cameraAngle = normalizeAngle(Math.PI  - this.level.player.angle)
-        scene.cameras.main.setZoom(this.desiredZoom)
     }
-    onUpdate(scene: SpaceScene, _delta:number) {
+    onUpdate(scene: SpaceScene, delta:number) {
         scene.graphics.clear();
         this.renderers.forEach(renderer => renderer.onUpdate(scene));
         this.cannonballSprites.forEach((sprite, i) => {
@@ -151,14 +145,25 @@ export class LevelRenderer{
             sprite.setY(cannonball.position.y * DRAW_SCALE);
         });
 
-        const targetAngle = normalizeAngle(Math.PI  - this.level.player.angle);
-   
-        this.cameraAngle = lerpAngle(this.cameraAngle, targetAngle, 0.1);
-        scene.cameras.main.setRotation(this.cameraAngle);
-        scene.cameras.main.followOffset.x = this.followOffset * Math.sin(this.cameraAngle);
-        scene.cameras.main.followOffset.y = this.followOffset * Math.cos(this.cameraAngle);
- 
-        scene.cameras.main.setZoom(lerp(scene.cameras.main.zoom, this.desiredZoom, 0.01));
+        const spaceships = this.level.getAllSpaceships()
+        if(spaceships.length >=2) {
+            const totalX = spaceships.reduce((sum, ship) => sum + ship.position.x, 0);
+            const totalY = spaceships.reduce((sum, ship) => sum + ship.position.y, 0);
+            const centerX = totalX / spaceships.length;
+            const centerY = totalY / spaceships.length;
+            scene.cameras.main.scrollX = centerX * DRAW_SCALE - scene.cameras.main.width /2 ;
+            scene.cameras.main.scrollY = centerY * DRAW_SCALE - scene.cameras.main.height /2 ;
+    
+            const maxDistance = spaceships.reduce((maxDist, ship) => {
+                const distX = Math.abs(ship.position.x - centerX);
+                const distY = Math.abs(ship.position.y - centerY);
+                return Math.max(maxDist, distX, distY) + 10
+            }, 0);
+            const tzoom = scene.cameras.main.width / (maxDistance * 2 * DRAW_SCALE)
+            this.desiredZoom = Math.max(0.25, Math.min(3, tzoom))
+        }
+        scene.cameras.main.setZoom(lerp(scene.cameras.main.zoom, this.desiredZoom, delta));
+        scene.cameras.main.setZoom(this.desiredZoom);
 
         this.backgroundLayers.forEach(layer => {
             layer.image.tilePositionX = scene.cameras.main.scrollX * layer.scrollSpeed;

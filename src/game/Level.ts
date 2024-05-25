@@ -1,3 +1,4 @@
+import { createCombatAI } from "./AI/CombatAI";
 import { PLAYER_AI } from "./AI/PlayerAI";
 import { Cannonball, CANNONBALL_AGE } from "./Cannonball";
 import Collision from "./Collision";

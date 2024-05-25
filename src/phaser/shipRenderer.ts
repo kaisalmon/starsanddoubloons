@@ -13,7 +13,6 @@ export default class ShipRenderer {
     
     private crashEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
     private smokeEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
-    private arrow!: Phaser.GameObjects.Sprite;
 
     get gameObject(): Phaser.GameObjects.GameObject {
         return this.group;
@@ -62,11 +61,6 @@ export default class ShipRenderer {
                 return sprite;
             }));
         this.group.setZ(1)
-
-        this.arrow = scene.add.sprite(0, 0, 'arrow');
-        this.arrow.setOrigin(0.5, 0.5);
-        this.arrow.setVisible(true);
-        this.arrow.setZ(9)
         this.onUpdate(scene);
     }
     onUpdate(scene: SpaceScene) {
@@ -105,35 +99,7 @@ export default class ShipRenderer {
         
         if(RENDER_DEBUG_LINES)this.renderDebugLines(scene);
 
-        const isOffscreen = !scene.cameras.main.worldView.contains(x  * DRAW_SCALE, y * DRAW_SCALE);
-
-        if (isOffscreen && !this.spaceship.isDestroyed()) {
-            // Calculate the arrow position and rotation
-            const screenCenter = new Phaser.Math.Vector2(
-                scene.cameras.main.worldView.x + scene.cameras.main.worldView.width / 2,
-                scene.cameras.main.worldView.y + scene.cameras.main.worldView.height / 2 
-            );
-            const camera = scene.cameras.main
-            const relativePos= {
-                x: (x * DRAW_SCALE - screenCenter.x) * camera.zoom,
-                y: (y * DRAW_SCALE -  screenCenter.y) * camera.zoom
-              }
-             const angle = Math.atan2(
-                relativePos.y,
-                relativePos.x
-             )
-             const arrowX = screenCenter.x + Math.cos(angle) * (scene.cameras.main.worldView.width /2 - 100)
-             const arrowY = screenCenter.y + Math.sin(angle)  * (scene.cameras.main.worldView.height /2 - 100)
-
-            // Set the arrow position, rotation, and visibility
-            this.arrow.setPosition(arrowX,arrowY);
-            this.arrow.setRotation(angle + Math.PI/2);
-            this.arrow.setVisible(true);
-
-        } else {
-            // Hide the arrow if the enemy ship is onscreen
-            this.arrow.setVisible(false);
-        }
+      
 
     }
 

@@ -1,4 +1,5 @@
 import { createCombatAI } from "../AI/CombatAI";
+import { PLAYER_AI } from "../AI/PlayerAI";
 import Component from "../Component";
 import { block, bridge, cannon, engine, flipped, lateralThruster, thruster } from "../Component/ComponentType";
 import { SpaceShip } from "../SpaceShip";

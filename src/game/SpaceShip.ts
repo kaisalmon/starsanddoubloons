@@ -11,6 +11,8 @@ export type Weapon = 'left' | 'right';
 
 const ROTATION_FACTOR = 0.2;
 const COLLISION_KNOCKBACK = 0.01;
+const MASS_MULTIPLIER = 1.5;
+const SPEED_MULTIPLIER = 0.7;
 
 export class SpaceShip {
     components: Component[];
@@ -27,7 +29,7 @@ export class SpaceShip {
     impulses: Force[] = [];
 
     get mass(): number {
-        return this.components.reduce((acc, component) => acc + component.mass, 0);
+        return this.components.reduce((acc, component) => acc + component.mass, 0) * MASS_MULTIPLIER;
     }
 
     get keneticEnergy(): number {
@@ -132,8 +134,8 @@ export class SpaceShip {
         this.velocity.x += totalForce.x / this.mass;
         this.velocity.y += totalForce.y / this.mass;
         this.angularVelocity += torque / this.mass;
-        this.position.x += this.velocity.x * delta;
-        this.position.y += this.velocity.y * delta;
+        this.position.x += this.velocity.x * delta * SPEED_MULTIPLIER;
+        this.position.y += this.velocity.y * delta * SPEED_MULTIPLIER;
 
         this.angle -= this.angularVelocity * delta * ROTATION_FACTOR;
 

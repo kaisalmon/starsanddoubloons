@@ -11,20 +11,17 @@ import { FiniteStateMachineAI } from "./FSMAI";
 const CHASE_DISTANCE = 45;
 const FIRE_DISTANCE = 40;
 
-function getPlayerVector(level:GameLevel): Vector2 {
-    return level.player.position
-}
 
-export function createCombatAI():AI{
-    const chase = new ArriveAI(getPlayerVector, 60);
+export function createCombatAI(target?: SpaceShip):AI{
+    const chase = new ArriveAI((level)=>(target ?? level.player).position, 60);
     const fireAi = FIRE_AI;
-    const flee = new FleeAI(getPlayerVector);
+    const flee = new FleeAI((level)=>(target ?? level.player).position);
     
     const fsm = new FiniteStateMachineAI({
         "chase": {
             ai: chase,
             getNextState(ship:SpaceShip, level:GameLevel): string {
-                const distance = getDistance(ship.position, level.player.position);
+                const distance = getDistance(ship.position, (target ?? level.player).position);
                 if(distance < FIRE_DISTANCE){
                     return "fire";
                 }
@@ -34,7 +31,7 @@ export function createCombatAI():AI{
         "fire": {
             ai: fireAi,
             getNextState(ship:SpaceShip, level:GameLevel): string {
-                const distance = getDistance(ship.position, level.player.position);
+                const distance = getDistance(ship.position, (target ?? level.player).position);
                 if(distance > CHASE_DISTANCE){
                     return "chase";
                 }
