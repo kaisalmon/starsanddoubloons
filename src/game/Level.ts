@@ -1,5 +1,6 @@
+import { Socket } from "socket.io";
 import { createCombatAI } from "./AI/CombatAI";
-import { PLAYER_AI } from "./AI/PlayerAI";
+import { NetworkAI, PLAYER_AI } from "./AI/PlayerAI";
 import { Cannonball, CANNONBALL_AGE } from "./Cannonball";
 import Collision from "./Collision";
 import Component, { UNIT_SCALE } from "./Component";
@@ -21,7 +22,7 @@ type EventParams<T extends Events> = Parameters<EventCallback<T>>[0]
 export class GameLevel {
     player: SpaceShip;
     playerIntent: SpaceshipIntent = EMPTY_INTENT;
-    enemies: SpaceShip[];
+    ships: SpaceShip[];
 
     private listeners:EventListeners = {
         "collision": [],
@@ -56,17 +57,23 @@ export class GameLevel {
         });
     }
 
-    constructor(player: SpaceShip, enemies: SpaceShip[]){
-        this.enemies = enemies;
-        this.player = player;
-        this.enemies.forEach(enemy => enemy.level = this);
-        this.player.level = this;
-        this.player.ai =  PLAYER_AI
+    constructor(ships: SpaceShip[],  gameId:string, socket: Socket){
+        this.ships = ships;
+        this.ships.forEach(enemy => enemy.level = this);
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('playerId')
+        const playerShip = this.ships.find(ship=>ship.id == id)
+        if(!playerShip){
+            throw new Error("Invalid playerId queryparam!")
+        }
+        this.player = playerShip
+        this.ships.forEach(ship=>{
+            ship.ai = ship === playerShip ? PLAYER_AI : new NetworkAI(ship.id, gameId, socket)
+        })
     }
     
     update(delta: number): void {
-        this.player.update(delta);
-        this.enemies.forEach(enemy => enemy.update( delta));
+        this.ships.forEach(enemy => enemy.update( delta));
         this.cannonballs.forEach(c => c.update( delta));
         let temp:Cannonball[] = [];
         temp = temp.concat(this.cannonballs);
@@ -79,7 +86,7 @@ export class GameLevel {
     }
 
     resolveCollisions() {
-        const ships:SpaceShip[] = ([] as SpaceShip[]).concat(this.enemies, [this.player]);
+        const ships:SpaceShip[] = this.ships
         for (let i = 0; i < ships.length; i++) {
             for (let j = i + 1; j < ships.length; j++) {
                 this.resolveCollisionsBetween(ships[i], ships[j]);
@@ -140,7 +147,6 @@ export class GameLevel {
     }
 
     getAllSpaceships(): SpaceShip[] {
-        return ([] as SpaceShip[]).concat(this.enemies, [this.player])
-            .filter(ship => !ship.isDestroyed());
+       return this.ships
     }
 }

@@ -27,6 +27,7 @@ export class SpaceShip {
     weaponCalldown: undefined|number;
 
     impulses: Force[] = [];
+    id: string;
 
     get mass(): number {
         return this.components.reduce((acc, component) => acc + component.mass, 0) * MASS_MULTIPLIER;
@@ -67,8 +68,9 @@ export class SpaceShip {
         return 15;
     }
 
-    constructor(components: Component[], ai: AI = IDLE_AI) {
+    constructor(id:string, components: Component[], ai: AI = IDLE_AI) {
         this.ai = ai;
+        this.id = id
         this.components = components;
         this.velocity = {x: 0, y: 0};
         this.angle = 0;

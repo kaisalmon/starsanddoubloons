@@ -1,3 +1,4 @@
+import { Socket } from "socket.io";
 import { UNIT_SCALE } from "../game/Component";
 import { GameLevel } from "../game/Level";
 import { newBasicEnemy, newPlayerShip } from "../game/ShipDesigns/basic";
@@ -14,6 +15,8 @@ export default class SpaceScene extends Phaser.Scene {
     
     graphics!: Phaser.GameObjects.Graphics;
     levelRenderer!: LevelRenderer;
+    socket: any;
+    gameId: string;
     
     get player(): SpaceShip{
         return this.level.player;
@@ -26,19 +29,25 @@ export default class SpaceScene extends Phaser.Scene {
         this.level.playerIntent = intent;
     }
     
-    constructor(){
+    constructor(socket: Socket){
         super({ key: "SpaceScene" });
+        this.socket = socket;
+        const urlParams = new URLSearchParams(window.location.search);
+        const gameId = urlParams.get('gameId')
+        if(!gameId) throw new Error("Missing gameId")
+        this.gameId=gameId
         this.level = new GameLevel(
-            newPlayerShip(),[
-                newBasicEnemy(),
-            ],
+            [newPlayerShip("1"), newBasicEnemy("2")],
+            gameId, socket
         )
-        this.level.enemies.forEach(e => {
+        this.level.ships.forEach(e => {
             e.position.x = Math.random() * 120 * UNIT_SCALE;
             e.position.y = Math.random() * 120 * UNIT_SCALE;
             e.angle = Math.random() * Math.PI * 2;
             e.velocity = {x:Math.sin(e.angle), y:Math.cos(e.angle)};
         });
+        
+        this.socket.emit(`join game`, this.gameId)
     }
 
     preload(){
@@ -105,6 +114,8 @@ export default class SpaceScene extends Phaser.Scene {
         delta *= GAME_SPEED;
         this.level.update(delta);
         this.levelRenderer.onUpdate(this, delta)
+        
+        this.socket.emit(`game ${this.gameId}`, {player: this.player.id, intent: this.player.intent})
     }
 
     

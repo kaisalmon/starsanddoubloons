@@ -1,0 +1,1 @@
+declare var io: (path?:string)=>any;

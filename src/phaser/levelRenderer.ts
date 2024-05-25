@@ -17,8 +17,7 @@ const lOOKAHEAD_SCALE = 3 * UNIT_SCALE * DRAW_SCALE;
 const LOOKAHEAD_EXP = 2;
 
 export class LevelRenderer{
-    playerRenderer: ShipRenderer;
-    enemyRenderers: ShipRenderer[]
+    shipRenderers: ShipRenderer[]
 
     backgroundLayers: ScrollLayer[] = [];
 
@@ -27,9 +26,6 @@ export class LevelRenderer{
     private cameraAngle = 0;
     private desiredZoom = 0.8;
 
-    get renderers(): ShipRenderer[] {
-        return ([] as ShipRenderer[]).concat([this.playerRenderer], this.enemyRenderers);
-    }
 
 
     private get followOffset(){
@@ -39,11 +35,10 @@ export class LevelRenderer{
     }
 
     constructor(private level: GameLevel){
-        this.playerRenderer = new ShipRenderer(level.player)
-        this.enemyRenderers = level.enemies.map(ship => new ShipRenderer(ship));
+        this.shipRenderers = level.ships.map(ship => new ShipRenderer(ship));
     }
     onCreate(scene: SpaceScene) {
-        this.renderers.forEach(renderer => renderer.onCreate(scene));
+        this.shipRenderers.forEach(renderer => renderer.onCreate(scene));
         const width = Math.max(scene.scale.width, scene.scale.height);
         const height = width;
     
@@ -114,7 +109,7 @@ export class LevelRenderer{
             sprite.setBlendMode('ADD');
             sprite.setDepth(-1);
             this.cannonballSprites.push(sprite);
-            const r = this.renderers.find(r => r.spaceship === spaceship);
+            const r = this.shipRenderers.find(r => r.spaceship === spaceship);
             if(!r){
                 return;
             }
@@ -130,7 +125,7 @@ export class LevelRenderer{
         });
 
         this.level.addEventListener('componentDestroyed', ([component, spaceship])=>{
-            const renderer = this.renderers.find(renderer => renderer.spaceship === spaceship);
+            const renderer = this.shipRenderers.find(renderer => renderer.spaceship === spaceship);
             if(renderer){
                 renderer.onComponentDestroyed(component);
             }
@@ -138,7 +133,7 @@ export class LevelRenderer{
     }
     onUpdate(scene: SpaceScene, delta:number) {
         scene.graphics.clear();
-        this.renderers.forEach(renderer => renderer.onUpdate(scene));
+        this.shipRenderers.forEach(renderer => renderer.onUpdate(scene));
         this.cannonballSprites.forEach((sprite, i) => {
             const cannonball = this.level.cannonballs[i];
             sprite.setX(cannonball.position.x * DRAW_SCALE);

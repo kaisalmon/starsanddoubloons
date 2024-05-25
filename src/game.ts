@@ -6,19 +6,15 @@ import SpaceScene from './scenes/SpaceScene';
         console.log('..')
         await new Promise(resolve => setTimeout(resolve, 10));
     }
-    const {width} = window.document.body.getClientRects()[0]
-    const body = document.body,
-    html = document.documentElement;
-
-    const height = Math.max( body.scrollHeight, body.offsetHeight, 
-                        html.clientHeight, html.scrollHeight, html.offsetHeight ); 
+    
+    const socket = io('http://localhost:3000');
     const config:Phaser.Types.Core.GameConfig = {
         type: Phaser.AUTO,
         backgroundColor: '#333333',
-        width: width,
-        height: height,
+        width: 800,
+        height: 600,
         pixelArt: true,
-        scene: new SpaceScene(),
+        scene: new SpaceScene(socket),
         
     };
     new Phaser.Game(config);

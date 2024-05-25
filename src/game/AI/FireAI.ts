@@ -14,7 +14,7 @@ function isOnlyAimingAtPlayer(ship:SpaceShip, level:GameLevel, weapon:Weapon): b
     if(!isAimingAt) {
         return false;
     }
-    return level.enemies.every(enemy => {
+    return level.ships.every(enemy => {
         return !ship.isAimingAt(enemy, weapon);
     })
 }

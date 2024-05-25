@@ -4,7 +4,7 @@ import Component from "../Component";
 import { block, bridge, cannon, engine, flipped, lateralThruster, thruster } from "../Component/ComponentType";
 import { SpaceShip } from "../SpaceShip";
 
-export const newBasicEnemy = ()=>new SpaceShip([
+export const newBasicEnemy = (id:string)=>new SpaceShip(id, [
         new Component(thruster, {x: 0, y: -1}),
         new Component(thruster, {x: 1, y: -1}),
         new Component(engine, {x: 0, y: 0}),
@@ -27,7 +27,7 @@ export const newBasicEnemy = ()=>new SpaceShip([
     createCombatAI()
 );
 
-export const newPlayerShip = ()=>new SpaceShip([
+export const newPlayerShip = (id: string)=>new SpaceShip(id, [
     new Component(thruster, {x: 0, y: -1}),
     new Component(thruster, {x: 1, y: -1}),
     new Component(block, {x: -1, y: -1}),
@@ -64,7 +64,7 @@ export const newPlayerShip = ()=>new SpaceShip([
 createCombatAI()
 );
 
-export const newSpinnyBlock = ()=>new SpaceShip([
+export const newSpinnyBlock = (id:string)=>new SpaceShip(id, [
         new Component(engine, {x: 0, y: 0}),
         new Component(cannon, {x: -1, y: 0}),
         new Component(flipped(cannon), {x: 2, y: 1}),
