@@ -184,7 +184,7 @@ export default class Component {
         const cannonball = new Cannonball({
             x, y
         },this.getCannonballVelocity(spaceship, weapon),
-            spaceship,
+            spaceship.id,
         );
         spaceship.addCannonball(cannonball, this);
         spaceship.impulses.push({
@@ -205,7 +205,7 @@ export default class Component {
     }
 
     onHit(cannonball: Cannonball, spaceship: SpaceShip): void {
-        this.dealDamage(cannonball.damage, spaceship);
+        this.dealDamage(cannonball.getDamage(), spaceship);
     }
 
     collidesWith(spaceship:SpaceShip, other: SpaceShip): [Collision, Component, Component] | undefined {
@@ -299,6 +299,20 @@ export default class Component {
         }
         return shortestDistance <= target.radius/6
     }
+
+    
+    dump(): ComponentDump {
+        return {
+            damage: this.damage
+        }
+    }
+
+    
+    fromDump(dump: ComponentDump): void {
+       this.damage = dump.damage
+    }
 }
 
-
+export interface ComponentDump {
+    damage: number
+}

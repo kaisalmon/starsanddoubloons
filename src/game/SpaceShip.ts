@@ -1,7 +1,7 @@
 import { AI, IDLE_AI } from "./AI/ai";
 import { Cannonball, CANNONBALL_FRIENDLY_FIRE_TIME, CANNONBALL_KNOCKBACK } from "./Cannonball";
 import Collision, { BoundingBox, doPolygonsIntersect, doRectanglesIntersect, Line, rectangleToPolygon } from "./Collision";
-import Component, { UNIT_SCALE } from "./Component";
+import Component, { ComponentDump, UNIT_SCALE } from "./Component";
 import Force, { calculateTorques, sum } from "./Force";
 import {GameLevel } from "./Level";
 import SpaceshipIntent from "./SpaceshipIntent";
@@ -23,11 +23,10 @@ export class SpaceShip {
     velocity: Vector2; //Absolute velocity
     angle: number;
     angularVelocity: number;
-
+    id: string;
     weaponCalldown: undefined|number;
 
     impulses: Force[] = [];
-    id: string;
 
     get mass(): number {
         return this.components.reduce((acc, component) => acc + component.mass, 0) * MASS_MULTIPLIER;
@@ -202,7 +201,7 @@ export class SpaceShip {
     }
 
     checkCannonballColission(cannonball: Cannonball) {
-        if(cannonball.firer === this && cannonball.age < CANNONBALL_FRIENDLY_FIRE_TIME){
+        if(cannonball.firer === this.id && cannonball.age < CANNONBALL_FRIENDLY_FIRE_TIME){
             return;
         }
         const distance = getDistance(this.position, cannonball.position);
@@ -274,4 +273,34 @@ export class SpaceShip {
             .filter(c=>!c.isDestroyed())
             .forEach(c=>c.dealDamage(100, this));
     }
+    dump(): SpaceshipDump {
+        return {
+            position: this.position,
+            velocity: this.velocity,
+            angle: this.angle,
+            angularVelocity: this.angularVelocity,
+            id: this.id,
+            weaponCalldown: this.weaponCalldown,
+            components: this.components.map(c=>c.dump())
+        }
+    }
+    fromDump(dump:SpaceshipDump){
+        this.position=dump.position  
+        this.velocity=dump.velocity,
+        this.angle=dump.angle,
+        this.angularVelocity=dump.angularVelocity,
+        this.id=dump.id,
+        this.weaponCalldown=dump.weaponCalldown
+        dump.components.forEach((cDump, i) => this.components[i].fromDump(cDump))
+    }
+}
+
+export interface SpaceshipDump{
+    position: Vector2;
+    velocity: Vector2; //Absolute velocity
+    angle: number;
+    angularVelocity: number;
+    id: string;
+    weaponCalldown: undefined|number;
+    components: ComponentDump[]
 }

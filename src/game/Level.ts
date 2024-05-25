@@ -1,17 +1,17 @@
 import { Socket } from "socket.io";
 import { createCombatAI } from "./AI/CombatAI";
 import { NetworkAI, PLAYER_AI } from "./AI/PlayerAI";
-import { Cannonball, CANNONBALL_AGE } from "./Cannonball";
+import { Cannonball, CANNONBALL_AGE, CannonballDump } from "./Cannonball";
 import Collision from "./Collision";
 import Component, { UNIT_SCALE } from "./Component";
-import { SpaceShip } from "./SpaceShip";
+import { SpaceShip, SpaceshipDump } from "./SpaceShip";
 import SpaceshipIntent, { EMPTY_INTENT } from "./SpaceshipIntent";
 import { getNormalized } from "./Vector2";
 type Unarray<T> = T extends Array<infer U> ? U : T;
 type EventListeners = {
     "collision": ((args:[SpaceShip, SpaceShip, Collision])=>void)[]
-    "cannonballFired": ((args:[SpaceShip, Cannonball, Component])=>void)[],
-    "cannonballRemoved": ((args:[Cannonball, number])=>void)[],
+    "cannonballFired": ((args:[SpaceShip|null, Cannonball, Component|null])=>void)[],
+    "cannonballRemoved": ((args:[Cannonball])=>void)[],
     "componentDestroyed": ((args:[Component, SpaceShip])=>void)[],
 }
 type Events = keyof EventListeners;
@@ -142,11 +142,47 @@ export class GameLevel {
         const index = this.cannonballs.indexOf(cannonball);
         if(index !== -1){
             this.cannonballs.splice(index, 1);
-            this.triggerEvent('cannonballRemoved', [cannonball, index])
+            this.triggerEvent('cannonballRemoved', [cannonball])
         }
     }
 
     getAllSpaceships(): SpaceShip[] {
        return this.ships
     }
+    
+    dump(): LevelDump {
+       return {
+        spaceships: this.ships.map(ship=>ship.dump()),
+        cannonballs: this.cannonballs.map(c=>c.dump())
+       }
+    }
+    fromDump(dump: LevelDump) {
+        dump.spaceships.forEach((ship, i)=>{
+            this.ships[i].fromDump(ship)
+     })
+        this.cannonballs = this.cannonballs.filter(cb => {
+            const isInDump = dump.cannonballs.some(cbDump => cbDump.id === cb.id);
+            if (!isInDump) {
+                this.triggerEvent('cannonballRemoved', [cb]);
+            }
+            return isInDump;
+        });
+        dump.cannonballs.forEach(cbDump=>{
+            const existantCb = this.cannonballs.find(cb=>cb.id === cbDump.id)
+            if(existantCb){
+                existantCb.fromDump(cbDump)
+            }else{
+                // Create new cannonball and emit 'cannonballFired' event
+                const newCannonball = new Cannonball(cbDump.position, cbDump.velocity, cbDump.firer, cbDump.id)
+                this.cannonballs.push(newCannonball);
+                this.triggerEvent('cannonballFired', [this.ships.find(s=>s.id==cbDump.firer)!, newCannonball, null]);
+            }
+        })
+  
+    }
+}
+
+type LevelDump = {
+    spaceships: SpaceshipDump[],
+    cannonballs: CannonballDump[]
 }

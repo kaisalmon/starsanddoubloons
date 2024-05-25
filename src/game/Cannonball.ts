@@ -6,20 +6,25 @@ export const CANNONBALL_FRIENDLY_FIRE_TIME = 5;
 export const CANNONBALL_SPEED = 3.5;
 export const CANNONBALL_KNOCKBACK = 3;
 
-export class Cannonball { 
+export class Cannonball {
     position: Vector2;
     velocity: Vector2;
-    firer: SpaceShip;
+    firer: string;
+    id: string;
     age = 0;
-    damage = 1;
 
     get angle(): number {
         return Math.atan2(this.velocity.y, this.velocity.x);
     }
-    constructor(position: Vector2, velocity: Vector2, firer: SpaceShip) {
+    constructor(position: Vector2, velocity: Vector2, firer: string, id?:string) {
         this.position = position;
         this.velocity = velocity;
         this.firer = firer;
+        this.id = id ?? Math.floor(Math.random()*10000).toString()
+    }
+
+    getDamage(): number {
+       return 1
     }
 
     update(dt: number) {
@@ -29,4 +34,30 @@ export class Cannonball {
             y: this.position.y + this.velocity.y * dt
         }
     }
+    
+    dump(): CannonballDump {
+        return {
+            position: this.position,
+            velocity: this.velocity,
+            firer: this.firer,
+            age: this.age,
+            id: this.id
+        }
+    } 
+
+    fromDump(dump: CannonballDump){
+        if(this.id !== dump.id) throw new Error("Cannonball id mismatch")
+        this.position = dump.position
+        this.velocity = dump.velocity
+        this.firer = dump.firer
+        this.age = dump.age
+    }
+}
+
+export interface CannonballDump{
+    position: Vector2;
+    velocity: Vector2;
+    firer: string;
+    age: number;
+    id: string;
 }
