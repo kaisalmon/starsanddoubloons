@@ -7,7 +7,7 @@ import Component, { UNIT_SCALE } from "./Component";
 import { SpaceShip, SpaceshipDump } from "./SpaceShip";
 import SpaceshipIntent, { EMPTY_INTENT } from "./SpaceshipIntent";
 import { getMagnitude, getNormalized } from "./Vector2";
-import Obstical, { RectangleObsticalShape } from "./Obstical";
+import Obstical, { ObstacleDump, RectangleObsticalShape } from "./Obstical";
 type Unarray<T> = T extends Array<infer U> ? U : T;
 type EventListeners = {
     "collision": ((args:[SpaceShip, SpaceShip|Obstical, Collision])=>void)[]
@@ -80,7 +80,7 @@ export class GameLevel {
                     {x:0, y:0},
                     Math.random() * Math.PI * 2,
                     0,
-                    Infinity
+                    200
                 )
             )
         }
@@ -141,10 +141,10 @@ export class GameLevel {
             normal,
             momentum
         };
-        this.player.position.x -= normal.x 
-        this.player.position.y -= normal.y
-        this.player.velocity.x -= relativeVelocity.x
-        this.player.velocity.y -=  relativeVelocity.y
+        ship.position.x -= normal.x 
+        ship.position.y -= normal.y
+        ship.velocity.x -= relativeVelocity.x
+        ship.velocity.y -=  relativeVelocity.y
         obstacle.onCollision(collisionResult, component);
         ship.onCollision(
             {
@@ -213,12 +213,16 @@ export class GameLevel {
     }
     
     dump(): LevelDump {
-       return {
+       const dump: LevelDump = {
         spaceship: this.player.dump(),
         cannonballs: this.cannonballs.filter(c=>c.firer===this.player.id).map(c=>c.dump())
        }
+       if (this.player.id === "1") {
+           dump.obstacles = this.obsticals.map(o => o.dump());
+       }
+       return dump
     }
-    fromDump(dump: LevelDump) {
+    fromDump(dump: LevelDump): void {
         this.ships.find(s=>s.id == dump.spaceship.id)!.fromDump(dump.spaceship)
         if(dump.cannonballs){
             [...this.cannonballs].forEach(c=>{
@@ -236,7 +240,23 @@ export class GameLevel {
                     this.cannonballs.push(newCannonball);
                     this.triggerEvent('cannonballFired', [this.ships.find(s=>s.id==cbDump.firer)!, newCannonball, null]);
                 }
-            })
+            });
+            if(dump.obstacles){
+                [...this.obsticals].forEach(o=>{
+                    if(dump.cannonballs!.some(oDump=>oDump.id === o.id)) return
+                    this.obsticals.splice(this.obsticals.indexOf(o), 1)
+                })
+            }
+            dump.obstacles?.forEach(oDump => {
+                const existingObstacle = this.obsticals.find(o => o.id === oDump.id);
+                if (existingObstacle) {
+                    existingObstacle.fromDump(oDump);
+                } else {
+                    const newObstacle = new Obstical(new RectangleObsticalShape(5, 30), oDump.position, oDump.velocity, oDump.angle, oDump.angularVelocity, oDump.mass, oDump.id);
+                    newObstacle.level = this;
+                    this.obsticals.push(newObstacle);
+                }
+            });
         }
        
   
@@ -246,4 +266,5 @@ export class GameLevel {
 type LevelDump = {
     spaceship: SpaceshipDump,
     cannonballs?: CannonballDump[]
+    obstacles?: ObstacleDump[]
 }

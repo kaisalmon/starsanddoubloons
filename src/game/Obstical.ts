@@ -10,28 +10,29 @@ const ROTATION_FACTOR = 0.2;
 const SPEED_MULTIPLIER = 0.7;
 const ANGULAR_FRICTION=0.1
 const FRICTION=0.1
-const COLLISION_KNOCKBACK = 0.01;
-const CANNONBALL_KNOCKBACK = 20;
+const COLLISION_KNOCKBACK = .3;
+const CANNONBALL_KNOCKBACK = 1;
 
-export default class Obstical {  
+export default class Obstical {
     position: Vector2;
     velocity: Vector2; //Absolute velocity
     angle: number;
     angularVelocity: number;
     impulses: Force[] = [];
     mass: number;
+    id: string;
 
     shape: ObsticalShape
     level!: GameLevel;
 
-    constructor(shape: ObsticalShape, position: Vector2, velocity: Vector2, angle: number, angularVelocity:number, mass: number){
+    constructor(shape: ObsticalShape, position: Vector2, velocity: Vector2, angle: number, angularVelocity:number, mass: number, id?:string){
         this.shape = shape
         this.position=position 
         this.velocity=velocity 
         this.angle=angle 
         this.angularVelocity=angularVelocity 
         this.mass=mass
-
+        this.id = id ??  Math.floor(Math.random()*10000).toString()
     }
 
     update(delta: number){
@@ -99,6 +100,24 @@ export default class Obstical {
 
         this.level.removeCannonball(cannonball);
     }
+    dump(): ObstacleDump {
+        return {
+            id: this.id,
+            position: this.position,
+            velocity: this.velocity,
+            angle: this.angle,
+            angularVelocity: this.angularVelocity,
+            mass: this.mass
+        };
+    }
+
+    fromDump(dump: ObstacleDump) {
+        this.position = dump.position;
+        this.velocity = dump.velocity;
+        this.angle = dump.angle;
+        this.angularVelocity = dump.angularVelocity;
+        this.mass = dump.mass;
+    }
 }
 
 interface ObsticalShape{
@@ -127,6 +146,14 @@ export class RectangleObsticalShape implements ObsticalShape {
             width: this.width,
             height: this.height
         }
-    }
-    
+    }   
+}
+
+export interface ObstacleDump {
+    id: string;
+    position: Vector2;
+    velocity: Vector2;
+    angle: number;
+    angularVelocity: number;
+    mass: number;
 }
