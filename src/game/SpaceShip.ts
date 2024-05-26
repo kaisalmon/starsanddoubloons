@@ -222,8 +222,8 @@ export class SpaceShip {
         }
         components.sort((a, b) => {
             const cannonballPrevPosition = cannonBallLine[0];
-            const aDistance = getDistance(a.getCenterOfMassInWorldSpace(this), cannonballPrevPosition);
-            const bDistance = getDistance(b.getCenterOfMassInWorldSpace(this), cannonballPrevPosition);
+            const aDistance = getDistance(a.getCenterOfMassInWorldSpace(), cannonballPrevPosition);
+            const bDistance = getDistance(b.getCenterOfMassInWorldSpace(), cannonballPrevPosition);
             return aDistance - bDistance;
         });
 

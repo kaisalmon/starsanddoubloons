@@ -89,7 +89,7 @@ export class LevelRenderer{
         });
 
         
-        this.level.addEventListener('collision', ([_shipA,_shipB, collision])=>{
+        this.level.addEventListener('collision', ([_a,_b, collision])=>{
             const {x,y} = collision.position;
             crashEmitter.active = true;
             if(collision.momentum > MOMENTUM_TO_DAMAGE){

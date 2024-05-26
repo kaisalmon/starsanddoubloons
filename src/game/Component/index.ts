@@ -55,7 +55,7 @@ export default class Component {
             throw new Error("Thrust offset must not be 0, 0");
         }
         const rotatedForce = rotate(force, spaceship.angle);
-        const CoM = this.getCenterOfMassInWorldSpace(spaceship);
+        const CoM = this.getCenterOfMassInWorldSpace();
         return {
             x: rotatedForce.x,
             y: rotatedForce.y,
@@ -79,7 +79,7 @@ export default class Component {
         }
         const dragCoefficient: number = this.type.drag;
         const velocity = this.getEffectiveVelocity(spaceship);
-        const {x: ox, y: oy} = this.getCenterOfMassInWorldSpace(spaceship);
+        const {x: ox, y: oy} = this.getCenterOfMassInWorldSpace();
         const force: Force = {
             x: -velocity.x * dragCoefficient,
             y: -velocity.y * dragCoefficient,
@@ -119,7 +119,7 @@ export default class Component {
     // so the component velocity is (10 * 3, 0) or (30, 0)
     getVelocityFromRotation(spaceship: SpaceShip): Vector2 {
         const shipCoM = spaceship.getCenterOfMassWorldSpace();
-        const componentCoM = this.getCenterOfMassInWorldSpace(spaceship);
+        const componentCoM = this.getCenterOfMassInWorldSpace();
         const relativePosition = {
             x: componentCoM.x - shipCoM.x,
             y: componentCoM.y - shipCoM.y        };
@@ -134,7 +134,8 @@ export default class Component {
 
     }
 
-    getCenterOfMassInWorldSpace(spaceship: SpaceShip): Vector2 {
+    getCenterOfMassInWorldSpace(): Vector2 {
+        const spaceship = this.spaceship
         const centerOfMass = spaceship.getCenterOfMassUnitSpace();
         const x = this.position.x - centerOfMass.x + this.width/2;
         const y = this.position.y - centerOfMass.y + this.height/2;
@@ -157,7 +158,7 @@ export default class Component {
         };
         const spaceship = this.spaceship
         const angle = spaceship.angle + unitSpaceHitbox.angle;
-        const com = this.getCenterOfMassInWorldSpace(spaceship);
+        const com = this.getCenterOfMassInWorldSpace();
         const position = {
             x: com.x + 
                 (unitSpaceHitbox.position.x * Math.cos(spaceship.angle) 
@@ -185,7 +186,7 @@ export default class Component {
         if(this.type.weaponType !== weapon){
             return
         }
-        const {x,y} = this.getCenterOfMassInWorldSpace(spaceship);
+        const {x,y} = this.getCenterOfMassInWorldSpace();
         const cannonball = new Cannonball({
             x, y
         },this.getCannonballVelocity(spaceship, weapon),
@@ -212,7 +213,6 @@ export default class Component {
     onHit(cannonball: Cannonball, spaceship: SpaceShip): void {
         if(this.invTime && this.invTime>0) return
         this.dealDamage(cannonball.getDamage());
-        this.invTime = INV_TIME
     }
 
     collidesWith(spaceship:SpaceShip, other: SpaceShip): [Collision, Component, Component] | undefined {
@@ -248,12 +248,13 @@ export default class Component {
     }
 
     onCollision(collision: Collision): void {
-        if(collision.momentum > MOMENTUM_TO_DAMAGE){
+        if(collision.momentum > MOMENTUM_TO_DAMAGE && this.invTime!==null){
             this.dealDamage(1);
         }
     }
      
     dealDamage(damage: number) {
+        this.invTime = INV_TIME
         const wasDestroyed = this.isDestroyed();
         const spaceshipWasDestroyed = this.spaceship.isDestroyed();
         this.damage += damage;
@@ -296,7 +297,7 @@ export default class Component {
         if(this.type.weaponType === undefined){
             return false;
         }
-        const cannonballPosition = this.getCenterOfMassInWorldSpace(spaceship);
+        const cannonballPosition = this.getCenterOfMassInWorldSpace();
         const cannonballVelocity = this.getCannonballVelocity(spaceship, this.type.weaponType);
         const targetPosition = target.position
         const targetVelocity = target.velocity

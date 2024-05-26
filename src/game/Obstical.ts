@@ -59,7 +59,7 @@ export default class Obstical {
         }
         for(const component of other.components){
             const result = this.shape.colidesWith(this, component)
-            if(result !== undefined){
+            if(result){
                 return component;
             }
         }

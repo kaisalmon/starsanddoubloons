@@ -6,11 +6,11 @@ import Collision from "./Collision";
 import Component, { UNIT_SCALE } from "./Component";
 import { SpaceShip, SpaceshipDump } from "./SpaceShip";
 import SpaceshipIntent, { EMPTY_INTENT } from "./SpaceshipIntent";
-import { getNormalized } from "./Vector2";
+import { getMagnitude, getNormalized } from "./Vector2";
 import Obstical, { RectangleObsticalShape } from "./Obstical";
 type Unarray<T> = T extends Array<infer U> ? U : T;
 type EventListeners = {
-    "collision": ((args:[SpaceShip, SpaceShip, Collision])=>void)[]
+    "collision": ((args:[SpaceShip, SpaceShip|Obstical, Collision])=>void)[]
     "cannonballFired": ((args:[SpaceShip|null, Cannonball, Component|null])=>void)[],
     "cannonballRemoved": ((args:[Cannonball])=>void)[],
     "componentDestroyed": ((args:[Component, SpaceShip])=>void)[],
@@ -75,12 +75,12 @@ export class GameLevel {
         for(let i=0; i<10;i++){
             this.obsticals.push(
                 new Obstical(
-                    new RectangleObsticalShape(10, 3),
+                    new RectangleObsticalShape(5, 30),
                     {x:Math.random() * 120 * UNIT_SCALE,y:Math.random() * 120 * UNIT_SCALE },
                     {x:0, y:0},
                     Math.random() * Math.PI * 2,
                     0,
-                    100
+                    Infinity
                 )
             )
         }
@@ -110,6 +110,12 @@ export class GameLevel {
             for (let j = 0; j < this.cannonballs.length; j++) {
                 ships[i].checkCannonballColission(this.cannonballs[j]);
             }
+            for (let j = 0; j < this.obsticals.length; j++) {
+                const component = this.obsticals[j].collidesWith(ships[i]);
+                if (component) {
+                    this.resolveShipObsticalColission(this.obsticals[j], ships[i], component);
+                }
+            }
         }
 
         for (let i = 0; i < this.obsticals.length; i++) {
@@ -118,6 +124,39 @@ export class GameLevel {
             }
         }
 
+    }
+    resolveShipObsticalColission(obstacle: Obstical, ship: SpaceShip, component: Component) {
+        const relativeVelocity = {
+            x: component.getEffectiveVelocity(ship).x - obstacle.velocity.x,
+            y: component.getEffectiveVelocity(ship).y - obstacle.velocity.y
+        }
+        const speed = getMagnitude(relativeVelocity);
+        const momentum=speed*ship.mass
+        const normal = getNormalized({
+            x: obstacle.position.x -  ship.position.x,
+            y: obstacle.position.y - ship.position.y,
+        })
+        const collisionResult: Collision = {
+            position: component.getCenterOfMassInWorldSpace(),
+            normal,
+            momentum
+        };
+        this.player.position.x -= normal.x 
+        this.player.position.y -= normal.y
+        this.player.velocity.x -= relativeVelocity.x
+        this.player.velocity.y -=  relativeVelocity.y
+        obstacle.onCollision(collisionResult, component);
+        ship.onCollision(
+            {
+                ...collisionResult,
+                normal: {
+                    x: -collisionResult.normal.x,
+                    y: -collisionResult.normal.y,
+                },
+            },
+            component
+        );
+        this.triggerEvent('collision', [ship, obstacle, collisionResult])
     }
 
     private resolveCollisionsBetween(a:SpaceShip, b:SpaceShip){

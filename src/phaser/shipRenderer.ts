@@ -97,7 +97,7 @@ export default class ShipRenderer {
             if(!this.spaceship.isDestroyed()){
                 const canSmoke = component.type.isThruster || component.type.weaponType !== undefined;
                 if(canSmoke && component.isDestroyed()) {
-                    this.smokeEmitter.explode(1, component.getCenterOfMassInWorldSpace(this.spaceship).x * DRAW_SCALE, component.getCenterOfMassInWorldSpace(this.spaceship).y * DRAW_SCALE);
+                    this.smokeEmitter.explode(1, component.getCenterOfMassInWorldSpace().x * DRAW_SCALE, component.getCenterOfMassInWorldSpace().y * DRAW_SCALE);
                    this.smokeEmitter.active = true;
                }
             }
@@ -142,7 +142,7 @@ export default class ShipRenderer {
     }
 
     onComponentDestroyed(component: Component) {
-        const {x,y} = component.getCenterOfMassInWorldSpace(this.spaceship);
+        const {x,y} = component.getCenterOfMassInWorldSpace();
         this.crashEmitter.active = true;
         const boundingBox = component.getBoundingBox();
         const w = boundingBox.width * DRAW_SCALE;
