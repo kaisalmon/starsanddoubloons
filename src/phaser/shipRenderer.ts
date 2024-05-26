@@ -134,7 +134,7 @@ export default class ShipRenderer {
             if(!component.isCollidable()){
                 return;
             }
-            const lines = polygonToLines(rectangleToPolygon(component.getBoundingBox(this.spaceship)));
+            const lines = polygonToLines(rectangleToPolygon(component.getBoundingBox()));
             lines.forEach(([p1, p2]) => {
                 scene.graphics.lineBetween(p1.x * DRAW_SCALE, p1.y * DRAW_SCALE, p2.x * DRAW_SCALE, p2.y * DRAW_SCALE);
             });
@@ -144,7 +144,7 @@ export default class ShipRenderer {
     onComponentDestroyed(component: Component) {
         const {x,y} = component.getCenterOfMassInWorldSpace(this.spaceship);
         this.crashEmitter.active = true;
-        const boundingBox = component.getBoundingBox(this.spaceship);
+        const boundingBox = component.getBoundingBox();
         const w = boundingBox.width * DRAW_SCALE;
         const h = boundingBox.height * DRAW_SCALE;
         const emitZone = new Phaser.Geom.Rectangle(-w/2, -h/2, w, h);

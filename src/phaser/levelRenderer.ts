@@ -1,6 +1,6 @@
 
 
-import { MOMENTUM_TO_DAMAGE } from "../game/Collision";
+import { MOMENTUM_TO_DAMAGE, polygonToLines, rectangleToPolygon } from "../game/Collision";
 import { UNIT_SCALE } from "../game/Component";
 import { GameLevel } from "../game/Level";
 import { getMagnitude, lerp, lerpAngle, normalizeAngle } from "../game/Vector2";
@@ -121,11 +121,9 @@ export class LevelRenderer{
             const sprite = this.cannonballSprites.find(s=>s.getData('id')==cannonball.id)
             if(!sprite)return
             sprite.destroy();
-            if(cannonball.age > 100) {
-                fireEmitter.active = true;
-                fireEmitter.setSpeed({min: -100 , max: 100 });
-                fireEmitter.explode(50, cannonball.position.x * DRAW_SCALE, cannonball.position.y * DRAW_SCALE);
-            }
+            fireEmitter.active = true;
+            fireEmitter.setSpeed({min: -100 , max: 100 });
+            fireEmitter.explode(50, cannonball.position.x * DRAW_SCALE, cannonball.position.y * DRAW_SCALE);
         });
 
         this.level.addEventListener('componentDestroyed', ([component, spaceship])=>{
@@ -169,5 +167,14 @@ export class LevelRenderer{
             layer.image.tilePositionX = scene.cameras.main.scrollX * layer.scrollSpeed;
             layer.image.tilePositionY =  scene.cameras.main.scrollY * layer.scrollSpeed;
         });
+
+        this.level.obsticals.forEach(o=>{
+            scene.graphics.lineStyle(2, 0xFF00FF, 0.5);
+            const boundingBox = o.shape.getBoundingBox(o)
+            const lines = polygonToLines(rectangleToPolygon(boundingBox));
+            lines.forEach(([p1, p2]) => {
+                scene.graphics.lineBetween(p1.x * DRAW_SCALE, p1.y * DRAW_SCALE, p2.x * DRAW_SCALE, p2.y * DRAW_SCALE);
+            });
+        })
     }
 }

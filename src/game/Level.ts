@@ -7,6 +7,7 @@ import Component, { UNIT_SCALE } from "./Component";
 import { SpaceShip, SpaceshipDump } from "./SpaceShip";
 import SpaceshipIntent, { EMPTY_INTENT } from "./SpaceshipIntent";
 import { getNormalized } from "./Vector2";
+import Obstical, { RectangleObsticalShape } from "./Obstical";
 type Unarray<T> = T extends Array<infer U> ? U : T;
 type EventListeners = {
     "collision": ((args:[SpaceShip, SpaceShip, Collision])=>void)[]
@@ -23,6 +24,7 @@ export class GameLevel {
     player: SpaceShip;
     playerIntent: SpaceshipIntent = EMPTY_INTENT;
     ships: SpaceShip[];
+    obsticals: Obstical[] = [];
 
     private listeners:EventListeners = {
         "collision": [],
@@ -70,11 +72,25 @@ export class GameLevel {
         this.ships.forEach(ship=>{
             ship.ai = ship === playerShip ? PLAYER_AI : new NetworkAI(ship.id, gameId, socket)
         })
+        for(let i=0; i<10;i++){
+            this.obsticals.push(
+                new Obstical(
+                    new RectangleObsticalShape(10, 3),
+                    {x:Math.random() * 120 * UNIT_SCALE,y:Math.random() * 120 * UNIT_SCALE },
+                    {x:0, y:0},
+                    Math.random() * Math.PI * 2,
+                    0,
+                    100
+                )
+            )
+        }
+        this.obsticals.forEach(o=>o.level = this)
     }
     
     update(delta: number): void {
         this.ships.forEach(enemy => enemy.update( delta));
         this.cannonballs.forEach(c => c.update( delta));
+        this.obsticals.forEach(o => o.update( delta));
         let temp:Cannonball[] = [];
         temp = temp.concat(this.cannonballs);
         temp.forEach(c => {
@@ -95,6 +111,13 @@ export class GameLevel {
                 ships[i].checkCannonballColission(this.cannonballs[j]);
             }
         }
+
+        for (let i = 0; i < this.obsticals.length; i++) {
+            for (let j = 0; j < this.cannonballs.length; j++) {
+                this.obsticals[i].checkCannonballColission(this.cannonballs[j]);
+            }
+        }
+
     }
 
     private resolveCollisionsBetween(a:SpaceShip, b:SpaceShip){

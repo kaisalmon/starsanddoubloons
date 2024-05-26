@@ -20,6 +20,7 @@ export default class Component {
     isPowered = false;
     damage = 0;
     invTime: number|null = null;
+    spaceship!: SpaceShip
 
     constructor(type: ComponentType, position: Vector2) {
         this.type = type;
@@ -147,13 +148,14 @@ export default class Component {
         return 0.5 * this.mass * (vel.x * vel.x + vel.y * vel.y);
     }
 
-    getBoundingBox(spaceship:SpaceShip): BoundingBox {
+    getBoundingBox(): BoundingBox {
         const unitSpaceHitbox = this.type.hitbox || {
             width: this.width,
             height: this.height,
             position: {x: 0, y: 0},
             angle: 0
         };
+        const spaceship = this.spaceship
         const angle = spaceship.angle + unitSpaceHitbox.angle;
         const com = this.getCenterOfMassInWorldSpace(spaceship);
         const position = {
@@ -209,17 +211,17 @@ export default class Component {
 
     onHit(cannonball: Cannonball, spaceship: SpaceShip): void {
         if(this.invTime && this.invTime>0) return
-        this.dealDamage(cannonball.getDamage(), spaceship);
+        this.dealDamage(cannonball.getDamage());
         this.invTime = INV_TIME
     }
 
     collidesWith(spaceship:SpaceShip, other: SpaceShip): [Collision, Component, Component] | undefined {
-        const box = this.getBoundingBox(spaceship);
+        const box = this.getBoundingBox();
 
         if(!this.isCollidable()) return undefined;
 
         for(const otherComponent of other.components){
-            const otherBox = otherComponent.getBoundingBox(other);
+            const otherBox = otherComponent.getBoundingBox();
             if(!otherComponent.isCollidable()) continue;
             const intersection = doRectanglesIntersect(box, otherBox);
             if(!intersection){
@@ -245,21 +247,21 @@ export default class Component {
         }
     }
 
-    onCollision(collision: Collision, spaceship: SpaceShip): void {
+    onCollision(collision: Collision): void {
         if(collision.momentum > MOMENTUM_TO_DAMAGE){
-            this.dealDamage(1, spaceship);
+            this.dealDamage(1);
         }
     }
      
-    dealDamage(damage: number, spaceship: SpaceShip) {
+    dealDamage(damage: number) {
         const wasDestroyed = this.isDestroyed();
-        const spaceshipWasDestroyed = spaceship.isDestroyed();
+        const spaceshipWasDestroyed = this.spaceship.isDestroyed();
         this.damage += damage;
         this.damage = Math.min(this.damage, this.type.health);
         if(this.isDestroyed() && !wasDestroyed){
-            const spaceshipDestroyed = spaceship.isDestroyed();
+            const spaceshipDestroyed = this.spaceship.isDestroyed();
             if(spaceshipDestroyed && !spaceshipWasDestroyed){
-                spaceship.onDestroyed();
+                this.spaceship.onDestroyed();
             }
         }
     }

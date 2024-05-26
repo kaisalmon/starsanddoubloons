@@ -71,6 +71,7 @@ export class SpaceShip {
         this.ai = ai;
         this.id = id
         this.components = components;
+        this.components.forEach(c=>c.spaceship = this)
         this.velocity = {x: 0, y: 0};
         this.angle = 0;
         this.angularVelocity = 0;
@@ -181,7 +182,7 @@ export class SpaceShip {
             offsetX: collision.position.x - this.position.x,
             offsetY: collision.position.y - this.position.y
         });
-        component.onCollision(collision, this);
+        component.onCollision(collision);
     }
 
     attemptToFire(weapon: Weapon) {
@@ -215,7 +216,7 @@ export class SpaceShip {
         ]
         const components = this.components
             .filter(component => component.isCollidable())
-            .filter(component => doPolygonsIntersect(rectangleToPolygon(component.getBoundingBox(this)), cannonBallLine));
+            .filter(component => doPolygonsIntersect(rectangleToPolygon(component.getBoundingBox()), cannonBallLine));
         if(components.length === 0){
             return;
         }
@@ -272,7 +273,7 @@ export class SpaceShip {
     onDestroyed() {
         this.components
             .filter(c=>!c.isDestroyed())
-            .forEach(c=>c.dealDamage(100, this));
+            .forEach(c=>c.dealDamage(100));
     }
     dump(): SpaceshipDump {
         return {
