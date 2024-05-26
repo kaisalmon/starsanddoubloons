@@ -73,13 +73,15 @@ export default class ShipRenderer {
             const health = component.type.health
             const dim = component.damage > 0;
             const activeSprite = component.isPowered || sprite.data?.get('isFiring');
-            const spriteIndex = damage + (activeSprite ? (health + 1) : 0);
+            const red = component.spaceship.id==="2"
+            const spriteIndex = damage + (activeSprite ? (health + 1) : 0) + (red ? 2*(health + 1): 0);
+            
+            sprite.setFrame(spriteIndex);
             const {x,y} = component.getCoMInUnitSpace() 
             sprite.setPosition(
                 (x - spaceshipUnitSpaceCoM.x) * UNIT_SCALE * DRAW_SCALE, 
                 (y - spaceshipUnitSpaceCoM.y) * UNIT_SCALE * DRAW_SCALE
             );
-            sprite.setFrame(spriteIndex);
             sprite.setTint(dim ? 0xAAAAAA : 0xFFFFFF);
             sprite.setDepth(component.isDestroyed() ? -2 : 0);
             
