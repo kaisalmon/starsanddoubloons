@@ -7,7 +7,7 @@ import SpaceScene from './scenes/SpaceScene';
         await new Promise(resolve => setTimeout(resolve, 10));
     }
     
-    const socket = io('http://localhost:3000');
+    const socket = io(location.hostname === "localhost"  ? 'http://localhost:3000': 'https://starsanddoubloons.fly.dev/');
     const config:Phaser.Types.Core.GameConfig = {
         type: Phaser.AUTO,
         backgroundColor: '#333333',

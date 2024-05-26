@@ -9,7 +9,7 @@ const app = express()
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-      origin: 'http://localhost:10001', // Replace with the actual origin of your game
+      origin: ['http://localhost:10001', 'https://www.kaisalmon.com/starsanddoubloons'], // Replace with the actual origin of your game
       methods: ['GET', 'POST'],
       allowedHeaders: ['Content-Type'],
       credentials: true
@@ -29,8 +29,6 @@ io.on('connection', (socket) => {
 
 
 server.listen(3000, () => {
-  console.log('server running at http://localhost:3000');
+  console.log('Stars & Doubloons server running at');
 })
-app.get('/', (req, res) => {
-    res.sendFile(join(__dirname, 'test_client.html'));
-});
+app.use(express.static('dist'))

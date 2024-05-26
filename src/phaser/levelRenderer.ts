@@ -121,13 +121,9 @@ export class LevelRenderer{
             const sprite = this.cannonballSprites.find(s=>s.getData('id')==cannonball.id)
             if(!sprite)return
             sprite.destroy();
-            this.cannonballSprites = this.cannonballSprites.filter(s=>s.getData('id') != cannonball.id)
-            if(cannonball.age > 200/*ms*/){
-
-                fireEmitter.active = true;
-                fireEmitter.setSpeed({min: -100 , max: 100 });
-                fireEmitter.explode(50, cannonball.position.x * DRAW_SCALE, cannonball.position.y * DRAW_SCALE);
-            }
+            fireEmitter.active = true;
+            fireEmitter.setSpeed({min: -100 , max: 100 });
+            fireEmitter.explode(50, cannonball.position.x * DRAW_SCALE, cannonball.position.y * DRAW_SCALE);
         });
 
         this.level.addEventListener('componentDestroyed', ([component, spaceship])=>{

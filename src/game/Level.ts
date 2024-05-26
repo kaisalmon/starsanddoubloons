@@ -30,7 +30,7 @@ export class GameLevel {
         "cannonballRemoved": [],
         "componentDestroyed": []
     }
-    cannonballs: Cannonball[] = [];
+    readonly cannonballs: Cannonball[] = [];
 
     addEventListener<E extends Events>(event: E, callback: EventCallback<E>) {
         if(!this.listeners[event]){
@@ -152,37 +152,36 @@ export class GameLevel {
     
     dump(): LevelDump {
        return {
-        spaceships: this.ships.map(ship=>ship.dump()),
-        cannonballs: this.cannonballs.map(c=>c.dump())
+        spaceship: this.player.dump(),
+        cannonballs: this.cannonballs.filter(c=>c.firer===this.player.id).map(c=>c.dump())
        }
     }
     fromDump(dump: LevelDump) {
-        dump.spaceships.forEach((ship, i)=>{
-            this.ships[i].fromDump(ship)
-     })
-        this.cannonballs = this.cannonballs.filter(cb => {
-            const isInDump = dump.cannonballs.some(cbDump => cbDump.id === cb.id);
-            if (!isInDump) {
-                this.triggerEvent('cannonballRemoved', [cb]);
-            }
-            return isInDump;
-        });
-        dump.cannonballs.forEach(cbDump=>{
-            const existantCb = this.cannonballs.find(cb=>cb.id === cbDump.id)
-            if(existantCb){
-                existantCb.fromDump(cbDump)
-            }else{
-                // Create new cannonball and emit 'cannonballFired' event
-                const newCannonball = new Cannonball(cbDump.position, cbDump.velocity, cbDump.firer, cbDump.id)
-                this.cannonballs.push(newCannonball);
-                this.triggerEvent('cannonballFired', [this.ships.find(s=>s.id==cbDump.firer)!, newCannonball, null]);
-            }
-        })
+        this.ships.find(s=>s.id == dump.spaceship.id)!.fromDump(dump.spaceship)
+        if(dump.cannonballs){
+            [...this.cannonballs].forEach(c=>{
+                if(c.firer === this.player.id) return
+                if(dump.cannonballs!.some(cbDump=>cbDump.id === c.id)) return
+                this.removeCannonball(c)
+            })
+            dump.cannonballs.forEach(cbDump=>{
+                if(cbDump.firer === this.player.id) return
+                const existantCb = this.cannonballs.find(cb=>cb.id === cbDump.id)
+                if(existantCb){
+                    existantCb.fromDump(cbDump)
+                }else{
+                    const newCannonball = new Cannonball(cbDump.position, cbDump.velocity, cbDump.firer, cbDump.id)
+                    this.cannonballs.push(newCannonball);
+                    this.triggerEvent('cannonballFired', [this.ships.find(s=>s.id==cbDump.firer)!, newCannonball, null]);
+                }
+            })
+        }
+       
   
     }
 }
 
 type LevelDump = {
-    spaceships: SpaceshipDump[],
-    cannonballs: CannonballDump[]
+    spaceship: SpaceshipDump,
+    cannonballs?: CannonballDump[]
 }

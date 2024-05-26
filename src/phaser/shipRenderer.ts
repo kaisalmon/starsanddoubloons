@@ -99,8 +99,6 @@ export default class ShipRenderer {
         
         if(RENDER_DEBUG_LINES)this.renderDebugLines(scene);
 
-      
-
     }
 
 

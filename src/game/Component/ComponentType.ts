@@ -68,7 +68,7 @@ export const block: ComponentType = {
     drag: 0.1,
     width: 1,
     height: 1,
-    health: 2,
+    health: 1,
     isPowered: () => {
         return false;
     },
@@ -84,6 +84,7 @@ export const engine: ComponentType = {
     ...block,
     name: "Engine",
     appearance: "engineRoom",
+    health: 2,
     mass: 4,
     width: 2,
     height: 2, 
@@ -94,6 +95,7 @@ export const bridge: ComponentType = {
     ...block,
     name: "Bridge",
     appearance: "bridge",
+    health: 2,
     isBridge: true,
     mass: 4,
     width: 2,

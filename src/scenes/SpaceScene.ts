@@ -50,7 +50,7 @@ export default class SpaceScene extends Phaser.Scene {
         
         this.socket.emit(`join game`, this.gameId)
         socket.on(`game ${gameId}`, (msg)=>{
-            if(!msg.dump || this.isHost()) return
+            if(!msg.dump) return
             this.level.fromDump(msg.dump)
         })
     }
@@ -121,7 +121,10 @@ export default class SpaceScene extends Phaser.Scene {
         this.levelRenderer.onUpdate(this, delta)
         
         this.socket.emit(`game ${this.gameId}`, {player: this.player.id, intent: this.player.intent})
-        if(this.isHost() && (this.lastDump === null || time - this.lastDump > 100)){
+        if(this.lastDump === null
+             || time - this.lastDump > 250
+        ){
+            this.lastDump = time
             this.socket.emit(`game ${this.gameId}`, {dump: this.level.dump()})
         }
     }
