@@ -1,5 +1,6 @@
 import 'phaser';
 import SpaceScene from './scenes/SpaceScene';
+import ShipEditorScene from './scenes/ShipEditorScene';
 
 (async function(){
     while(!window.document.body){
@@ -14,8 +15,8 @@ import SpaceScene from './scenes/SpaceScene';
         width: 800,
         height: 600,
         pixelArt: true,
-        scene: new SpaceScene(socket),
+        scene: [new ShipEditorScene(socket, "1"), new SpaceScene(socket)],
         
     };
-    new Phaser.Game(config);
+    const game = new Phaser.Game(config);
 })();

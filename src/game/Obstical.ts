@@ -111,7 +111,7 @@ export default class Obstical {
         };
     }
 
-    fromDump(dump: ObstacleDump) {
+    applyDump(dump: ObstacleDump) {
         this.position = dump.position;
         this.velocity = dump.velocity;
         this.angle = dump.angle;

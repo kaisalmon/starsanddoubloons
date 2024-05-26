@@ -1,7 +1,8 @@
 import { AI, IDLE_AI } from "./AI/ai";
 import { Cannonball, CANNONBALL_FRIENDLY_FIRE_TIME, CANNONBALL_KNOCKBACK } from "./Cannonball";
 import Collision, { BoundingBox, doPolygonsIntersect, doRectanglesIntersect, Line, rectangleToPolygon } from "./Collision";
-import Component, { ComponentDump, UNIT_SCALE } from "./Component";
+import Component, { ComponentDump, ComponentDumpFull, UNIT_SCALE } from "./Component";
+import ComponentType, { ComponentTypeDump, componentTypefromDump, dumpComponentType } from "./Component/ComponentType";
 import Force, { calculateTorques, sum } from "./Force";
 import {GameLevel } from "./Level";
 import SpaceshipIntent from "./SpaceshipIntent";
@@ -27,7 +28,8 @@ export class SpaceShip {
     weaponCalldown: undefined|number;
 
     impulses: Force[] = [];
-
+    shelf: {type:ComponentType, count:number}[] = []
+  
     get mass(): number {
         return this.components.reduce((acc, component) => acc + component.mass, 0) * MASS_MULTIPLIER;
     }
@@ -286,14 +288,39 @@ export class SpaceShip {
             components: this.components.map(c=>c.dump())
         }
     }
-    fromDump(dump:SpaceshipDump){
+    fulldump(): SpaceshipDump {
+        return {
+            ...this.dump(),
+            components: undefined,
+            fullComponents: this.components.map(c=>c.dump(true) as ComponentDumpFull),
+            shelf: this.shelf.map(c=>({
+                type: dumpComponentType(c.type),
+                count: c.count
+            }))
+        }
+    }
+    applyDump(dump:SpaceshipDump){
         this.position=dump.position  
         this.velocity=dump.velocity,
         this.angle=dump.angle,
         this.angularVelocity=dump.angularVelocity,
         this.id=dump.id,
         this.weaponCalldown=dump.weaponCalldown
-        dump.components.forEach((cDump, i) => this.components[i].fromDump(cDump))
+        if(dump.fullComponents){
+            this.components.splice(0, this.components.length)
+            dump.fullComponents.forEach(cDump=>{
+                this.components.push(Component.fromDump(cDump, this))
+            })
+            this.shelf.splice(0, this.shelf.length)
+            dump.shelf!.forEach(sDump=>{
+                this.shelf.push({
+                    type: componentTypefromDump(sDump.type),
+                    count: sDump.count
+                })
+            })
+        }else{
+            dump.components!.forEach((cDump, i) => this.components[i].applyDump(cDump))
+        }
     }
 }
 
@@ -304,5 +331,7 @@ export interface SpaceshipDump{
     angularVelocity: number;
     id: string;
     weaponCalldown: undefined|number;
-    components: ComponentDump[]
+    components?: ComponentDump[]
+    fullComponents?: ComponentDumpFull[]
+    shelf?: {type:ComponentTypeDump, count:number}[]
 }

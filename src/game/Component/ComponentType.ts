@@ -4,7 +4,7 @@ import Force from "../Force";
 import { SpaceShip, Weapon } from "../SpaceShip";
 import SpaceshipIntent, { flipIntent } from "../SpaceshipIntent";
 
-
+const COMPONENT_TYPES_BY_NAME:Record<string, ComponentType> = {}
 export default interface ComponentType{
     health: number;
     fireDelay(): number;
@@ -22,6 +22,10 @@ export default interface ComponentType{
     isFlipped: boolean;
     isPowered(intent: SpaceshipIntent, component:Component, spaceship: SpaceShip):boolean;
     getThrust(powered: boolean, intent: SpaceshipIntent, component:Component, spaceship: SpaceShip): Force|undefined;
+}
+
+function register(componentType: ComponentType){
+    COMPONENT_TYPES_BY_NAME[componentType.name] = componentType
 }
 
 export function flipped(base: ComponentType): ComponentType{
@@ -79,6 +83,7 @@ export const block: ComponentType = {
         return Math.random() * 300;
     }
 }
+register(block)
 
 export const engine: ComponentType = {
     ...block,
@@ -90,6 +95,7 @@ export const engine: ComponentType = {
     height: 2, 
     isEngine: true,
 }   
+register(engine)
 
 export const bridge: ComponentType = {
     ...block,
@@ -101,8 +107,9 @@ export const bridge: ComponentType = {
     width: 2,
     height: 2, 
 }   
+register(bridge)
 
-export const rightWing: ComponentType = {
+export const wing: ComponentType = {
     ...block,
     name: "Wing",
     height: 2,
@@ -121,8 +128,9 @@ export const rightWing: ComponentType = {
         return intent.rotateLeft || intent.moveForward;
     }
 }
+register(wing)
 
-export const leftWing = flipped(rightWing);
+export const leftWing = flipped(wing);
 
 export const lateralThruster: ComponentType = {
     ...block,
@@ -154,6 +162,7 @@ export const lateralThruster: ComponentType = {
         }
     }
 }
+register(lateralThruster)
 
 export const thruster: ComponentType = {
     ...block,
@@ -181,10 +190,29 @@ export const thruster: ComponentType = {
         }
     }
 }
-
+register(thruster)
 export const cannon: ComponentType = {
     ...block,
     name: "Cannon",
     appearance: "cannon",
     weaponType: 'right',
+}
+register(cannon)
+
+export type  ComponentTypeDump={
+    name: string,
+    flipped: boolean
+}
+
+export function componentTypefromDump(dump: ComponentTypeDump): ComponentType {
+    const typeFromRegister = COMPONENT_TYPES_BY_NAME[dump.name];
+    if(dump.flipped) return flipped(typeFromRegister)
+    return typeFromRegister
+}
+
+export function dumpComponentType(componentType: ComponentType){
+    return {
+        name: componentType.name,
+        flipped: componentType.isFlipped
+    }
 }

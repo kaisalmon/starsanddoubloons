@@ -169,7 +169,7 @@ export class LevelRenderer{
         });
 
         this.level.obsticals.forEach(o=>{
-            scene.graphics.lineStyle(2, 0xFF00FF, 0.5);
+            scene.graphics.lineStyle(2, 0xFFFFFF, 0.5);
             const boundingBox = o.shape.getBoundingBox(o)
             const lines = polygonToLines(rectangleToPolygon(boundingBox));
             lines.forEach(([p1, p2]) => {

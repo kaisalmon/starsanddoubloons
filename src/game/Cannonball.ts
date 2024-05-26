@@ -45,7 +45,7 @@ export class Cannonball {
         }
     } 
 
-    fromDump(dump: CannonballDump){
+    applyDump(dump: CannonballDump){
         if(this.id !== dump.id) throw new Error("Cannonball id mismatch")
         this.position = dump.position
         this.velocity = dump.velocity

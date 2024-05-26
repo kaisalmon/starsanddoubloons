@@ -5,7 +5,7 @@ import Force, { rotate, sum } from "../Force";
 import { SpaceShip, Weapon } from "../SpaceShip";
 import SpaceshipIntent from "../SpaceshipIntent";
 import Vector2, { findShortestDistanceBetweenTwoMovingObjects, getLinearVelocityFromAngularVelocity, getMagnitude } from "../Vector2";
-import ComponentType from "./ComponentType";
+import ComponentType, { ComponentTypeDump, componentTypefromDump, dumpComponentType } from "./ComponentType";
 
 const WEAPON_ANGLES = {
     right: Math.PI,
@@ -317,20 +317,39 @@ export default class Component {
         }
     }
     
-    dump(): ComponentDump {
-        return {
+    dump(full=false): ComponentDump|ComponentDumpFull {
+        const baseDump = {
             damage: this.damage,
             invTime: this.invTime
         }
+        if(full){
+            return {
+                ...baseDump,
+                position: this.position,
+                type: dumpComponentType(this.type)
+            }
+        }
+        return baseDump
     }
     
-    fromDump(dump: ComponentDump): void {
+    applyDump(dump: ComponentDump): void {
        this.damage = dump.damage
        this.invTime = dump.invTime
+    }
+
+    static fromDump(dump: ComponentDumpFull, spaceship: SpaceShip): Component{
+        const comp= new Component(componentTypefromDump(dump.type), dump.position)
+        comp.spaceship = spaceship
+        return comp
     }
 }
 
 export interface ComponentDump {
     damage: number
     invTime: number|null
+}
+
+export interface ComponentDumpFull extends ComponentDump {
+    type: ComponentTypeDump;
+    position: Vector2;
 }

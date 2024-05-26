@@ -21,7 +21,7 @@ type EventParams<T extends Events> = Parameters<EventCallback<T>>[0]
 
 
 export class GameLevel {
-    player: SpaceShip;
+    player!: SpaceShip;
     playerIntent: SpaceshipIntent = EMPTY_INTENT;
     ships: SpaceShip[];
     obsticals: Obstical[] = [];
@@ -61,17 +61,7 @@ export class GameLevel {
 
     constructor(ships: SpaceShip[],  gameId:string, socket: Socket){
         this.ships = ships;
-        this.ships.forEach(enemy => enemy.level = this);
-        const urlParams = new URLSearchParams(window.location.search);
-        const id = urlParams.get('playerId')
-        const playerShip = this.ships.find(ship=>ship.id == id)
-        if(!playerShip){
-            throw new Error("Invalid playerId queryparam!")
-        }
-        this.player = playerShip
-        this.ships.forEach(ship=>{
-            ship.ai = ship === playerShip ? PLAYER_AI : new NetworkAI(ship.id, gameId, socket)
-        })
+        this.onShipsChange(gameId, socket);
         for(let i=0; i<10;i++){
             this.obsticals.push(
                 new Obstical(
@@ -87,6 +77,20 @@ export class GameLevel {
         this.obsticals.forEach(o=>o.level = this)
     }
     
+    onShipsChange(gameId: string, socket:Socket) {
+        this.ships.forEach(enemy => enemy.level = this);
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('playerId');
+        const playerShip = this.ships.find(ship => ship.id == id);
+        if (!playerShip) {
+            throw new Error("Invalid playerId queryparam!");
+        }
+        this.player = playerShip;
+        this.ships.forEach(ship => {
+            ship.ai = ship === playerShip ? PLAYER_AI : new NetworkAI(ship.id, gameId, socket);
+        });
+    }
+
     update(delta: number): void {
         this.ships.forEach(enemy => enemy.update( delta));
         this.cannonballs.forEach(c => c.update( delta));
@@ -222,8 +226,8 @@ export class GameLevel {
        }
        return dump
     }
-    fromDump(dump: LevelDump): void {
-        this.ships.find(s=>s.id == dump.spaceship.id)!.fromDump(dump.spaceship)
+    applyDump(dump: LevelDump): void {
+        this.ships.find(s=>s.id == dump.spaceship.id)!.applyDump(dump.spaceship)
         if(dump.cannonballs){
             [...this.cannonballs].forEach(c=>{
                 if(c.firer === this.player.id) return
@@ -234,7 +238,7 @@ export class GameLevel {
                 if(cbDump.firer === this.player.id) return
                 const existantCb = this.cannonballs.find(cb=>cb.id === cbDump.id)
                 if(existantCb){
-                    existantCb.fromDump(cbDump)
+                    existantCb.applyDump(cbDump)
                 }else{
                     const newCannonball = new Cannonball(cbDump.position, cbDump.velocity, cbDump.firer, cbDump.id)
                     this.cannonballs.push(newCannonball);
@@ -250,7 +254,7 @@ export class GameLevel {
             dump.obstacles?.forEach(oDump => {
                 const existingObstacle = this.obsticals.find(o => o.id === oDump.id);
                 if (existingObstacle) {
-                    existingObstacle.fromDump(oDump);
+                    existingObstacle.applyDump(oDump);
                 } else {
                     const newObstacle = new Obstical(new RectangleObsticalShape(5, 30), oDump.position, oDump.velocity, oDump.angle, oDump.angularVelocity, oDump.mass, oDump.id);
                     newObstacle.level = this;
