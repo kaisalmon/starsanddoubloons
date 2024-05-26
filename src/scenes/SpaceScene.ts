@@ -6,8 +6,7 @@ import { SpaceShip } from "../game/SpaceShip";
 import SpaceshipIntent from "../game/SpaceshipIntent";
 import { LevelRenderer } from "../phaser/levelRenderer";
 
-const GAME_SPEED = 1/80;
-
+export const GAME_SPEED = 1/80;
 
 export default class SpaceScene extends Phaser.Scene {
     name = "SpaceScene";

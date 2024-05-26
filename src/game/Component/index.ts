@@ -1,3 +1,4 @@
+import { GAME_SPEED } from "../../scenes/SpaceScene";
 import { Cannonball, CANNONBALL_KNOCKBACK, CANNONBALL_SPEED } from "../Cannonball";
 import Collision, { BoundingBox, doRectanglesIntersect, MOMENTUM_TO_DAMAGE } from "../Collision";
 import Force, { rotate, sum } from "../Force";
@@ -11,12 +12,14 @@ const WEAPON_ANGLES = {
     left: 0
 }
 export const UNIT_SCALE = 1;
+const INV_TIME = 30 
 
 export default class Component {
     type: ComponentType;
     position: Vector2; // Relative position of the component to the spaceship's top left corner
     isPowered = false;
     damage = 0;
+    invTime: number|null = null;
 
     constructor(type: ComponentType, position: Vector2) {
         this.type = type;
@@ -205,7 +208,9 @@ export default class Component {
     }
 
     onHit(cannonball: Cannonball, spaceship: SpaceShip): void {
+        if(this.invTime && this.invTime>0) return
         this.dealDamage(cannonball.getDamage(), spaceship);
+        this.invTime = INV_TIME
     }
 
     collidesWith(spaceship:SpaceShip, other: SpaceShip): [Collision, Component, Component] | undefined {
@@ -300,19 +305,29 @@ export default class Component {
         return shortestDistance <= target.radius/6
     }
 
+    update( delta: number){
+        if(this.invTime){
+            this.invTime -= delta
+            if(this.invTime <= 0){
+                this.invTime = null
+            }
+        }
+    }
     
     dump(): ComponentDump {
         return {
-            damage: this.damage
+            damage: this.damage,
+            invTime: this.invTime
         }
     }
-
     
     fromDump(dump: ComponentDump): void {
        this.damage = dump.damage
+       this.invTime = dump.invTime
     }
 }
 
 export interface ComponentDump {
     damage: number
+    invTime: number|null
 }

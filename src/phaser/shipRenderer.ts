@@ -82,6 +82,17 @@ export default class ShipRenderer {
             sprite.setFrame(spriteIndex);
             sprite.setTint(dim ? 0xAAAAAA : 0xFFFFFF);
             sprite.setDepth(component.isDestroyed() ? -2 : 0);
+            
+
+            if (!component.isDestroyed() && component.invTime) {
+                // Make the component flash during invincibility frames
+                const elapsed = scene.time.now - component.invTime;
+                const flashDuration = 100; // Adjust the flash duration as needed
+                const isFlashVisible = Math.floor(elapsed / flashDuration) % 2 === 0;
+                sprite.setVisible(isFlashVisible);
+            } else {
+                sprite.setVisible(true);
+            }
 
             if(!this.spaceship.isDestroyed()){
                 const canSmoke = component.type.isThruster || component.type.weaponType !== undefined;

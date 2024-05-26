@@ -126,6 +126,7 @@ export class SpaceShip {
     update( delta: number): void {
         this.ai.update?.(delta, this, this.level);
         this.updateWeapons(delta);
+        this.components.forEach(c=>c.update(delta))
 
         const forces: Force[] = this.getAllForces(delta);
         const torque: number = this.getTorque(delta);
