@@ -160,9 +160,11 @@ export default class ShipRenderer {
     onCannonballFired(component: Component) {
         const index = this.spaceship.components.indexOf(component);
         const sprite = this.group.getAll()[index] as Phaser.GameObjects.Sprite;
-        sprite.setData('isFiring', true);
-        setTimeout(()=>{
-            sprite.setData('isFiring', false);
-        }, 100);
+        if(sprite){
+            sprite.setData('isFiring', true);
+            setTimeout(()=>{
+                sprite.setData('isFiring', false);
+            }, 300);
+        }
     }
 }

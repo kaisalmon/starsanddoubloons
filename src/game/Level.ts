@@ -62,11 +62,15 @@ export class GameLevel {
     constructor(ships: SpaceShip[],  gameId:string, socket: Socket){
         this.ships = ships;
         this.onShipsChange(gameId, socket);
-        for(let i=0; i<10;i++){
+        for(let i=0; i<25;i++){
+            const theta = Math.random()*Math.PI*2;
+            const r = i==0 ? 0 : Math.random()*30 * UNIT_SCALE + 50
+            const x = Math.sin(theta) * r
+            const y = Math.cos(theta) * r
             this.obsticals.push(
                 new Obstical(
                     new RectangleObsticalShape(5, 30),
-                    {x:Math.random() * 120 * UNIT_SCALE,y:Math.random() * 120 * UNIT_SCALE },
+                    {x:x,y:y},
                     {x:0, y:0},
                     Math.random() * Math.PI * 2,
                     0,
@@ -88,7 +92,12 @@ export class GameLevel {
         this.player = playerShip;
         this.ships.forEach(ship => {
             ship.ai = ship === playerShip ? PLAYER_AI : new NetworkAI(ship.id, gameId, socket);
+
+            ship.position = ship.id === "1" ? {x: -30, y:0} : {x:30,y:0}
+            console.log(ship)
         });
+
+        
     }
 
     update(delta: number): void {
@@ -242,6 +251,7 @@ export class GameLevel {
                 }else{
                     const newCannonball = new Cannonball(cbDump.position, cbDump.velocity, cbDump.firer, cbDump.id)
                     this.cannonballs.push(newCannonball);
+                    console.log("CB from dump")
                     this.triggerEvent('cannonballFired', [this.ships.find(s=>s.id==cbDump.firer)!, newCannonball, null]);
                 }
             });

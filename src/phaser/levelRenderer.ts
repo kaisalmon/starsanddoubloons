@@ -23,16 +23,8 @@ export class LevelRenderer{
 
     cannonballSprites: Phaser.GameObjects.Sprite[] = [];
     
-    private cameraAngle = 0;
     private desiredZoom = 0.8;
 
-
-
-    private get followOffset(){
-        return 0
-        // const speed = getMagnitude(this.level.player.velocity);
-        // return Math.pow(speed, LOOKAHEAD_EXP) * lOOKAHEAD_SCALE;
-    }
 
     constructor(private level: GameLevel){
         this.shipRenderers = level.ships.map(ship => new ShipRenderer(ship));
@@ -87,7 +79,6 @@ export class LevelRenderer{
             y: this.level.player.position.y,
             active: false,
         });
-
         
         this.level.addEventListener('collision', ([_a,_b, collision])=>{
             const {x,y} = collision.position;
@@ -105,11 +96,18 @@ export class LevelRenderer{
         })
 
         this.level.addEventListener('cannonballFired', ([spaceship, cannonball, component])=>{
+            if(
+                this.cannonballSprites.some(s=>s.getData('id') === cannonball.id)
+            ){
+                console.warn("Not creating new sprites for existant cannonball")
+                return
+            }
             const sprite = scene.add.sprite(cannonball.position.x * DRAW_SCALE, cannonball.position.y * DRAW_SCALE, 'cannonball');
             sprite.setBlendMode('ADD');
             sprite.setDepth(-1);
             sprite.setData('id', cannonball.id) 
             this.cannonballSprites.push(sprite);
+            console.trace("Creating "+cannonball.id, {sprite, sprites:this.cannonballSprites})
             const r = this.shipRenderers.find(r => r.spaceship === spaceship);
             if(!r || !component){
                 return;
@@ -119,8 +117,12 @@ export class LevelRenderer{
 
         this.level.addEventListener('cannonballRemoved', ([cannonball])=>{
             const sprite = this.cannonballSprites.find(s=>s.getData('id')==cannonball.id)
-            if(!sprite)return
+            if(!sprite){
+                return
+            }
             sprite.destroy();
+            this.cannonballSprites.splice(this.cannonballSprites.indexOf(sprite), 1)
+            console.log("Removing from listener "+cannonball.id, sprite, this.cannonballSprites)
             fireEmitter.active = true;
             fireEmitter.setSpeed({min: -100 , max: 100 });
             fireEmitter.explode(50, cannonball.position.x * DRAW_SCALE, cannonball.position.y * DRAW_SCALE);
@@ -138,7 +140,13 @@ export class LevelRenderer{
         this.shipRenderers.forEach(renderer => renderer.onUpdate(scene));
         this.cannonballSprites.forEach((sprite, i) => {
             const cannonball = this.level.cannonballs.find(cb=>cb.id === sprite.getData('id'));
-            if(!cannonball) return
+            if(!cannonball) {
+                sprite.destroy()
+                sprite.x = -100
+                this.cannonballSprites.splice(this.cannonballSprites.indexOf(sprite), 1)
+                console.log("Cleaning up "+sprite.getData('id'), sprite, this.cannonballSprites)
+                return
+            }
             sprite.setX(cannonball.position.x * DRAW_SCALE);
             sprite.setY(cannonball.position.y * DRAW_SCALE);
         });

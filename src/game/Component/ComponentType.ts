@@ -1,4 +1,5 @@
 import Component from ".";
+import { GAME_SPEED } from "../../scenes/SpaceScene";
 import { BoundingBox } from "../Collision";
 import Force from "../Force";
 import { SpaceShip, Weapon } from "../SpaceShip";
@@ -6,8 +7,10 @@ import SpaceshipIntent, { flipIntent } from "../SpaceshipIntent";
 
 const COMPONENT_TYPES_BY_NAME:Record<string, ComponentType> = {}
 export default interface ComponentType{
+    inaccuracy: number;
     health: number;
-    fireDelay(): number;
+    fireDelay(shotNumber:number): number;
+    shots: number;
     weaponType?: Weapon;
     appearance: string;
     name: string;
@@ -73,14 +76,16 @@ export const block: ComponentType = {
     width: 1,
     height: 1,
     health: 1,
+    shots: 1,
+    inaccuracy: 0,
     isPowered: () => {
         return false;
     },
     getThrust(): Force|undefined {
         return undefined;
     },
-    fireDelay(): number {
-        return Math.random() * 300;
+    fireDelay(shotNumber:number): number {
+        return 0
     }
 }
 register(block)
@@ -198,6 +203,31 @@ export const cannon: ComponentType = {
     weaponType: 'right',
 }
 register(cannon)
+export const grapeshot: ComponentType = {
+    ...block,
+    name: "Grapeshot",
+    appearance: "grapecannon",
+    weaponType: 'right',
+    shots: 5,
+    inaccuracy: Math.PI/7,
+    fireDelay(shotNumber) {
+        return shotNumber*800
+    },
+}
+register(grapeshot)
+
+export const minicannon: ComponentType = {
+    ...block,
+    name: "Mini-Cannons",
+    appearance: "minicannon",
+    weaponType: 'right',
+    shots: 5,
+    inaccuracy: Math.PI/7,
+    fireDelay(shotNumber) {
+        return shotNumber*12000
+    },
+}
+register(minicannon)
 
 export type  ComponentTypeDump={
     name: string,

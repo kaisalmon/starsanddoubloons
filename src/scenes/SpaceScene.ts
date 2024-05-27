@@ -6,6 +6,7 @@ import { SpaceShip } from "../game/SpaceShip";
 import SpaceshipIntent from "../game/SpaceshipIntent";
 import { LevelRenderer } from "../phaser/levelRenderer";
 import { preload_sprites } from "./preload_sprites";
+import MatchManager from "../game/matchmanager";
 
 export const GAME_SPEED = 1/80;
 
@@ -18,6 +19,7 @@ export default class SpaceScene extends Phaser.Scene {
     socket: any;
     gameId: string;
     lastDump: number|null = null;
+    match: MatchManager;
     
     get player(): SpaceShip{
         return this.level.player;
@@ -30,7 +32,7 @@ export default class SpaceScene extends Phaser.Scene {
         this.level.playerIntent = intent;
     }
     
-    constructor(socket: Socket){
+    constructor(socket: Socket, match: MatchManager){
         super({ key: "SpaceScene" });
         this.socket = socket;
         const urlParams = new URLSearchParams(window.location.search);
@@ -38,30 +40,24 @@ export default class SpaceScene extends Phaser.Scene {
         if(!gameId) throw new Error("Missing gameId")
         this.gameId=gameId
         this.level = new GameLevel(
-            [newPlayerShip("1"), newBasicEnemy("2")],
+            [match.blueShip, match.redShip],
             gameId, socket
         )
-        this.level.ships.forEach(e => {
-            e.position.x = Math.random() * 120 * UNIT_SCALE;
-            e.position.y = Math.random() * 120 * UNIT_SCALE;
-            e.angle = Math.random() * Math.PI * 2;
-            e.velocity = {x:Math.sin(e.angle), y:Math.cos(e.angle)};
-        });
         
         this.socket.emit(`join game`, this.gameId)
         socket.on(`game ${gameId}`, (msg)=>{
             if(!msg.dump) return
             this.level.applyDump(msg.dump)
         })
-
+        this.match = match;
     }
 
-    init(data: { editedShip?: SpaceShip }) {
-        if (data.editedShip) {
-            this.level.ships[0] = data.editedShip;
-            this.level.ships[0].level = this.level;
-            this.level.onShipsChange(this.gameId, this.socket)
-        }
+    init() {
+        this.level.ships[0] = this.match.blueShip;
+        this.level.ships[0].level = this.level;
+        this.level.ships[1] = this.match.redShip;
+        this.level.ships[1].level = this.level;
+        this.level.onShipsChange(this.gameId, this.socket)
     }
 
     preload(){
@@ -103,11 +99,7 @@ export default class SpaceScene extends Phaser.Scene {
         this.graphics = this.add.graphics();
         this.graphics.z = 10;
 
-        this.player.position.x = 20 * UNIT_SCALE;
-        this.player.position.y = 20 * UNIT_SCALE;
-        this.player.angularVelocity = 0;
        
-
         this.levelRenderer = new LevelRenderer(this.level);
         this.levelRenderer.onCreate(this)
     }
@@ -117,7 +109,7 @@ export default class SpaceScene extends Phaser.Scene {
         this.level.update(delta);
         this.levelRenderer.onUpdate(this, delta)
         
-        this.socket.emit(`game ${this.gameId}`, {player: this.player.id, intent: this.player.intent})
+        this.socket.emit(`game ${this.gameId}`, {player: this.player.id, intent: {...this.player.intent}})
         if(this.lastDump === null
              || time - this.lastDump > 250
         ){

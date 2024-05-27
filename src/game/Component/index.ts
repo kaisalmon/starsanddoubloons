@@ -186,24 +186,33 @@ export default class Component {
         if(this.type.weaponType !== weapon){
             return
         }
-        const {x,y} = this.getCenterOfMassInWorldSpace();
-        const cannonball = new Cannonball({
-            x, y
-        },this.getCannonballVelocity(spaceship, weapon),
-            spaceship.id,
-        );
-        spaceship.addCannonball(cannonball, this);
-        spaceship.impulses.push({
-            x: -cannonball.velocity.x * CANNONBALL_KNOCKBACK,
-            y: -cannonball.velocity.y  * CANNONBALL_KNOCKBACK,
-            offsetX: cannonball.position.x - spaceship.position.x,
-            offsetY: cannonball.position.y - spaceship.position.y
-        });
+        let shots = this.type.shots;
+        for(let i=0; i<shots;i++){
+            const delay = this.type.fireDelay(i);
+            setTimeout(()=>{
+                const {x,y} = this.getCenterOfMassInWorldSpace();
+                //const o:Vector2 = i==0 ? {x:0,y:0} : {x:(Math.random()-.5)*UNIT_SCALE*2, y:(Math.random()-.5)*UNIT_SCALE*2}
+                const cannonball = new Cannonball({
+                    x,y
+                },this.getCannonballVelocity(spaceship, weapon),
+                    spaceship.id,
+                );
+            spaceship.addCannonball(cannonball, this);
+            if(i==0){
+                spaceship.impulses.push({
+                    x: -cannonball.velocity.x * CANNONBALL_KNOCKBACK,
+                    y: -cannonball.velocity.y  * CANNONBALL_KNOCKBACK,
+                    offsetX: cannonball.position.x - spaceship.position.x,
+                    offsetY: cannonball.position.y - spaceship.position.y
+                });
+            }
+            }, delay * GAME_SPEED)
+        }
     }
 
 
     private getCannonballVelocity(spaceship:SpaceShip, weapon:Weapon): Vector2 {
-        const angle = spaceship.angle + WEAPON_ANGLES[weapon];
+        const angle = spaceship.angle + WEAPON_ANGLES[weapon] + (Math.random()-.5) * this.type.inaccuracy;
         return {
             x: spaceship.velocity.x + Math.cos(angle) * CANNONBALL_SPEED,
             y: spaceship.velocity.y + Math.sin(angle) * CANNONBALL_SPEED

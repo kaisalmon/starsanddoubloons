@@ -4,7 +4,8 @@ import { newBasicEnemy, newPlayerShip } from "../game/ShipDesigns/basic";
 import { SpaceShip } from "../game/SpaceShip";
 import { preload_sprites } from "./preload_sprites";
 import Vector2 from "../game/Vector2";
-import { block, cannon, engine, flipped, lateralThruster, thruster } from "../game/Component/ComponentType";
+import { block, cannon, engine, flipped, grapeshot, lateralThruster, minicannon, thruster } from "../game/Component/ComponentType";
+import MatchManager from "../game/matchmanager";
 
 const DRAW_SCALE = 32/UNIT_SCALE;
 
@@ -12,13 +13,14 @@ const DRAW_SCALE = 32/UNIT_SCALE;
 export default class ShipEditorScene extends Phaser.Scene {
     name = "ShipEditorScene";
     socket:Socket
-    spaceship: SpaceShip
+    spaceship!: SpaceShip
     selectedSprite: Phaser.GameObjects.Sprite | null;
     selectedComponent: Component | null
     offset: Vector2={x:0, y:0};
     gameId: string;
+    match: MatchManager;
     
-    constructor(socket: Socket, activePlayer:string){
+    constructor(socket: Socket, match: MatchManager){
         super({ key: "ShipEditorScene" });
         this.socket = socket;
         const urlParams = new URLSearchParams(window.location.search);
@@ -27,8 +29,16 @@ export default class ShipEditorScene extends Phaser.Scene {
         const gameId = urlParams.get('gameId')
         if(!gameId) throw new Error("Missing gameId")
         this.gameId = gameId
-        this.spaceship = newBasicEnemy(activePlayer)
+        this.match = match
+    }
+
+    init(){
+        this.spaceship = this.match.getEditingSpaceship()
         this.spaceship.shelf =[
+            { type: grapeshot, count: 99 },
+            { type: flipped(grapeshot), count:99 },
+            { type: minicannon, count: 99 },
+            { type: flipped(minicannon), count:99 },
             { type: cannon, count: 99 },
             { type: flipped(cannon), count:99 },
             { type: thruster, count: 99 },
@@ -83,10 +93,11 @@ export default class ShipEditorScene extends Phaser.Scene {
         });
 
         this.input.keyboard.on('keydown-ENTER', () => {
-            this.scene.start('SpaceScene', {editedShip: this.spaceship});
+            this.emitDump()
             this.socket.emit(`game ${this.gameId}`, {
-                startGame: true,
+                doneEditing: true,
             })
+            this.nextScene()
         });
   
         this.input.on('gameobjectdown', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject) => {
@@ -117,10 +128,14 @@ export default class ShipEditorScene extends Phaser.Scene {
         });
 
         this.socket.on(`game ${this.gameId}`, (msg)=>{
+            if(msg.doneEditing) this.nextScene()
             if(!msg.editorDump) return
             this.spaceship.applyDump(msg.editorDump.ship)
             this.createSprites()
         })
+    }
+    nextScene() {
+        this.match.setState(this.match.getState() === 'blue_edit' ? 'red_edit' : 'space')
     }
 
     private emitDump() {
@@ -139,6 +154,7 @@ export default class ShipEditorScene extends Phaser.Scene {
         this.spaceship.components.forEach((c) => {
             const sprite = this.add.sprite(0, 0, c.type.appearance, 0);
             sprite.setData('isComponent', true)
+            sprite.setFrame(this.spaceship.id === '2' ? 2*c.type.health+2 : 0)
             sprite.setData('component', c)
             sprite.setScale(DRAW_SCALE * UNIT_SCALE / sprite.width * c.type.width, DRAW_SCALE * UNIT_SCALE / sprite.height * c.type.height);
 
@@ -166,6 +182,7 @@ export default class ShipEditorScene extends Phaser.Scene {
             const sprite = this.add.sprite(50, offset, shelfItem.type.appearance, 0);
             sprite.setData('isShelfComponent', true);
             sprite.setData('shelfIndex', index);
+            sprite.setFrame(this.spaceship.id === '2' ? 2*shelfItem.type.health+2 : 0)
             sprite.setScale(DRAW_SCALE * UNIT_SCALE / sprite.width * shelfItem.type.width, DRAW_SCALE * UNIT_SCALE / sprite.height * shelfItem.type.height);
             sprite.setInteractive();
             if(shelfItem.type.isFlipped){
