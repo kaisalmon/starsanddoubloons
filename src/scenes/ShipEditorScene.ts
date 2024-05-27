@@ -85,9 +85,6 @@ export default class ShipEditorScene extends Phaser.Scene {
 
         this.input.keyboard.on('keydown-ENTER', () => {
             this.emitDump()
-            this.socket.emit(`game ${this.gameId}`, {
-                doneEditing: true,
-            })
             this.nextScene()
         });
 
@@ -128,7 +125,6 @@ export default class ShipEditorScene extends Phaser.Scene {
         });
 
         this.socket.on(`game ${this.gameId}`, (msg)=>{
-            if(msg.doneEditing) this.nextScene()
             if(!msg.editorDump) return
             this.spaceship.applyDump(msg.editorDump.ship)
             this.createSprites()

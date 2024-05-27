@@ -11,7 +11,7 @@ import MatchManager from './game/matchmanager';
     
     const socket = io(location.hostname === "localhost"  ? 'http://localhost:3000': 'https://starsanddoubloons.fly.dev/');
    
-    const match = new MatchManager()
+    const match = new MatchManager(socket)
     const config:Phaser.Types.Core.GameConfig = {
         type: Phaser.AUTO,
         backgroundColor: '#333333',
@@ -22,10 +22,19 @@ import MatchManager from './game/matchmanager';
         
     };
     const game = new Phaser.Game(config);
-    match.attachListener(state=>{
-        if(state==='space'){
+
+
+
+    match.attachListener((from, to)=>{
+        if(from==='space'){
+            game.scene.stop('SpaceScene');
+        }else if(from==='red_edit' || from=='blue_edit'){
+            game.scene.stop('ShipEditorScene');
+        }
+
+        if(to==='space'){
             game.scene.start('SpaceScene');
-        }else if(state==='red_edit' || state=='blue_edit'){
+        }else if(to==='red_edit' || to=='blue_edit'){
             game.scene.start('ShipEditorScene');
         }
     })

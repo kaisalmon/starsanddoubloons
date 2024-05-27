@@ -97,6 +97,10 @@ export default class SpaceScene extends Phaser.Scene {
         this.input.keyboard.addKey('right').on('up', () => {
             this.intent = {...this.intent, fireRight: false}
         });
+
+        this.input.keyboard.addKey('ESC').on('down', () => {
+            this.match.setState('blue_edit')
+        });
         
         this.graphics = this.add.graphics();
         this.graphics.z = 10;
