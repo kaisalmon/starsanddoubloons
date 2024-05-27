@@ -235,8 +235,8 @@ export class GameLevel {
        }
        return dump
     }
-    applyDump(dump: LevelDump): void {
-        this.ships.find(s=>s.id == dump.spaceship.id)!.applyDump(dump.spaceship)
+    applyDump(dump: LevelDump, p=1): void {
+        this.ships.find(s=>s.id == dump.spaceship.id)!.applyDump(dump.spaceship, p)
         if(dump.cannonballs){
             [...this.cannonballs].forEach(c=>{
                 if(c.firer === this.player.id) return
@@ -247,7 +247,7 @@ export class GameLevel {
                 if(cbDump.firer === this.player.id) return
                 const existantCb = this.cannonballs.find(cb=>cb.id === cbDump.id)
                 if(existantCb){
-                    existantCb.applyDump(cbDump)
+                    existantCb.applyDump(cbDump, p)
                 }else{
                     const newCannonball = new Cannonball(cbDump.position, cbDump.velocity, cbDump.firer, cbDump.bounces, cbDump.id)
                     this.cannonballs.push(newCannonball);

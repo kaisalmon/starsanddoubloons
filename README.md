@@ -1,8 +1,5 @@
 ### TODO
-[] Fix netcode
-[] Asteroids/Terrain
-[] Iframes
-[] Edges
+[] Self distruct when no weapons
 
 ### IDEAS
 [] Gravity fields

@@ -22,7 +22,11 @@ io.on('connection', (socket) => {
   socket.on('join game', (id) => {
     console.log("Someone joined game", id)
     socket.on(`game ${id}`, (event) => {
-      socket.broadcast.emit(`game ${id}`, event)
+      if(event.important){
+        socket.broadcast.emit(`game ${id}`, event)
+      }else{
+        socket.volatile.broadcast.emit(`game ${id}`, event)
+      }
     });
 });
 });

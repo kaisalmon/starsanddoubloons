@@ -1,5 +1,5 @@
 import Component from ".";
-import { GAME_SPEED } from "../../scenes/SpaceScene";
+import { GAME_SPEED } from "../../GAME_SPEED";
 import { BoundingBox } from "../Collision";
 import Force from "../Force";
 import { SpaceShip, Weapon } from "../SpaceShip";

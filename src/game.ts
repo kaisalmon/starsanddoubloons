@@ -19,6 +19,7 @@ import MatchManager from './game/matchmanager';
         height: 600,
         pixelArt: true,
         scene: [new ShipEditorScene(socket, match), new SpaceScene(socket, match)],
+
         
     };
     const game = new Phaser.Game(config);

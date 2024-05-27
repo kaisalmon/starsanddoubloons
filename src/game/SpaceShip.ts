@@ -7,7 +7,7 @@ import ComponentType, { ComponentTypeDump, componentTypefromDump, dumpComponentT
 import Force, { calculateTorques, sum } from "./Force";
 import {GameLevel } from "./Level";
 import SpaceshipIntent from "./SpaceshipIntent";
-import Vector2, { getDistance } from "./Vector2";
+import Vector2, { getDistance, lerp } from "./Vector2";
 
 export type Weapon = 'left' | 'right';
 
@@ -300,10 +300,13 @@ export class SpaceShip {
             }))
         }
     }
-    applyDump(dump:SpaceshipDump){
-        this.position=dump.position  
+    applyDump(dump:SpaceshipDump, p=1){
+        this.position={
+            x: lerp(this.position.x, dump.position.x, p),
+            y: lerp(this.position.y, dump.position.y, p)
+        }  
         this.velocity=dump.velocity,
-        this.angle=dump.angle,
+        this.angle=lerp(this.angle, dump.angle, p),
         this.angularVelocity=dump.angularVelocity,
         this.id=dump.id,
         this.weaponCalldown=dump.weaponCalldown

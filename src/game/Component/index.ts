@@ -1,4 +1,4 @@
-import { GAME_SPEED } from "../../scenes/SpaceScene";
+import { GAME_SPEED } from "../../GAME_SPEED";
 import { Cannonball, CANNONBALL_KNOCKBACK, CANNONBALL_SPEED } from "../Cannonball";
 import Collision, { BoundingBox, doRectanglesIntersect, MOMENTUM_TO_DAMAGE } from "../Collision";
 import Force, { rotate, sum } from "../Force";

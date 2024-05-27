@@ -1,5 +1,5 @@
 import { SpaceShip } from "./SpaceShip";
-import Vector2 from "./Vector2";
+import Vector2, { lerp } from "./Vector2";
 
 export const CANNONBALL_AGE = 50;
 export const CANNONBALL_FRIENDLY_FIRE_TIME = 5;
@@ -48,9 +48,12 @@ export class Cannonball {
         }
     } 
 
-    applyDump(dump: CannonballDump){
+    applyDump(dump: CannonballDump, p=1){
         if(this.id !== dump.id) throw new Error("Cannonball id mismatch")
-        this.position = dump.position
+        this.position={
+            x: lerp(this.position.x, dump.position.x, p),
+            y: lerp(this.position.y, dump.position.y, p)
+        }  
         this.velocity = dump.velocity
         this.firer = dump.firer
         this.age = dump.age

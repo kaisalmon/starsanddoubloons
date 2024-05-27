@@ -12,17 +12,10 @@ export const newBasicEnemy = (id:string)=>new SpaceShip(id, [
         new Component(flipped(lateralThruster), {x: 2, y: 0}),
         new Component(cannon, {x: -1, y: 1}),
         new Component(flipped(cannon), {x: 2, y: 1}),
-        new Component(cannon, {x: -1, y: 2}),
-        new Component(flipped(cannon), {x: 2, y: 2}),
 
-        new Component(block, {x: 0, y: 2}),
-        new Component(block, {x: 1, y: 2}),
-        new Component(block, {x: 0, y: 3}),
-        new Component(block, {x: 1, y: 3}),
-
-        new Component(lateralThruster, {x: -1, y: 3}),
-        new Component(flipped(lateralThruster), {x: 2, y: 3}),
-        new Component(bridge, {x: 0, y: 4}),
+        new Component(lateralThruster, {x: -1, y: 2}),
+        new Component(flipped(lateralThruster), {x: 2, y: 2}),
+        new Component(bridge, {x: 0, y: 2}),
     ],
     createCombatAI()
 );

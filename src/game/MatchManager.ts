@@ -1,5 +1,5 @@
 import { Socket } from "socket.io"
-import { newBasicEnemy } from "./ShipDesigns/basic"
+import { newBasicEnemy as newStartingShip } from "./ShipDesigns/basic"
 import { SpaceShip } from "./SpaceShip"
 
 type MatchState= 'blue_edit' | 'red_edit' | 'space'
@@ -15,8 +15,8 @@ export default class MatchManager {
     gameId: string
 
     constructor(socket:Socket){
-        this.blueShip = newBasicEnemy("1")
-        this.redShip = newBasicEnemy("2")
+        this.blueShip = newStartingShip("1")
+        this.redShip = newStartingShip("2")
         this.socket = socket
 
         const urlParams = new URLSearchParams(window.location.search);

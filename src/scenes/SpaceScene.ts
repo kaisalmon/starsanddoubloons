@@ -7,8 +7,7 @@ import SpaceshipIntent from "../game/SpaceshipIntent";
 import { LevelRenderer } from "../phaser/levelRenderer";
 import { preload_sprites } from "./preload_sprites";
 import MatchManager from "../game/matchmanager";
-
-export const GAME_SPEED = 1/80;
+import { GAME_SPEED } from "../GAME_SPEED";
 
 export default class SpaceScene extends Phaser.Scene {
     name = "SpaceScene";
@@ -49,7 +48,7 @@ export default class SpaceScene extends Phaser.Scene {
         this.socket.emit(`join game`, this.gameId)
         socket.on(`game ${gameId}`, (msg)=>{
             if(!msg.dump) return
-            this.level.applyDump(msg.dump)
+            this.level.applyDump(msg.dump, 0.5)
         })
         this.match = match;
     }
@@ -109,7 +108,7 @@ export default class SpaceScene extends Phaser.Scene {
         this.levelRenderer = new LevelRenderer(this.level);
         this.levelRenderer.onCreate(this)
         
-        this.fpsText = this.add.text(10,10,"")
+        this.fpsText = this.add.text(10, 10, "", { fontSize: '16px', color: '#fff' })
     }
 
     update(time: number, delta: number){
@@ -119,13 +118,18 @@ export default class SpaceScene extends Phaser.Scene {
         
         this.socket.emit(`game ${this.gameId}`, {player: this.player.id, intent: {...this.player.intent}})
         if(this.lastDump === null
-             || time - this.lastDump > 250
+             || time - this.lastDump > 100
         ){
             this.lastDump = time
             this.socket.emit(`game ${this.gameId}`, {dump: this.level.dump()})
         }
 
-        //this.fpsText.setText(`${this.game.loop.actualFps}fps`)
+        this.fpsText.setText(`FPS: ${Math.floor(this.game.loop.actualFps)}`);
+        this.fpsText.setScale(1 / this.cameras.main.zoom);
+        const x = this.cameras.main.worldView.left
+        const y = this.cameras.main.worldView.top
+        this.fpsText.x = x+20;
+        this.fpsText.y = y+20
     }
     isHost() {
         return this.player.id === "1"
