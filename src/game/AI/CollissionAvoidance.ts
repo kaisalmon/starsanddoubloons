@@ -1,4 +1,5 @@
-import { doesLineIntersectCircle, doLinesIntersect, Line } from "../Collision";
+import { doesLineIntersectCircle, doLinesIntersect } from "../Collision";
+import { Line } from "../Polygon";
 import { GameLevel } from "../Level";
 import { SpaceShip } from "../SpaceShip";
 import SpaceshipIntent from "../SpaceshipIntent";

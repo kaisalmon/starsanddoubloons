@@ -1,3 +1,5 @@
+import { Line } from "./Polygon";
+
 export default interface Vector2 {
     x: number;
     y: number;
@@ -148,3 +150,13 @@ export function findShortestDistanceBetweenTwoMovingObjects(aPos: Vector2, aVel:
     return Math.sqrt(shortestDistanceSquared);
 }
 
+export function reflect(velocity: Vector2, surface: Line): Vector2 {
+    const [start, end] = surface;
+    const surfaceVector = sub(end, start);
+    const surfaceNormal = getNormalized(rotate(surfaceVector, Math.PI / 2));
+    
+    const dotProduct = dot(velocity, surfaceNormal);
+    const reflectionVector = sub(velocity, scale(surfaceNormal, 2 * dotProduct));
+    
+    return reflectionVector;
+}

@@ -11,6 +11,7 @@ export class Cannonball {
     velocity: Vector2;
     firer: string;
     id: string;
+    bounces = 1;
     age = 0;
 
     get angle(): number {
@@ -41,7 +42,8 @@ export class Cannonball {
             velocity: this.velocity,
             firer: this.firer,
             age: this.age,
-            id: this.id
+            id: this.id,
+            bounces: this.bounces
         }
     } 
 
@@ -51,6 +53,7 @@ export class Cannonball {
         this.velocity = dump.velocity
         this.firer = dump.firer
         this.age = dump.age
+        this.bounces = dump.bounces
     }
 }
 
@@ -60,4 +63,5 @@ export interface CannonballDump{
     firer: string;
     age: number;
     id: string;
+    bounces: number
 }

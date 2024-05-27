@@ -1,12 +1,13 @@
 import { Cannonball } from "./Cannonball";
-import Collision, { BoundingBox, Line, Polygon, doPolygonsIntersect, doRectanglesIntersect, rectangleToPolygon } from "./Collision";
+import Collision, { BoundingBox, doPolygonsIntersect, doRectanglesIntersect, rectangleToPolygon } from "./Collision";
+import { Line, Polygon } from "./Polygon";
 import Component from "./Component";
 import Force, { calculateTorques, sum } from "./Force";
 import { GameLevel } from "./Level";
 import { SpaceShip } from "./SpaceShip";
-import Vector2, { getDistance } from "./Vector2";
+import Vector2, { add, getDistance, getMagnitude, getNormalized, reflect, scale, sub } from "./Vector2";
 
-const ROTATION_FACTOR = 0.2;
+const ROTATION_FACTOR = 0.03;
 const SPEED_MULTIPLIER = 0.7;
 const ANGULAR_FRICTION=0.1
 const FRICTION=0.1
@@ -88,7 +89,8 @@ export default class Obstical {
         ]
 
         const polygon: Polygon = this.shape.getPolygon(this);
-        if(!doPolygonsIntersect(polygon, cannonBallLine)) return
+        const colidingLine: Line|undefined = doPolygonsIntersect(polygon, cannonBallLine)
+        if(!colidingLine) return
    
         this.impulses.push({
             x: cannonball.velocity.x * CANNONBALL_KNOCKBACK,
@@ -96,9 +98,15 @@ export default class Obstical {
             offsetX: cannonball.position.x - this.position.x,
             offsetY: cannonball.position.y - this.position.y
         });
-
-
-        this.level.removeCannonball(cannonball);
+        if(cannonball.bounces<=0){
+            this.level.removeCannonball(cannonball);
+        }else{
+            const reflection = reflect(cannonball.velocity, colidingLine)
+            cannonball.bounces--;
+            cannonball.age=0
+            cannonball.position = sub(cannonball.position, scale(cannonball.velocity, 1))
+            cannonball.velocity = scale(getNormalized(reflection), getMagnitude(cannonball.velocity))
+        }
     }
     dump(): ObstacleDump {
         return {

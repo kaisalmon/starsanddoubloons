@@ -1,4 +1,5 @@
-import Vector2, { rotate } from "./Vector2";
+import { Polygon, Line, Lines } from "./Polygon";
+import Vector2, { getNormalized, rotate } from "./Vector2";
 
 export const MOMENTUM_TO_DAMAGE = 200;
 
@@ -15,10 +16,6 @@ export interface BoundingBox {
     height: number;
     angle: number;
 }
-
-export type Polygon = Vector2[];
-export type Line = [Vector2, Vector2];
-export type Lines = Line[];
 
 export function rectangleToPolygon(rect: BoundingBox): Polygon {
     const {
@@ -142,16 +139,17 @@ export function polygonToLines(polygon: Polygon): Lines {
     return lines;
 }
 
-export function doPolygonsIntersect(polygon1: Polygon, polygon2: Polygon): boolean {
+/** @return the line from polygon 1 which was intersected with */
+export function doPolygonsIntersect(polygon1: Polygon, polygon2: Polygon): Line|undefined {
     const lines1 = polygonToLines(polygon1);
     const lines2 = polygonToLines(polygon2);
-    return lines1.some(line1 => lines2.some(line2 => doLinesIntersect(line1, line2)));
+    return lines1.find(line1 => lines2.some(line2 => doLinesIntersect(line1, line2)));
 }
 
 export function doRectanglesIntersect(rect1: BoundingBox, rect2: BoundingBox): boolean {
     const polygon1 = rectangleToPolygon(rect1);
     const polygon2 = rectangleToPolygon(rect2);
-    return doPolygonsIntersect(polygon1, polygon2);
+    return !!doPolygonsIntersect(polygon1, polygon2);
 }
 
 

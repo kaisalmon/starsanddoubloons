@@ -1,6 +1,7 @@
 import { AI, IDLE_AI } from "./AI/ai";
 import { Cannonball, CANNONBALL_FRIENDLY_FIRE_TIME, CANNONBALL_KNOCKBACK } from "./Cannonball";
-import Collision, { BoundingBox, doPolygonsIntersect, doRectanglesIntersect, Line, rectangleToPolygon } from "./Collision";
+import Collision, { BoundingBox, doPolygonsIntersect, doRectanglesIntersect, rectangleToPolygon } from "./Collision";
+import { Line } from "./Polygon";
 import Component, { ComponentDump, ComponentDumpFull, UNIT_SCALE } from "./Component";
 import ComponentType, { ComponentTypeDump, componentTypefromDump, dumpComponentType } from "./Component/ComponentType";
 import Force, { calculateTorques, sum } from "./Force";
