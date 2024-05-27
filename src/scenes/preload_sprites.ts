@@ -9,6 +9,8 @@ export function preload_sprites(scene: Scene) {
     scene.load.spritesheet('cannon', 'assets/components/cannon.png', { frameWidth: 16, frameHeight: 16 });
     scene.load.spritesheet('grapecannon', 'assets/components/grapecannon.png', { frameWidth: 16, frameHeight: 16 });
     scene.load.spritesheet('minicannon', 'assets/components/minicannon.png', { frameWidth: 16, frameHeight: 16 });
+    scene.load.spritesheet('multishotmagazine', 'assets/components/multishotmagazine.png', { frameWidth: 32, frameHeight: 16 });
+    scene.load.spritesheet('bouncingmagazine', 'assets/components/bouncingmagazine.png', { frameWidth: 32, frameHeight: 16 });
     scene.load.spritesheet('cannonball', 'assets/bullet.png', { frameWidth: 8, frameHeight: 8 });
     scene.load.spritesheet('smoke', 'assets/smoke.png', { frameWidth: 8, frameHeight: 8 });
     scene.load.spritesheet('arrow', 'assets/arrow.png', { frameWidth: 32, frameHeight: 32 });

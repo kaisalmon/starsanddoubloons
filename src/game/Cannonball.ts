@@ -11,16 +11,17 @@ export class Cannonball {
     velocity: Vector2;
     firer: string;
     id: string;
-    bounces = 1;
+    bounces = 0;
     age = 0;
 
     get angle(): number {
         return Math.atan2(this.velocity.y, this.velocity.x);
     }
-    constructor(position: Vector2, velocity: Vector2, firer: string, id?:string) {
+    constructor(position: Vector2, velocity: Vector2, firer: string, bounces: number,  id?:string) {
         this.position = position;
         this.velocity = velocity;
         this.firer = firer;
+        this.bounces = bounces
         this.id = id ?? Math.floor(Math.random()*10000).toString()
     }
 

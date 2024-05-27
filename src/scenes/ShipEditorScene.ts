@@ -4,7 +4,7 @@ import { newBasicEnemy, newPlayerShip } from "../game/ShipDesigns/basic";
 import { SpaceShip } from "../game/SpaceShip";
 import { preload_sprites } from "./preload_sprites";
 import Vector2 from "../game/Vector2";
-import { block, cannon, engine, flipped, grapeshot, lateralThruster, minicannon, thruster } from "../game/Component/ComponentType";
+import { COMPONENT_TYPES_BY_NAME, block, bouncingMagazine, cannon, engine, flipped, grapeshot, lateralThruster, minicannon, thruster } from "../game/Component/ComponentType";
 import MatchManager from "../game/matchmanager";
 
 const DRAW_SCALE = 32/UNIT_SCALE;
@@ -34,19 +34,10 @@ export default class ShipEditorScene extends Phaser.Scene {
 
     init(){
         this.spaceship = this.match.getEditingSpaceship()
-        this.spaceship.shelf =[
-            { type: grapeshot, count: 99 },
-            { type: flipped(grapeshot), count:99 },
-            { type: minicannon, count: 99 },
-            { type: flipped(minicannon), count:99 },
-            { type: cannon, count: 99 },
-            { type: flipped(cannon), count:99 },
-            { type: thruster, count: 99 },
-            { type: block, count: 99 },
-            { type: lateralThruster, count: 99 },
-            { type: flipped(lateralThruster), count:99 },
-            { type: engine, count: 99 }
-        ];
+        this.spaceship.shelf=Object.keys(COMPONENT_TYPES_BY_NAME).map(key => ({
+            typeName: key,
+            count: 99
+        }))
     }
 
     preload(){
@@ -64,11 +55,11 @@ export default class ShipEditorScene extends Phaser.Scene {
                     const index = this.spaceship.components.indexOf(this.selectedComponent);
                     if (index !== -1) {
                         this.spaceship.components.splice(index, 1);
-                        const shelfItem = this.spaceship.shelf.find(item => item.type === this.selectedComponent!.type);
+                        const shelfItem = this.spaceship.shelf.find(item => item.typeName == this.selectedComponent?._type.name);
                         if (shelfItem) {
                             shelfItem.count++;
                         } else {
-                            this.spaceship.shelf.push({ type: this.selectedComponent.type, count: 1 });
+                            this.spaceship.shelf.push({ typeName: this.selectedComponent._type.name, count: 1 });
                         }
                     }
                 }
@@ -99,13 +90,22 @@ export default class ShipEditorScene extends Phaser.Scene {
             })
             this.nextScene()
         });
+
+        this.input.keyboard.on('keydown-F', () => {
+            if(this.selectedComponent){
+                this.selectedComponent._type = flipped(this.selectedComponent._type)
+                this.selectedSprite!.flipX = this.selectedComponent._type.isFlipped;
+            }
+            this.emitDump()
+        });
   
         this.input.on('gameobjectdown', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject) => {
             if (gameObject.getData('isShelfComponent')) {
                 const shelfItem = this.spaceship.shelf[gameObject.getData('shelfIndex')];
                 if (shelfItem.count > 0) {
                     const shelfSprite = gameObject as Phaser.GameObjects.Sprite;
-                    this.selectedComponent = new Component(shelfItem.type, { x: 0, y: 0 });
+                    const type = COMPONENT_TYPES_BY_NAME[shelfItem.typeName]
+                    this.selectedComponent = new Component(type, { x: 0, y: 0 });
                     this.selectedComponent.spaceship = this.spaceship;
 
                     const { x, y } = shelfSprite.getCenter();
@@ -177,25 +177,27 @@ export default class ShipEditorScene extends Phaser.Scene {
 
         this.children.list.filter(x => x instanceof Phaser.GameObjects.Sprite && x.getData('isShelfComponent')).forEach(c => c.destroy());
         this.children.list.filter(x => x instanceof Phaser.GameObjects.Text && x.getData('isShelfCount')).forEach(c => c.destroy());
-        let offset=50
+        let offset=20
         this.spaceship.shelf.forEach((shelfItem, index) => {
-            const sprite = this.add.sprite(50, offset, shelfItem.type.appearance, 0);
+            
+            const type = COMPONENT_TYPES_BY_NAME[shelfItem.typeName]
+            const sprite = this.add.sprite(50, offset, type.appearance, 0);
             sprite.setData('isShelfComponent', true);
             sprite.setData('shelfIndex', index);
-            sprite.setFrame(this.spaceship.id === '2' ? 2*shelfItem.type.health+2 : 0)
-            sprite.setScale(DRAW_SCALE * UNIT_SCALE / sprite.width * shelfItem.type.width, DRAW_SCALE * UNIT_SCALE / sprite.height * shelfItem.type.height);
+            sprite.setFrame(this.spaceship.id === '2' ? 2*type.health+2 : 0)
+            sprite.setScale(DRAW_SCALE * UNIT_SCALE / sprite.width * type.width, DRAW_SCALE * UNIT_SCALE / sprite.height * type.height);
             sprite.setInteractive();
-            if(shelfItem.type.isFlipped){
+            if(type.isFlipped){
                 sprite.setFlipX(true)
             }
 
-            const countText = this.add.text(sprite.x + 50, sprite.y-5, `×${shelfItem.count}`, {
+            const countText = this.add.text(sprite.x + 50, sprite.y-5, `${type.name} ×${shelfItem.count}`, {
                 fontFamily: 'Arial',
                 fontSize: '20px',
                 color: '#ffffff'
             });
             countText.setData('isShelfCount', true);
-            offset+= ( DRAW_SCALE * UNIT_SCALE * shelfItem.type.height) + 10
+            offset+= ( DRAW_SCALE * UNIT_SCALE * type.height) + 2
         });
     }
 

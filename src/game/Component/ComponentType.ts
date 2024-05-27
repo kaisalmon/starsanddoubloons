@@ -5,13 +5,10 @@ import Force from "../Force";
 import { SpaceShip, Weapon } from "../SpaceShip";
 import SpaceshipIntent, { flipIntent } from "../SpaceshipIntent";
 
-const COMPONENT_TYPES_BY_NAME:Record<string, ComponentType> = {}
+export const COMPONENT_TYPES_BY_NAME:Record<string, ComponentType> = {}
 export default interface ComponentType{
     inaccuracy: number;
     health: number;
-    fireDelay(shotNumber:number): number;
-    shots: number;
-    weaponType?: Weapon;
     appearance: string;
     name: string;
     mass: number;
@@ -19,12 +16,21 @@ export default interface ComponentType{
     width: number;
     height: number;
     hitbox?: BoundingBox;
+
+    fireDelay(shotNumber:number): number;
+    shots: number;
+    bounces: number;
+    weaponType?: Weapon;
+
+  
     isBridge: boolean;
     isEngine: boolean;
     isThruster: boolean;
     isFlipped: boolean;
+    
     isPowered(intent: SpaceshipIntent, component:Component, spaceship: SpaceShip):boolean;
     getThrust(powered: boolean, intent: SpaceshipIntent, component:Component, spaceship: SpaceShip): Force|undefined;
+    decorateComponent?(componentType: ComponentType): ComponentType
 }
 
 function register(componentType: ComponentType){
@@ -34,7 +40,7 @@ function register(componentType: ComponentType){
 export function flipped(base: ComponentType): ComponentType{
     return {
         ...base,
-        isFlipped: true,
+        isFlipped: !base.isFlipped,
         weaponType: base.weaponType === 'left' ? 'right' : 
                     base.weaponType === 'right' ? 'left' :
                     base.weaponType,
@@ -77,6 +83,7 @@ export const block: ComponentType = {
     height: 1,
     health: 1,
     shots: 1,
+    bounces: 0,
     inaccuracy: 0,
     isPowered: () => {
         return false;
@@ -114,28 +121,26 @@ export const bridge: ComponentType = {
 }   
 register(bridge)
 
-export const wing: ComponentType = {
-    ...block,
-    name: "Wing",
-    height: 2,
-    width: 2,
-    getThrust(powered: boolean): Force|undefined {
-        if(powered){
-            return {
-                offsetY: 0,
-                offsetX: 0,
-                x: 0,
-                y: 1
-            }
-        }
-    },
-    isPowered: (intent: SpaceshipIntent) => {
-        return intent.rotateLeft || intent.moveForward;
-    }
-}
-register(wing)
-
-export const leftWing = flipped(wing);
+// export const wing: ComponentType = {
+//     ...block,
+//     name: "Wing",
+//     height: 2,
+//     width: 2,
+//     getThrust(powered: boolean): Force|undefined {
+//         if(powered){
+//             return {
+//                 offsetY: 0,
+//                 offsetX: 0,
+//                 x: 0,
+//                 y: 1
+//             }
+//         }
+//     },
+//     isPowered: (intent: SpaceshipIntent) => {
+//         return intent.rotateLeft || intent.moveForward;
+//     }
+// }
+// register(wing)
 
 export const lateralThruster: ComponentType = {
     ...block,
@@ -228,6 +233,46 @@ export const minicannon: ComponentType = {
     },
 }
 register(minicannon)
+
+export const bouncingMagazine: ComponentType = {
+    ...block,
+    name: "Bouncing Magazine",
+    appearance: "bouncingmagazine",
+    health: 1,
+    mass: 2,
+    width: 2,
+    height: 1, 
+    decorateComponent(component){
+        return {
+            ...component,
+            bounces: component.bounces + 2
+        }
+    }
+}   
+register(bouncingMagazine)
+
+
+export const multishotMagazine: ComponentType = {
+    ...block,
+    name: "Multishot Magazine",
+    appearance: "multishotmagazine",
+    health: 1,
+    mass: 2,
+    width: 2,
+    height: 1, 
+    decorateComponent(component){
+        return {
+            ...component,
+            shots: component.shots * 2,
+            inaccuracy: component.inaccuracy + Math.PI/7,
+            fireDelay(shotNumber): number{
+                return Math.min(shotNumber *800, component.fireDelay(shotNumber))
+            }
+        }
+    }
+}   
+register(multishotMagazine)
+
 
 export type  ComponentTypeDump={
     name: string,

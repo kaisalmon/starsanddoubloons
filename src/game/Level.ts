@@ -249,7 +249,7 @@ export class GameLevel {
                 if(existantCb){
                     existantCb.applyDump(cbDump)
                 }else{
-                    const newCannonball = new Cannonball(cbDump.position, cbDump.velocity, cbDump.firer, cbDump.id)
+                    const newCannonball = new Cannonball(cbDump.position, cbDump.velocity, cbDump.firer, cbDump.bounces, cbDump.id)
                     this.cannonballs.push(newCannonball);
                     console.log("CB from dump")
                     this.triggerEvent('cannonballFired', [this.ships.find(s=>s.id==cbDump.firer)!, newCannonball, null]);

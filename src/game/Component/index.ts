@@ -15,7 +15,7 @@ export const UNIT_SCALE = 1;
 const INV_TIME = 30 
 
 export default class Component {
-    type: ComponentType;
+    _type: ComponentType;
     position: Vector2; // Relative position of the component to the spaceship's top left corner
     isPowered = false;
     damage = 0;
@@ -23,8 +23,24 @@ export default class Component {
     spaceship!: SpaceShip
 
     constructor(type: ComponentType, position: Vector2) {
-        this.type = type;
+        this._type = type;
         this.position = position;
+    }
+
+    get type(): ComponentType {
+        const decorators = this.spaceship.components
+            .filter(c=>!c.isDestroyed(false))
+            .map(c=>c._type.decorateComponent!)
+            .filter(d=>d!==undefined)
+        let decorated = this._type;
+        decorators.forEach(decorator => {
+            decorated = decorator(decorated)
+        })
+        return decorated
+    }
+
+    set type(t: ComponentType) {
+        this._type = t
     }
 
     get width(): number {
@@ -193,9 +209,10 @@ export default class Component {
                 const {x,y} = this.getCenterOfMassInWorldSpace();
                 //const o:Vector2 = i==0 ? {x:0,y:0} : {x:(Math.random()-.5)*UNIT_SCALE*2, y:(Math.random()-.5)*UNIT_SCALE*2}
                 const cannonball = new Cannonball({
-                    x,y
-                },this.getCannonballVelocity(spaceship, weapon),
+                    x, y
+                }, this.getCannonballVelocity(spaceship, weapon),
                     spaceship.id,
+                    this.type.bounces
                 );
             spaceship.addCannonball(cannonball, this);
             if(i==0){
@@ -292,8 +309,9 @@ export default class Component {
         spaceship.onComponentDestroyed(this);
     }
 
-    isDestroyed(): boolean {
-        return this.damage >= this.type.health;
+    isDestroyed(recursive=true): boolean {
+        if(recursive) return this.damage >= this.type.health;
+        return this.damage >= this._type.health;
     }    
     isCollidable(): boolean {
         return !this.isDestroyed();

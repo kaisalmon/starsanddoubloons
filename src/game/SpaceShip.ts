@@ -29,7 +29,7 @@ export class SpaceShip {
     weaponCalldown: undefined|number;
 
     impulses: Force[] = [];
-    shelf: {type:ComponentType, count:number}[] = []
+    shelf: {typeName:string, count:number}[] = []
   
     get mass(): number {
         return this.components.reduce((acc, component) => acc + component.mass, 0) * MASS_MULTIPLIER;
@@ -295,7 +295,7 @@ export class SpaceShip {
             components: undefined,
             fullComponents: this.components.map(c=>c.dump(true) as ComponentDumpFull),
             shelf: this.shelf.map(c=>({
-                type: dumpComponentType(c.type),
+                typeName: c.typeName,
                 count: c.count
             }))
         }
@@ -315,7 +315,7 @@ export class SpaceShip {
             this.shelf.splice(0, this.shelf.length)
             dump.shelf!.forEach(sDump=>{
                 this.shelf.push({
-                    type: componentTypefromDump(sDump.type),
+                    typeName: sDump.typeName,
                     count: sDump.count
                 })
             })
@@ -334,5 +334,5 @@ export interface SpaceshipDump{
     weaponCalldown: undefined|number;
     components?: ComponentDump[]
     fullComponents?: ComponentDumpFull[]
-    shelf?: {type:ComponentTypeDump, count:number}[]
+    shelf?: {typeName:string, count:number}[]
 }

@@ -20,6 +20,7 @@ export default class SpaceScene extends Phaser.Scene {
     gameId: string;
     lastDump: number|null = null;
     match: MatchManager;
+    fpsText!: Phaser.GameObjects.Text;
     
     get player(): SpaceShip{
         return this.level.player;
@@ -43,6 +44,7 @@ export default class SpaceScene extends Phaser.Scene {
             [match.blueShip, match.redShip],
             gameId, socket
         )
+        
         
         this.socket.emit(`join game`, this.gameId)
         socket.on(`game ${gameId}`, (msg)=>{
@@ -102,6 +104,8 @@ export default class SpaceScene extends Phaser.Scene {
        
         this.levelRenderer = new LevelRenderer(this.level);
         this.levelRenderer.onCreate(this)
+        
+        this.fpsText = this.add.text(10,10,"")
     }
 
     update(time: number, delta: number){
@@ -116,11 +120,11 @@ export default class SpaceScene extends Phaser.Scene {
             this.lastDump = time
             this.socket.emit(`game ${this.gameId}`, {dump: this.level.dump()})
         }
+
+        //this.fpsText.setText(`${this.game.loop.actualFps}fps`)
     }
     isHost() {
         return this.player.id === "1"
     }
 
 }
-
-
