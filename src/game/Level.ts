@@ -94,7 +94,7 @@ export class GameLevel {
             ship.ai = ship === playerShip ? PLAYER_AI : new NetworkAI(ship.id, gameId, socket);
 
             ship.position = ship.id === "1" ? {x: -30, y:0} : {x:30,y:0}
-            console.log(ship)
+            ship.resetHealth()
         });
 
         

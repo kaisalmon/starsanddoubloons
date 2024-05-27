@@ -369,6 +369,10 @@ export default class Component {
         comp.spaceship = spaceship
         return comp
     }
+
+    resetHealth(): void {
+        this.damage=0
+    }
 }
 
 export interface ComponentDump {

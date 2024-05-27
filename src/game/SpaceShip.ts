@@ -323,6 +323,11 @@ export class SpaceShip {
             dump.components!.forEach((cDump, i) => this.components[i].applyDump(cDump))
         }
     }
+
+    
+    resetHealth() {
+        this.components.forEach(c=>c.resetHealth())
+    }
 }
 
 export interface SpaceshipDump{
