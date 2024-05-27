@@ -24,6 +24,7 @@ export class LevelRenderer{
     cannonballSprites: Phaser.GameObjects.Sprite[] = [];
     
     private desiredZoom = 0.8;
+    fireEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
 
 
     constructor(private level: GameLevel){
@@ -69,7 +70,7 @@ export class LevelRenderer{
             y: this.level.player.position.y,
             active: false,
         });
-        const fireEmitter = scene.add.particles('cannonball').createEmitter({
+        this.fireEmitter = scene.add.particles('cannonball').createEmitter({
             speed: { min: -300, max: 300 },
             angle: { min: 0, max: 360 },
             scale: { start: 0.4, end: 0 },
@@ -95,39 +96,6 @@ export class LevelRenderer{
             }
         })
 
-        this.level.addEventListener('cannonballFired', ([spaceship, cannonball, component])=>{
-            if(
-                this.cannonballSprites.some(s=>s.getData('id') === cannonball.id)
-            ){
-                console.warn("Not creating new sprites for existant cannonball")
-                return
-            }
-            const sprite = scene.add.sprite(cannonball.position.x * DRAW_SCALE, cannonball.position.y * DRAW_SCALE, 'cannonball');
-            sprite.setBlendMode('ADD');
-            sprite.setDepth(-1);
-            sprite.setData('id', cannonball.id) 
-            this.cannonballSprites.push(sprite);
-            console.trace("Creating "+cannonball.id, {sprite, sprites:this.cannonballSprites})
-            const r = this.shipRenderers.find(r => r.spaceship === spaceship);
-            if(!r || !component){
-                return;
-            }
-            r.onCannonballFired(component);
-        });
-
-        this.level.addEventListener('cannonballRemoved', ([cannonball])=>{
-            const sprite = this.cannonballSprites.find(s=>s.getData('id')==cannonball.id)
-            if(!sprite){
-                return
-            }
-            sprite.destroy();
-            this.cannonballSprites.splice(this.cannonballSprites.indexOf(sprite), 1)
-            console.log("Removing from listener "+cannonball.id, sprite, this.cannonballSprites)
-            fireEmitter.active = true;
-            fireEmitter.setSpeed({min: -100 , max: 100 });
-            fireEmitter.explode(50, cannonball.position.x * DRAW_SCALE, cannonball.position.y * DRAW_SCALE);
-        });
-
         this.level.addEventListener('componentDestroyed', ([component, spaceship])=>{
             const renderer = this.shipRenderers.find(renderer => renderer.spaceship === spaceship);
             if(renderer){
@@ -138,18 +106,31 @@ export class LevelRenderer{
     onUpdate(scene: SpaceScene, delta:number) {
         scene.graphics.clear();
         this.shipRenderers.forEach(renderer => renderer.onUpdate(scene));
+
+
         this.cannonballSprites.forEach((sprite, i) => {
             const cannonball = this.level.cannonballs.find(cb=>cb.id === sprite.getData('id'));
             if(!cannonball) {
                 sprite.destroy()
-                sprite.x = -100
                 this.cannonballSprites.splice(this.cannonballSprites.indexOf(sprite), 1)
-                console.log("Cleaning up "+sprite.getData('id'), sprite, this.cannonballSprites)
+                this.fireEmitter.active = true;
+                this.fireEmitter.setSpeed({min: -100 , max: 100 });
+                this.fireEmitter.explode(50, sprite.x, sprite.y);
                 return
             }
             sprite.setX(cannonball.position.x * DRAW_SCALE);
             sprite.setY(cannonball.position.y * DRAW_SCALE);
         });
+
+        this.level.cannonballs.forEach(cannonball=>{
+            const existingSprite = this.cannonballSprites.find(s=>s.getData('id') == cannonball.id)
+            if(existingSprite) return
+            const sprite = scene.add.sprite(cannonball.position.x * DRAW_SCALE, cannonball.position.y * DRAW_SCALE, 'cannonball');
+            sprite.setBlendMode('ADD');
+            sprite.setDepth(-1);
+            sprite.setData('id', cannonball.id) 
+            this.cannonballSprites.push(sprite);
+        })
 
         const spaceships = this.level.getAllSpaceships()
         if(spaceships.length >=2) {
