@@ -263,11 +263,11 @@ export const multishotMagazine: ComponentType = {
     decorateComponent(component){
         return {
             ...component,
-            shots: component.shots * 2,
+            shots: component.shots + 2,
             inaccuracy: component.inaccuracy + Math.PI/7,
             fireDelay(shotNumber): number{
                 return Math.min(shotNumber *800, component.fireDelay(shotNumber))
-            }
+            },
         }
     }
 }   
