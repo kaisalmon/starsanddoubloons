@@ -1,6 +1,4 @@
 import Component from ".";
-import { GAME_SPEED } from "../../GAME_SPEED";
-import { RAD_TO_DEG } from "../../phaser/constants";
 import { CANNONBALL_AGE } from "../Cannonball";
 import { BoundingBox } from "../Collision";
 import Force from "../Force";
@@ -29,11 +27,10 @@ export default interface ComponentType{
     isBridge: boolean;
     isEngine: boolean;
     isThruster: boolean;
-    isFlipped: boolean;
     
     isPowered(intent: SpaceshipIntent, component:Component, spaceship: SpaceShip):boolean;
     getThrust(powered: boolean, intent: SpaceshipIntent, component:Component, spaceship: SpaceShip): Force|undefined;
-    decorateComponent?(componentType: ComponentType): ComponentType
+    decorateComponentType?(componentType: ComponentType): ComponentType
 }
 
 function register(componentType: ComponentType){
@@ -43,7 +40,6 @@ function register(componentType: ComponentType){
 export function flipped(base: ComponentType): ComponentType{
     return {
         ...base,
-        isFlipped: !base.isFlipped,
         weaponType: base.weaponType === 'left' ? 'right' : 
                     base.weaponType === 'right' ? 'left' :
                     base.weaponType,
@@ -76,7 +72,6 @@ export function flipped(base: ComponentType): ComponentType{
 export const block: ComponentType = {
     name: "Block",
     appearance: "block",
-    isFlipped: false,
     isBridge: false,
     isEngine: false,
     isThruster: false,
@@ -247,7 +242,7 @@ export const bouncingMagazine: ComponentType = {
     mass: 2,
     width: 2,
     height: 1, 
-    decorateComponent(component){
+    decorateComponentType(component){
         return {
             ...component,
             bounces: component.bounces + 2
@@ -265,7 +260,7 @@ export const multishotMagazine: ComponentType = {
     mass: 2,
     width: 2,
     height: 1, 
-    decorateComponent(component){
+    decorateComponentType(component){
         return {
             ...component,
             shots: component.shots + 2,
@@ -279,20 +274,13 @@ export const multishotMagazine: ComponentType = {
 register(multishotMagazine)
 
 
-export type  ComponentTypeDump={
-    name: string,
-    flipped: boolean
-}
+export type  ComponentTypeDump= string
 
 export function componentTypefromDump(dump: ComponentTypeDump): ComponentType {
-    const typeFromRegister = COMPONENT_TYPES_BY_NAME[dump.name];
-    if(dump.flipped) return flipped(typeFromRegister)
+    const typeFromRegister = COMPONENT_TYPES_BY_NAME[dump];
     return typeFromRegister
 }
 
-export function dumpComponentType(componentType: ComponentType){
-    return {
-        name: componentType.name,
-        flipped: componentType.isFlipped
-    }
+export function dumpComponentType(componentType: ComponentType): ComponentTypeDump{
+    return componentType.name
 }

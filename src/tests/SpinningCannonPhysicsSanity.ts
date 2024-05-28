@@ -11,7 +11,7 @@ describe("Spaceaship with two cannon just firing to spin in a circle", ()=>{
 
     beforeEach(()=>{
         const top =  new Component(cannon, {x: 0, y: 1});
-        const bottom = new Component(flipped(cannon), {x: 0, y: 0});
+        const bottom = new Component(cannon, {x: 0, y: 0});
         ship = new SpaceShip([
             top,
             bottom,

@@ -55,7 +55,7 @@ export default class ShipRenderer {
                     (y - spaceshipUnitSpaceCoM.y) * UNIT_SCALE * DRAW_SCALE
                 );
 
-                if(c.type.isFlipped) {
+                if(c.isFlipped) {
                     sprite.flipX = true;
                 }
                 return sprite;

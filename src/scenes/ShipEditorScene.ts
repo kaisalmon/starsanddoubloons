@@ -90,8 +90,8 @@ export default class ShipEditorScene extends Phaser.Scene {
 
         this.input.keyboard.on('keydown-F', () => {
             if(this.selectedComponent){
-                this.selectedComponent._type = flipped(this.selectedComponent._type)
-                this.selectedSprite!.flipX = this.selectedComponent._type.isFlipped;
+                this.selectedComponent.isFlipped = !this.selectedComponent.isFlipped 
+                this.selectedSprite!.flipX = this.selectedComponent.isFlipped;
             }
             this.emitDump()
         });
@@ -158,7 +158,7 @@ export default class ShipEditorScene extends Phaser.Scene {
                 (y) * UNIT_SCALE * DRAW_SCALE + 300
             );
 
-            if (c.type.isFlipped) {
+            if (c.isFlipped) {
                 sprite.flipX = true;
             }
             sprite.setInteractive();
@@ -181,9 +181,6 @@ export default class ShipEditorScene extends Phaser.Scene {
             sprite.setFrame(this.spaceship.id === '2' ? 2*type.health+2 : 0)
             sprite.setScale(DRAW_SCALE * UNIT_SCALE / sprite.width * type.width, DRAW_SCALE * UNIT_SCALE / sprite.height * type.height);
             sprite.setInteractive();
-            if(type.isFlipped){
-                sprite.setFlipX(true)
-            }
 
             const countText = this.add.text(sprite.x + 50, sprite.y-5, `${type.name} ×${shelfItem.count}`, {
                 fontFamily: 'Arial',

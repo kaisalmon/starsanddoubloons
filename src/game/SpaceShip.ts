@@ -3,7 +3,6 @@ import { Cannonball, CANNONBALL_FRIENDLY_FIRE_TIME, CANNONBALL_KNOCKBACK } from 
 import Collision, { BoundingBox, doPolygonsIntersect, doRectanglesIntersect, rectangleToPolygon } from "./Collision";
 import { Line } from "./Polygon";
 import Component, { ComponentDump, ComponentDumpFull, UNIT_SCALE } from "./Component";
-import ComponentType, { ComponentTypeDump, componentTypefromDump, dumpComponentType } from "./Component/ComponentType";
 import Force, { calculateTorques, sum } from "./Force";
 import {GameLevel } from "./Level";
 import SpaceshipIntent from "./SpaceshipIntent";
@@ -79,6 +78,7 @@ export class SpaceShip {
         this.angle = 0;
         this.angularVelocity = 0;
         this.position = {x: 0, y: 0};
+        this.updateDecoratedComponentTypes()
     }
 
     // Return center of mass, measured in component units (not worldspace)
@@ -250,16 +250,16 @@ export class SpaceShip {
 
     onComponentDestroyed(component: Component) {
         this.level.triggerEvent('componentDestroyed', [component, this]);
-        this.updateDecoratedTypes()
+        this.updateDecoratedComponentTypes()
     }
 
     addComponent(component: Component){
         this.components.push(component)
-        this.updateDecoratedTypes()
+        this.updateDecoratedComponentTypes()
     }
     removeComponent(component: Component){
         this.components.splice(this.components.indexOf(component), 1)
-        this.updateDecoratedTypes()
+        this.updateDecoratedComponentTypes()
     }
 
     hasWeapons(weapon: Weapon): boolean {
@@ -331,7 +331,7 @@ export class SpaceShip {
                     count: sDump.count
                 })
             })
-            this.updateDecoratedTypes()
+            this.updateDecoratedComponentTypes()
         }else{
             dump.components!.forEach((cDump, i) => this.components[i].applyDump(cDump))
         }
@@ -342,7 +342,7 @@ export class SpaceShip {
         this.components.forEach(c=>c.resetHealth())
     }
 
-    updateDecoratedTypes(){
+    updateDecoratedComponentTypes(){
         this.components.forEach(c=>c.updateDecoratedType())
     }
 }

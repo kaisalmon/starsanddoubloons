@@ -5,7 +5,7 @@ import Force, { rotate, sum } from "../Force";
 import { SpaceShip, Weapon } from "../SpaceShip";
 import SpaceshipIntent from "../SpaceshipIntent";
 import Vector2, { findShortestDistanceBetweenTwoMovingObjects, getLinearVelocityFromAngularVelocity, getMagnitude } from "../Vector2";
-import ComponentType, { ComponentTypeDump, componentTypefromDump, dumpComponentType } from "./ComponentType";
+import ComponentType, { ComponentTypeDump, componentTypefromDump, dumpComponentType, flipped } from "./ComponentType";
 
 const WEAPON_ANGLES = {
     right: Math.PI,
@@ -22,10 +22,12 @@ export default class Component {
     damage = 0;
     invTime: number|null = null;
     spaceship!: SpaceShip
+    isFlipped: boolean = false;
 
-    constructor(type: ComponentType, position: Vector2) {
+    constructor(type: ComponentType, position: Vector2, flipped=false) {
         this._type = type;
         this.position = position;
+        this.isFlipped=flipped
     }
 
     
@@ -39,8 +41,12 @@ export default class Component {
     updateDecoratedType(){
         const decorators = this.spaceship.components
             .filter(c=>!c.isDestroyed(false))
-            .map(c=>c._type.decorateComponent!)
+            .map(c=>c._type.decorateComponentType!)
             .filter(d=>d!==undefined)
+
+        if(this.isFlipped){
+            decorators.push(flipped)
+        }
         let decorated = this._type;
         decorators.forEach(decorator => {
             decorated = decorator(decorated)
@@ -361,7 +367,8 @@ export default class Component {
             return {
                 ...baseDump,
                 position: this.position,
-                type: dumpComponentType(this.type)
+                type: dumpComponentType(this.type),
+                flipped: this.isFlipped
             }
         }
         return baseDump
@@ -375,6 +382,7 @@ export default class Component {
     static fromDump(dump: ComponentDumpFull, spaceship: SpaceShip): Component{
         const comp= new Component(componentTypefromDump(dump.type), dump.position)
         comp.spaceship = spaceship
+        comp.isFlipped=dump.flipped
         return comp
     }
 
@@ -391,4 +399,5 @@ export interface ComponentDump {
 export interface ComponentDumpFull extends ComponentDump {
     type: ComponentTypeDump;
     position: Vector2;
+    flipped: boolean
 }
