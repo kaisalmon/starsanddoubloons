@@ -52,15 +52,12 @@ export default class ShipEditorScene extends Phaser.Scene {
                 const shelfArea = new Phaser.Geom.Rectangle(0, 0, 200, 600);
                 if (shelfArea.contains(this.selectedSprite.x, this.selectedSprite.y)) {
                     // Remove the component from the spaceship and add it to the shelf
-                    const index = this.spaceship.components.indexOf(this.selectedComponent);
-                    if (index !== -1) {
-                        this.spaceship.components.splice(index, 1);
-                        const shelfItem = this.spaceship.shelf.find(item => item.typeName == this.selectedComponent?._type.name);
-                        if (shelfItem) {
-                            shelfItem.count++;
-                        } else {
-                            this.spaceship.shelf.push({ typeName: this.selectedComponent._type.name, count: 1 });
-                        }
+                    this.spaceship.removeComponent(this.selectedComponent)
+                    const shelfItem = this.spaceship.shelf.find(item => item.typeName == this.selectedComponent?._type.name);
+                    if (shelfItem) {
+                        shelfItem.count++;
+                    } else {
+                        this.spaceship.shelf.push({ typeName: this.selectedComponent._type.name, count: 1 });
                     }
                 }
             }
@@ -114,7 +111,7 @@ export default class ShipEditorScene extends Phaser.Scene {
                     if (shelfItem.count === 0) {
                         this.spaceship.shelf.splice(gameObject.getData('shelfIndex'), 1);
                     }
-                    this.spaceship.components.push(this.selectedComponent);
+                    this.spaceship.addComponent(this.selectedComponent);
                     this.createSprites();
                     this.selectedSprite = this.children.list
                         .find(o => o instanceof Phaser.GameObjects.Sprite && o.getData('component') === this.selectedComponent)! as Phaser.GameObjects.Sprite;
@@ -196,12 +193,6 @@ export default class ShipEditorScene extends Phaser.Scene {
             offset+= ( DRAW_SCALE * UNIT_SCALE * type.height) + 2
         });
     }
-
-    update(time: number, delta: number){
-      
-    }
-   
-
 }
 
 
