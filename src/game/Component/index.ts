@@ -45,7 +45,7 @@ export default class Component {
         decorators.forEach(decorator => {
             decorated = decorator(decorated)
         })
-        return decorated
+       this.decoratedType = decorated
     }
 
 
