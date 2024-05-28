@@ -20,7 +20,12 @@ export default class ShipEditorScene extends Phaser.Scene {
     gameId: string;
     match: MatchManager;
     graphics!: Phaser.GameObjects.Graphics;
+    private _cnrlKey!: Phaser.Input.Keyboard.Key;
     
+    get lockToGrid(){
+        return !this._cnrlKey.isDown
+    }
+
     constructor(socket: Socket, match: MatchManager){
         super({ key: "ShipEditorScene" });
         this.socket = socket;
@@ -77,10 +82,13 @@ export default class ShipEditorScene extends Phaser.Scene {
                 const { x, y } = this.selectedSprite.getTopLeft();
                 this.selectedComponent.position.x = (x - 400) / (UNIT_SCALE * DRAW_SCALE);
                 this.selectedComponent.position.y = (y - 300) / (UNIT_SCALE * DRAW_SCALE);
+                if(this.lockToGrid){
+                    this.selectedComponent.position.x = Math.round(this.selectedComponent.position.x)
+                    this.selectedComponent.position.y = Math.round(this.selectedComponent.position.y)
+                }
                 
                 this.emitDump();
             }
-               
         });
 
         this.input.keyboard.on('keydown-ENTER', () => {
@@ -88,14 +96,7 @@ export default class ShipEditorScene extends Phaser.Scene {
             this.nextScene()
         });
 
-        this.input.keyboard.on('keydown-F', () => {
-            if(this.selectedComponent){
-                this.selectedComponent.isFlipped = !this.selectedComponent.isFlipped 
-                this.selectedSprite!.flipX = this.selectedComponent.isFlipped;
-            }
-            this.emitDump()
-        });
-  
+     
         this.input.on('gameobjectdown', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject) => {
             if (gameObject.getData('isShelfComponent')) {
                 const shelfItem = this.spaceship.shelf[gameObject.getData('shelfIndex')];
@@ -123,6 +124,16 @@ export default class ShipEditorScene extends Phaser.Scene {
                 }
             }
         });
+
+        this.input.keyboard.on('keydown-F', () => {
+            if(this.selectedComponent){
+                this.selectedComponent.isFlipped = !this.selectedComponent.isFlipped 
+                this.selectedSprite!.flipX = this.selectedComponent.isFlipped;
+            }
+            this.emitDump()
+        });
+
+        this._cnrlKey = this.input.keyboard.addKey('CTRL')
 
         this.socket.on(`game ${this.gameId}`, (msg)=>{
             if(!msg.editorDump) return
@@ -155,7 +166,8 @@ export default class ShipEditorScene extends Phaser.Scene {
             const { x, y } = c.getCoMInUnitSpace();
             sprite.setPosition(
                 (x) * UNIT_SCALE * DRAW_SCALE + 400,
-                (y) * UNIT_SCALE * DRAW_SCALE + 300
+                (y) * UNIT_SCALE * DRAW_SCALE + 300,
+                -1
             );
 
             if (c.isFlipped) {
@@ -193,11 +205,7 @@ export default class ShipEditorScene extends Phaser.Scene {
     }
 
     update(time: number, delta: number): void {
-        // this.graphics.clear();
-        // this.graphics.z=10
-        // const {x,y} = this.spaceship.getCenterOfMassUnitSpace()
-        // this.graphics.fillStyle(0xffffff)
-        // this.graphics.fillCircle(x* UNIT_SCALE * DRAW_SCALE + 400,y * UNIT_SCALE * DRAW_SCALE + 300,10)
+        this.graphics.clear();
     }
 }
 

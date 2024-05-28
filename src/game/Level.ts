@@ -95,6 +95,7 @@ export class GameLevel {
 
             ship.position = ship.id === "1" ? {x: -30, y:0} : {x:30,y:0}
             ship.resetHealth()
+            ship.updateDecoratedComponentTypes()
         });
 
         

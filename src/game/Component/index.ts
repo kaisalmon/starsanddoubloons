@@ -45,7 +45,7 @@ export default class Component {
             .filter(d=>d!==undefined)
 
         if(this.isFlipped){
-            decorators.push(flipped)
+           decorators.push(flipped)
         }
         let decorated = this._type;
         decorators.forEach(decorator => {
