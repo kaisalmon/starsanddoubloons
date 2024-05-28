@@ -281,7 +281,8 @@ export default class Component {
     }
 
     onCollision(collision: Collision): void {
-        if(collision.momentum > MOMENTUM_TO_DAMAGE && this.invTime!==null){
+        console.log(collision.momentum, MOMENTUM_TO_DAMAGE, this.invTime)
+        if(collision.momentum > MOMENTUM_TO_DAMAGE && this.invTime===null){
             this.dealDamage(1);
         }
     }

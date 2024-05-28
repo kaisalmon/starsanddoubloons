@@ -85,8 +85,8 @@ export class SpaceShip {
     getCenterOfMassUnitSpace(): Vector2 {
         const centerOfMass: Vector2 = {x: 0, y: 0};
         for(const component of this.components){
-            centerOfMass.x += (component.position.x + component.width / 2) * component.mass;
-            centerOfMass.y += (component.position.y + component.height / 2) * component.mass;
+            centerOfMass.x += (component.position.x + component.width / 2) * component.mass * MASS_MULTIPLIER;
+            centerOfMass.y += (component.position.y + component.height / 2) * component.mass * MASS_MULTIPLIER;
         }
         centerOfMass.x /= this.mass;
         centerOfMass.y /= this.mass;
@@ -258,7 +258,7 @@ export class SpaceShip {
         this.updateDecoratedTypes()
     }
     removeComponent(component: Component){
-        this.components.slice(this.components.indexOf(component), 1)
+        this.components.splice(this.components.indexOf(component), 1)
         this.updateDecoratedTypes()
     }
 

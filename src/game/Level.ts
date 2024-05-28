@@ -158,7 +158,7 @@ export class GameLevel {
         ship.position.y -= normal.y
         ship.velocity.x -= relativeVelocity.x
         ship.velocity.y -=  relativeVelocity.y
-        obstacle.onCollision(collisionResult, component);
+        obstacle.onCollision(collisionResult);
         ship.onCollision(
             {
                 ...collisionResult,

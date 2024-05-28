@@ -5,7 +5,7 @@ import { SpaceShip } from "../game/SpaceShip";
 import { preload_sprites } from "./preload_sprites";
 import Vector2 from "../game/Vector2";
 import { COMPONENT_TYPES_BY_NAME, block, bouncingMagazine, cannon, engine, flipped, grapeshot, lateralThruster, minicannon, thruster } from "../game/Component/ComponentType";
-import MatchManager from "../game/matchmanager";
+import MatchManager from "../game/MatchManager";
 
 const DRAW_SCALE = 32/UNIT_SCALE;
 
@@ -19,6 +19,7 @@ export default class ShipEditorScene extends Phaser.Scene {
     offset: Vector2={x:0, y:0};
     gameId: string;
     match: MatchManager;
+    graphics!: Phaser.GameObjects.Graphics;
     
     constructor(socket: Socket, match: MatchManager){
         super({ key: "ShipEditorScene" });
@@ -46,6 +47,8 @@ export default class ShipEditorScene extends Phaser.Scene {
 
     create(){
         this.createSprites();
+        this.graphics = this.add.graphics();
+        this.graphics.z = 10;
         this.input.on('pointerup', () => {
             if (this.selectedComponent && this.selectedSprite) {
                 // Check if the component is being dropped on the shelf area
@@ -140,7 +143,6 @@ export default class ShipEditorScene extends Phaser.Scene {
     }
 
     private createSprites() {
-        const shipOffset = {x:0,y:0}
 
         this.children.list.filter(x => x instanceof Phaser.GameObjects.Sprite && x.getData('isComponent')).forEach(c=>c.destroy())
 
@@ -150,11 +152,10 @@ export default class ShipEditorScene extends Phaser.Scene {
             sprite.setFrame(this.spaceship.id === '2' ? 2*c.type.health+2 : 0)
             sprite.setData('component', c)
             sprite.setScale(DRAW_SCALE * UNIT_SCALE / sprite.width * c.type.width, DRAW_SCALE * UNIT_SCALE / sprite.height * c.type.height);
-
             const { x, y } = c.getCoMInUnitSpace();
             sprite.setPosition(
-                (x - shipOffset.x) * UNIT_SCALE * DRAW_SCALE + 400,
-                (y - shipOffset.y) * UNIT_SCALE * DRAW_SCALE + 300
+                (x) * UNIT_SCALE * DRAW_SCALE + 400,
+                (y) * UNIT_SCALE * DRAW_SCALE + 300
             );
 
             if (c.type.isFlipped) {
@@ -192,6 +193,14 @@ export default class ShipEditorScene extends Phaser.Scene {
             countText.setData('isShelfCount', true);
             offset+= ( DRAW_SCALE * UNIT_SCALE * type.height) + 2
         });
+    }
+
+    update(time: number, delta: number): void {
+        // this.graphics.clear();
+        // this.graphics.z=10
+        // const {x,y} = this.spaceship.getCenterOfMassUnitSpace()
+        // this.graphics.fillStyle(0xffffff)
+        // this.graphics.fillCircle(x* UNIT_SCALE * DRAW_SCALE + 400,y * UNIT_SCALE * DRAW_SCALE + 300,10)
     }
 }
 

@@ -67,14 +67,13 @@ export default class Obstical {
         }
     } 
 
-    onCollision(collision: Collision, component: Component): void {
+    onCollision(collision: Collision): void {
         this.impulses.push({
             x: collision.normal.x * collision.momentum * COLLISION_KNOCKBACK,
             y: collision.normal.y * collision.momentum * COLLISION_KNOCKBACK,
             offsetX: collision.position.x - this.position.x,
             offsetY: collision.position.y - this.position.y
         });
-        component.onCollision(collision);
     }
 
     checkCannonballColission(cannonball: Cannonball) {

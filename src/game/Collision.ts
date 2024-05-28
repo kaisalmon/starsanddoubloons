@@ -1,7 +1,7 @@
 import { Polygon, Line, Lines } from "./Polygon";
-import Vector2, { getNormalized, rotate } from "./Vector2";
+import Vector2, { rotate } from "./Vector2";
 
-export const MOMENTUM_TO_DAMAGE = 200;
+export const MOMENTUM_TO_DAMAGE = 75;
 
 
 export default interface Collision {

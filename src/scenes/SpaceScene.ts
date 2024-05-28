@@ -1,12 +1,10 @@
 import { Socket } from "socket.io";
-import { UNIT_SCALE } from "../game/Component";
 import { GameLevel } from "../game/Level";
-import { newBasicEnemy, newPlayerShip } from "../game/ShipDesigns/basic";
 import { SpaceShip } from "../game/SpaceShip";
 import SpaceshipIntent from "../game/SpaceshipIntent";
 import { LevelRenderer } from "../phaser/levelRenderer";
 import { preload_sprites } from "./preload_sprites";
-import MatchManager from "../game/matchmanager";
+import MatchManager from "../game/MatchManager";
 import { GAME_SPEED } from "../GAME_SPEED";
 
 export default class SpaceScene extends Phaser.Scene {
