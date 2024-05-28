@@ -1,5 +1,7 @@
 import Component from ".";
 import { GAME_SPEED } from "../../GAME_SPEED";
+import { RAD_TO_DEG } from "../../phaser/constants";
+import { CANNONBALL_AGE } from "../Cannonball";
 import { BoundingBox } from "../Collision";
 import Force from "../Force";
 import { SpaceShip, Weapon } from "../SpaceShip";
@@ -7,6 +9,7 @@ import SpaceshipIntent, { flipIntent } from "../SpaceshipIntent";
 
 export const COMPONENT_TYPES_BY_NAME:Record<string, ComponentType> = {}
 export default interface ComponentType{
+    cannonballMaxAge: number;
     inaccuracy: number;
     health: number;
     appearance: string;
@@ -85,6 +88,7 @@ export const block: ComponentType = {
     shots: 1,
     bounces: 0,
     inaccuracy: 0,
+    cannonballMaxAge: CANNONBALL_AGE,
     isPowered: () => {
         return false;
     },
@@ -213,10 +217,11 @@ export const grapeshot: ComponentType = {
     name: "Grapeshot",
     appearance: "grapecannon",
     weaponType: 'right',
-    shots: 5,
-    inaccuracy: Math.PI/7,
+    shots: 8,
+    inaccuracy: Math.PI*.4,
+    cannonballMaxAge: block.cannonballMaxAge / 10,
     fireDelay(shotNumber) {
-        return shotNumber*800
+        return shotNumber*1400
     },
 }
 register(grapeshot)

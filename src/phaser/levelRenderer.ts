@@ -1,5 +1,6 @@
 
 
+import { CANNONBALL_AGE } from "../game/Cannonball";
 import { MOMENTUM_TO_DAMAGE, polygonToLines, rectangleToPolygon } from "../game/Collision";
 import { UNIT_SCALE } from "../game/Component";
 import { GameLevel } from "../game/Level";
@@ -120,6 +121,7 @@ export class LevelRenderer{
             }
             sprite.setX(cannonball.position.x * DRAW_SCALE);
             sprite.setY(cannonball.position.y * DRAW_SCALE);
+            sprite.setScale(Math.max(0.5, 2 * cannonball.maxAge / CANNONBALL_AGE))
         });
 
         this.level.cannonballs.forEach(cannonball=>{

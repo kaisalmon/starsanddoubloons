@@ -107,7 +107,7 @@ export class GameLevel {
         let temp:Cannonball[] = [];
         temp = temp.concat(this.cannonballs);
         temp.forEach(c => {
-            if(c.age > CANNONBALL_AGE){
+            if(c.age > c.maxAge){
                 this.removeCannonball(c);
             }
         });
@@ -249,7 +249,7 @@ export class GameLevel {
                 if(existantCb){
                     existantCb.applyDump(cbDump, p)
                 }else{
-                    const newCannonball = new Cannonball(cbDump.position, cbDump.velocity, cbDump.firer, cbDump.bounces, cbDump.id)
+                    const newCannonball = new Cannonball(cbDump.position, cbDump.velocity, cbDump.firer, cbDump.bounces, cbDump.maxAge, cbDump.id)
                     this.cannonballs.push(newCannonball);
                     console.log("CB from dump")
                     this.triggerEvent('cannonballFired', [this.ships.find(s=>s.id==cbDump.firer)!, newCannonball, null]);

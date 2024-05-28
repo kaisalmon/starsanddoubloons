@@ -13,15 +13,17 @@ export class Cannonball {
     id: string;
     bounces = 0;
     age = 0;
+    maxAge: number;
 
     get angle(): number {
         return Math.atan2(this.velocity.y, this.velocity.x);
     }
-    constructor(position: Vector2, velocity: Vector2, firer: string, bounces: number,  id?:string) {
+    constructor(position: Vector2, velocity: Vector2, firer: string, bounces: number, maxAge:number,  id?:string) {
         this.position = position;
         this.velocity = velocity;
         this.firer = firer;
         this.bounces = bounces
+        this.maxAge = maxAge
         this.id = id ?? Math.floor(Math.random()*10000).toString()
     }
 
@@ -44,7 +46,8 @@ export class Cannonball {
             firer: this.firer,
             age: this.age,
             id: this.id,
-            bounces: this.bounces
+            bounces: this.bounces,
+            maxAge: this.maxAge,
         }
     } 
 
@@ -58,10 +61,12 @@ export class Cannonball {
         this.firer = dump.firer
         this.age = dump.age
         this.bounces = dump.bounces
+        this.maxAge = dump.maxAge
     }
 }
 
 export interface CannonballDump{
+    maxAge: number;
     position: Vector2;
     velocity: Vector2;
     firer: string;

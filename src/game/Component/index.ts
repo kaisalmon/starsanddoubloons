@@ -212,7 +212,8 @@ export default class Component {
                     x, y
                 }, this.getCannonballVelocity(spaceship, weapon),
                     spaceship.id,
-                    this.type.bounces
+                    this.type.bounces,
+                    this.type.cannonballMaxAge
                 );
             spaceship.addCannonball(cannonball, this);
             if(i==0){
