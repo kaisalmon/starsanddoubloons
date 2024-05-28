@@ -16,6 +16,7 @@ const INV_TIME = 30
 
 export default class Component {
     _type: ComponentType;
+    decoratedType?: ComponentType
     position: Vector2; // Relative position of the component to the spaceship's top left corner
     isPowered = false;
     damage = 0;
@@ -27,7 +28,15 @@ export default class Component {
         this.position = position;
     }
 
+    
     get type(): ComponentType {
+        return this.decoratedType || this._type
+    }
+    set type(t: ComponentType) {
+        this._type = t
+    }
+
+    updateDecoratedType(){
         const decorators = this.spaceship.components
             .filter(c=>!c.isDestroyed(false))
             .map(c=>c._type.decorateComponent!)
@@ -39,9 +48,6 @@ export default class Component {
         return decorated
     }
 
-    set type(t: ComponentType) {
-        this._type = t
-    }
 
     get width(): number {
         return this.type.width;
@@ -202,7 +208,7 @@ export default class Component {
         if(this.type.weaponType !== weapon){
             return
         }
-        let shots = this.type.shots;
+        const shots = this.type.shots;
         for(let i=0; i<shots;i++){
             const delay = this.type.fireDelay(i);
             setTimeout(()=>{
@@ -236,7 +242,7 @@ export default class Component {
         };
     }
 
-    onHit(cannonball: Cannonball, spaceship: SpaceShip): void {
+    onHit(cannonball: Cannonball, _spaceship: SpaceShip): void {
         if(this.invTime && this.invTime>0) return
         this.dealDamage(cannonball.getDamage());
     }

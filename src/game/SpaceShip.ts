@@ -250,8 +250,17 @@ export class SpaceShip {
 
     onComponentDestroyed(component: Component) {
         this.level.triggerEvent('componentDestroyed', [component, this]);
+        this.updateDecoratedTypes()
     }
 
+    addComponent(component: Component){
+        this.components.push(component)
+        this.updateDecoratedTypes()
+    }
+    removeComponent(component: Component){
+        this.components.slice(this.components.indexOf(component), 1)
+        this.updateDecoratedTypes()
+    }
 
     hasWeapons(weapon: Weapon): boolean {
         return this.components.some(component => {
@@ -322,6 +331,7 @@ export class SpaceShip {
                     count: sDump.count
                 })
             })
+            this.updateDecoratedTypes()
         }else{
             dump.components!.forEach((cDump, i) => this.components[i].applyDump(cDump))
         }
@@ -330,6 +340,10 @@ export class SpaceShip {
     
     resetHealth() {
         this.components.forEach(c=>c.resetHealth())
+    }
+
+    updateDecoratedTypes(){
+        this.components.forEach(c=>c.updateDecoratedType())
     }
 }
 
