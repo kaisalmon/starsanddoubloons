@@ -2,6 +2,7 @@ import { Scene } from "phaser";
 
 export function preload_sprites(scene: Scene) {
     scene.load.spritesheet('block', 'assets/components/block.png', { frameWidth: 16, frameHeight: 16 });
+    scene.load.spritesheet('shield', 'assets/components/shield.png', { frameWidth: 16, frameHeight: 16 });
     scene.load.spritesheet('thruster', 'assets/components/thruster.png', { frameWidth: 16, frameHeight: 16 });
     scene.load.spritesheet('lateralThrusters', 'assets/components/laterialThrusters.png', { frameWidth: 16, frameHeight: 16 });
     scene.load.spritesheet('engineRoom', 'assets/components/engineRoom.png', { frameWidth: 32, frameHeight: 32 });
@@ -19,6 +20,7 @@ export function preload_sprites(scene: Scene) {
     scene.load.spritesheet('cannonball', 'assets/bullet.png', { frameWidth: 8, frameHeight: 8 });
     scene.load.spritesheet('smoke', 'assets/smoke.png', { frameWidth: 8, frameHeight: 8 });
     scene.load.spritesheet('arrow', 'assets/arrow.png', { frameWidth: 32, frameHeight: 32 });
+    scene.load.spritesheet('shieldfx', 'assets/shieldfx.png', { frameWidth: 100, frameHeight: 100 });
 
     scene.load.image('space1', 'assets/backgrounds/space1.jpeg');
     scene.load.image('space2', 'assets/backgrounds/space2.jpeg');

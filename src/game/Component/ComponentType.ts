@@ -7,29 +7,35 @@ import SpaceshipIntent, { flipIntent } from "../SpaceshipIntent";
 
 export const COMPONENT_TYPES_BY_NAME:Record<string, ComponentType> = {}
 export default interface ComponentType{
-    cannonballSpeed: number;
-    cannonballMaxAge: number;
-    cannonballFriction: number;
-    inaccuracy: number;
-    health: number;
+    /* general */
     appearance: string;
-    name: string;
     mass: number;
     drag: number;
     width: number;
     height: number;
     hitbox?: BoundingBox;
+    health: number;
 
+    /* weapon */
+    weaponType?: Weapon;
+    cannonballSpeed: number;
+    cannonballMaxAge: number;
+    cannonballFriction: number;
+    inaccuracy: number;
+    name: string;
     fireDelay(shotNumber:number): number;
     shots: number;
     bounces: number;
-    weaponType?: Weapon;
-
   
+    /* tags */
     isBridge: boolean;
     isEngine: boolean;
     isThruster: boolean;
+
+    /* shieldRadius */
+    shieldRadius: number
     
+    /* methods */
     isPowered(intent: SpaceshipIntent, component:Component, spaceship: SpaceShip):boolean;
     getThrust(powered: boolean, intent: SpaceshipIntent, component:Component, spaceship: SpaceShip): Force|undefined;
     decorateComponentType?(componentType: ComponentType): ComponentType
@@ -77,6 +83,7 @@ export const block: ComponentType = {
     isBridge: false,
     isEngine: false,
     isThruster: false,
+    shieldRadius: 0,
     mass: 1,
     drag: 0.1,
     width: 1,
@@ -311,6 +318,17 @@ export const quickShotMagazine: ComponentType = {
     }
 }   
 register(quickShotMagazine)
+
+export const shields: ComponentType = {
+    ...block,
+    name: 'Shields',
+    appearance: 'shield',
+    shieldRadius: 3,
+    isPowered: (_,__,spaceship)=>{
+        return spaceship.areShieldsOnline()
+    }
+}
+register(shields)
 
 export type  ComponentTypeDump= string
 

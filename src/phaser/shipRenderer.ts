@@ -10,15 +10,18 @@ const RENDER_DEBUG_LINES = false;
 
 export default class ShipRenderer {
     private group!: Phaser.GameObjects.Container;
+    private shieldSprites: Phaser.GameObjects.Sprite[] = [];
     
     private crashEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
     private smokeEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
+    scene!: SpaceScene;
 
     get gameObject(): Phaser.GameObjects.GameObject {
         return this.group;
     }
     constructor(public spaceship:SpaceShip){}
     onCreate(scene: SpaceScene) {
+        this.scene = scene
         this.crashEmitter = scene.add.particles('block').createEmitter({
             speed: { min: -30, max: 30 },
             angle: { min: 0, max: 360 },
@@ -60,9 +63,23 @@ export default class ShipRenderer {
                 }
                 return sprite;
             }));
+        const maxShields = this.spaceship.components.filter(c => c.type.shieldRadius > 0).length;
+        for (let i = 0; i < maxShields; i++) {
+            this.addShieldFlyweight(scene);
+        }
+
+        this.onUpdate(scene);
         this.group.setZ(1)
         this.onUpdate(scene);
     }
+    private addShieldFlyweight(scene: SpaceScene) {
+        const shieldSprite = scene.add.sprite(0, 0, "shieldfx");
+        shieldSprite.setVisible(false);
+        this.shieldSprites.push(shieldSprite);
+        console.log("Adding flyweight", shieldSprite)
+        shieldSprite.setDepth(11)
+    }
+
     onUpdate(scene: SpaceScene) {
         const sprites = this.group.getAll() as Phaser.GameObjects.Sprite[]
         const spaceshipUnitSpaceCoM = this.spaceship.getCenterOfMassUnitSpace();
@@ -104,6 +121,26 @@ export default class ShipRenderer {
                }
             }
         });
+
+        const shields = this.spaceship.getShields(true);
+        for (let i = 0; i < shields.length; i++) {
+            if(i>this.shieldSprites.length){
+                this.addShieldFlyweight(this.scene)
+            }
+            const shieldSprite = this.shieldSprites[i];
+            const shield = shields[i];
+
+            shieldSprite.setVisible(true);
+            shieldSprite.setScale(
+                (shield.type.shieldRadius * 2 * UNIT_SCALE * DRAW_SCALE) / shieldSprite.width,
+                (shield.type.shieldRadius * 2 * UNIT_SCALE * DRAW_SCALE) / shieldSprite.height
+            );
+            shieldSprite.setPosition(
+                shield.getCenterOfMassInWorldSpace().x * DRAW_SCALE,
+                shield.getCenterOfMassInWorldSpace().y * DRAW_SCALE
+            );
+            shieldSprite.setAlpha(shield.isPowered ? 1 : 0.5);
+        }
         
         const {x,y} = this.spaceship.position;
         this.group.setPosition(x * DRAW_SCALE,y * DRAW_SCALE);
@@ -117,21 +154,18 @@ export default class ShipRenderer {
 
 
     private renderDebugLines(scene: SpaceScene) {
-        scene.graphics.lineStyle(2, 0xFF00FF, 0.5);
-
-        const boundingBox = this.spaceship.boundingBox;
-        const lines = polygonToLines(rectangleToPolygon(boundingBox));
-        lines.forEach(([p1, p2]) => {
-            scene.graphics.lineBetween(p1.x * DRAW_SCALE, p1.y * DRAW_SCALE, p2.x * DRAW_SCALE, p2.y * DRAW_SCALE);
-        });
+   
         if(this.spaceship.ai instanceof CollisionAvoidanceAI && this.spaceship.ai.wasRayHit){
             scene.graphics.lineStyle(4, 0xFF0000, 2.0);
-        }
-        const ray = getSpaceshipRay(this.spaceship);
-        scene.graphics.lineBetween(ray[0].x * DRAW_SCALE, ray[0].y * DRAW_SCALE, ray[1].x * DRAW_SCALE, ray[1].y * DRAW_SCALE);
-        scene.graphics.strokeCircle(this.spaceship.position.x * DRAW_SCALE, this.spaceship.position.y * DRAW_SCALE, this.spaceship.radius * DRAW_SCALE);
+            const ray = getSpaceshipRay(this.spaceship);
+            scene.graphics.lineBetween(ray[0].x * DRAW_SCALE, ray[0].y * DRAW_SCALE, ray[1].x * DRAW_SCALE, ray[1].y * DRAW_SCALE);
+            scene.graphics.strokeCircle(this.spaceship.position.x * DRAW_SCALE, this.spaceship.position.y * DRAW_SCALE, this.spaceship.radius * DRAW_SCALE);
 
-        scene.graphics.lineStyle(2, 0xFF44FF, 1.0);
+            scene.graphics.lineStyle(2, 0xFF44FF, 1.0);
+        }
+
+       
+        scene.graphics.lineStyle(4, 0xFF0000);
         this.spaceship.components.forEach((component) => {
             if(!component.isCollidable()){
                 return;
@@ -140,7 +174,15 @@ export default class ShipRenderer {
             lines.forEach(([p1, p2]) => {
                 scene.graphics.lineBetween(p1.x * DRAW_SCALE, p1.y * DRAW_SCALE, p2.x * DRAW_SCALE, p2.y * DRAW_SCALE);
             });
+        }); 
+        scene.graphics.lineStyle(2, 0xFFffFF);
+        const bb = this.spaceship.boundingBox
+        const bbLines = polygonToLines(rectangleToPolygon(bb));
+        bbLines.forEach(([p1, p2]) => {
+            scene.graphics.lineBetween(p1.x * DRAW_SCALE, p1.y * DRAW_SCALE, p2.x * DRAW_SCALE, p2.y * DRAW_SCALE);
         });
+   
+
     }
 
     onComponentDestroyed(component: Component) {

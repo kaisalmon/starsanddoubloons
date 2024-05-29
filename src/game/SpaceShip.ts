@@ -1,6 +1,6 @@
 import { AI, IDLE_AI } from "./AI/ai";
 import { Cannonball, CANNONBALL_FRIENDLY_FIRE_TIME, CANNONBALL_KNOCKBACK } from "./Cannonball";
-import Collision, { BoundingBox, doPolygonsIntersect, doRectanglesIntersect, rectangleToPolygon } from "./Collision";
+import Collision, { BoundingBox, doPolygonsIntersect, doRectanglesIntersect, doesLineIntersectCircle, rectangleToPolygon } from "./Collision";
 import { Line } from "./Polygon";
 import Component, { ComponentDump, ComponentDumpFull, UNIT_SCALE } from "./Component";
 import Force, { calculateTorques, sum } from "./Force";
@@ -14,6 +14,7 @@ const ROTATION_FACTOR = 0.2;
 const COLLISION_KNOCKBACK = 0.01;
 const MASS_MULTIPLIER = 1.5;
 const SPEED_MULTIPLIER = 0.7;
+
 
 export class SpaceShip {
     components: Component[];
@@ -46,14 +47,53 @@ export class SpaceShip {
     get boundingBox(): BoundingBox {
         const components = this.components
             .filter(component => component.isDestroyed() === false);
-        const lowestX = components.reduce((acc, component) => Math.min(acc, component.position.x), Number.MAX_VALUE);
-        const highestX = components.reduce((acc, component) => Math.max(acc, component.position.x + component.width), Number.MIN_VALUE);
-        const lowestY = components.reduce((acc, component) => Math.min(acc, component.position.y), Number.MAX_VALUE);
-        const highestY = components.reduce((acc, component) => Math.max(acc, component.position.y + component.height), Number.MIN_VALUE);
-        const width = (highestX - lowestX) * UNIT_SCALE;
-        const height = (highestY - lowestY) * UNIT_SCALE;
+        let lowestX = components.reduce((acc, component) => Math.min(acc, component.position.x), Number.MAX_VALUE);
+        let highestX = components.reduce((acc, component) => Math.max(acc, component.position.x + component.width), Number.MIN_VALUE);
+        let lowestY = components.reduce((acc, component) => Math.min(acc, component.position.y), Number.MAX_VALUE);
+        let highestY = components.reduce((acc, component) => Math.max(acc, component.position.y + component.height), Number.MIN_VALUE);
+        
+        // Expand the bounding box to include the shields
+        const shields = this.getShields();
+       for (const shield of shields) {
+           const shieldPosition = shield.getCoMInUnitSpace();
+           const shieldRadius = shield.type.shieldRadius;
+   
+           const shieldLeft = shieldPosition.x - shieldRadius;
+           const shieldRight = shieldPosition.x + shieldRadius;
+           const shieldTop = shieldPosition.y - shieldRadius;
+           const shieldBottom = shieldPosition.y + shieldRadius;
+   
+           // Calculate the lowest and highest x and y values including the shields
+           lowestX = Math.min(lowestX, shieldLeft);
+           highestX = Math.max(highestX, shieldRight);
+           lowestY = Math.min(lowestY, shieldTop);
+           highestY= Math.max(highestY, shieldBottom);
+       }
+
+        let width = (highestX - lowestX) * UNIT_SCALE;
+        let height = (highestY - lowestY) * UNIT_SCALE;
+
+        const centerX = (highestX+lowestX)/2
+        const centerY = (highestY+lowestY)/2
+
+        // Calculate the center of mass in unit space
+        const centerOfMass = this.getCenterOfMassUnitSpace();
+
+        // Calculate the offset between the center of mass and the center of the bounding box
+        const offsetX = (centerX - centerOfMass.x) * UNIT_SCALE;
+        const offsetY = (centerY - centerOfMass.y) * UNIT_SCALE;
+
+
+        // Rotate the offset based on the spaceship's angle
+        const rotatedOffsetX = offsetX * Math.cos(this.angle) - offsetY * Math.sin(this.angle);
+        const rotatedOffsetY = offsetX * Math.sin(this.angle) + offsetY * Math.cos(this.angle);
+
+       
         return {
-            position: this.position,
+            position:{
+                x: this.position.x + rotatedOffsetX,
+                y: this.position.y + rotatedOffsetY
+            },
             angle: this.angle,
             width,
             height
@@ -222,6 +262,19 @@ export class SpaceShip {
             { x: cannonball.position.x - cannonball.velocity.x, y: cannonball.position.y - cannonball.velocity.y },
             { x: cannonball.position.x, y: cannonball.position.y },
         ];
+
+        // Check collision with shields
+        const shields = this.getShields();
+        for (const shield of shields) {
+            const shieldPosition = shield.getCenterOfMassInWorldSpace();
+            const shieldRadius = shield.type.shieldRadius;
+
+            if (doesLineIntersectCircle(cannonBallLine, shieldPosition, shieldRadius)) {
+                shield.onShieldHit();
+                this.level.removeCannonball(cannonball);
+                return;
+            }
+        }
     
         const components = this.components
             .filter(component => component.isCollidable())
@@ -368,6 +421,14 @@ export class SpaceShip {
 
     updateDecoratedComponentTypes(){
         this.components.forEach(c=>c.updateDecoratedType())
+    }
+
+    areShieldsOnline(): boolean {
+        return true
+    }
+
+    getShields(includeOffline=false): Component[] {
+        return this.components.filter(c=>(c.isPowered||includeOffline) && c.type.shieldRadius > 0)
     }
 }
 

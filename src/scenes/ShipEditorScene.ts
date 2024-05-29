@@ -6,6 +6,7 @@ import { preload_sprites } from "./preload_sprites";
 import Vector2 from "../game/Vector2";
 import { COMPONENT_TYPES_BY_NAME, block, bouncingMagazine, cannon, engine, flipped, grapeshot, lateralThruster, minicannon, thruster } from "../game/Component/ComponentType";
 import MatchManager from "../game/MatchManager";
+import { polygonToLines, rectangleToPolygon } from "../game/Collision";
 
 const DRAW_SCALE = 32/UNIT_SCALE;
 
@@ -206,7 +207,16 @@ export default class ShipEditorScene extends Phaser.Scene {
     }
 
     update(time: number, delta: number): void {
+        this.spaceship.position = {x:0, y:0}
+        this.spaceship.angle = 0
+
         this.graphics.clear();
+        this.graphics.setZ(10)
+        const com = this.spaceship.getCenterOfMassUnitSpace()
+        const DEBUG_LINES = true
+        if(DEBUG_LINES){
+            
+        }
     }
 }
 

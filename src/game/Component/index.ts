@@ -392,6 +392,12 @@ export default class Component {
     resetHealth(): void {
         this.damage=0
     }
+
+    
+    onShieldHit():void {
+        console.log("Shields hit!")
+        //todo: (Once colission and visuals is working) Set timer to deactive shields in a few frames, and then reactive a little later 
+    }
 }
 
 export interface ComponentDump {
