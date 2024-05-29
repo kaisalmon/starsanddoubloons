@@ -119,8 +119,17 @@ export class LevelRenderer{
                 this.fireEmitter.explode(50, sprite.x, sprite.y);
                 return
             }
+            sprite.setData('prevX', sprite.x)
+            sprite.setData('prevY', sprite.y)
             sprite.setX(cannonball.position.x * DRAW_SCALE);
             sprite.setY(cannonball.position.y * DRAW_SCALE);
+            if(sprite.getData('prevX')){
+                const px = sprite.getData('prevX')
+                const py = sprite.getData('prevY')
+                scene.graphics.lineStyle(3,0xffffff)
+                scene.graphics.lineBetween((px+sprite.x)/2,(py+sprite.y)/2
+                ,sprite.x, sprite.y)
+            }
             sprite.setScale(
                 Math.min(2,Math.max(0.5, 2 * cannonball.maxAge / CANNONBALL_AGE))
             )
@@ -133,6 +142,9 @@ export class LevelRenderer{
             sprite.setBlendMode('ADD');
             sprite.setDepth(-1);
             sprite.setData('id', cannonball.id) 
+            sprite.setScale(
+                Math.min(2,Math.max(0.5, 2 * cannonball.maxAge / CANNONBALL_AGE))
+            )
             this.cannonballSprites.push(sprite);
         })
 
