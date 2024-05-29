@@ -33,6 +33,7 @@ export class GameLevel {
         "componentDestroyed": []
     }
     readonly cannonballs: Cannonball[] = [];
+    gametime: number=0;
 
     addEventListener<E extends Events>(event: E, callback: EventCallback<E>) {
         if(!this.listeners[event]){
@@ -102,6 +103,7 @@ export class GameLevel {
     }
 
     update(delta: number): void {
+        this.gametime+=delta
         this.ships.forEach(enemy => enemy.update( delta));
         this.cannonballs.forEach(c => c.update( delta));
         this.obsticals.forEach(o => o.update( delta));
@@ -233,6 +235,7 @@ export class GameLevel {
        }
        if (this.player.id === "1") {
            dump.obstacles = this.obsticals.map(o => o.dump());
+           dump.gametime = this.gametime
        }
        return dump
     }
@@ -262,6 +265,9 @@ export class GameLevel {
                     this.obsticals.splice(this.obsticals.indexOf(o), 1)
                 })
             }
+            if(dump.gametime){
+                this.gametime=dump.gametime
+            }
             dump.obstacles?.forEach(oDump => {
                 const existingObstacle = this.obsticals.find(o => o.id === oDump.id);
                 if (existingObstacle) {
@@ -282,4 +288,5 @@ type LevelDump = {
     spaceship: SpaceshipDump,
     cannonballs?: CannonballDump[]
     obstacles?: ObstacleDump[]
+    gametime?: number;
 }

@@ -1,7 +1,7 @@
 import 'phaser';
 import SpaceScene from './scenes/SpaceScene';
 import ShipEditorScene from './scenes/ShipEditorScene';
-import MatchManager from './game/matchmanager';
+import MatchManager from './game/MatchManager';
 
 (async function(){
     while(!window.document.body){
@@ -18,6 +18,7 @@ import MatchManager from './game/matchmanager';
         width: 800,
         height: 600,
         pixelArt: true,
+        disableContextMenu: true,
         scene: [new ShipEditorScene(socket, match), new SpaceScene(socket, match)],
 
         

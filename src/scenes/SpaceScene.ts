@@ -119,8 +119,13 @@ export default class SpaceScene extends Phaser.Scene {
         delta *= GAME_SPEED;
         this.level.update(delta);
         this.levelRenderer.onUpdate(this, delta)
+
         
-        this.socket.emit(`game ${this.gameId}`, {player: this.player.id, intent: {...this.player.intent}})
+        this.socket.emit(`game ${this.gameId}`, {
+            player: this.player.id, 
+            intent: {...this.player.intent},
+
+        })
         if(this.lastDump === null
              || time - this.lastDump > 100
         ){

@@ -395,8 +395,7 @@ export default class Component {
 
     
     onShieldHit():void {
-        console.log("Shields hit!")
-        //todo: (Once colission and visuals is working) Set timer to deactive shields in a few frames, and then reactive a little later 
+        this.spaceship.onShieldHit()
     }
 }
 

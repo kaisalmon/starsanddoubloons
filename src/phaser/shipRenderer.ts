@@ -2,9 +2,10 @@ import { Cameras, GameObjects } from "phaser";
 import { CollisionAvoidanceAI, getSpaceshipRay } from "../game/AI/CollissionAvoidance";
 import { polygonToLines, rectangleToPolygon } from "../game/Collision";
 import Component, { UNIT_SCALE } from "../game/Component";
-import { SpaceShip } from "../game/SpaceShip";
+import { SHIELD_REACTIVATE_TIME, SHIELD_STAY_ACTIVE_TIME, SpaceShip } from "../game/SpaceShip";
 import SpaceScene from "../scenes/SpaceScene";
 import {DRAW_SCALE} from "./constants";
+import { lerp } from "../game/Vector2";
 
 const RENDER_DEBUG_LINES = false;
 
@@ -139,7 +140,14 @@ export default class ShipRenderer {
                 shield.getCenterOfMassInWorldSpace().x * DRAW_SCALE,
                 shield.getCenterOfMassInWorldSpace().y * DRAW_SCALE
             );
-            shieldSprite.setAlpha(shield.isPowered ? 1 : 0.5);
+            const timeSinceShieldsHit= this.spaceship.timeSinceShieldsHit()
+            const shieldBright = timeSinceShieldsHit && timeSinceShieldsHit < SHIELD_REACTIVATE_TIME
+            shieldSprite.setFrame(shieldBright ? 1 : 0)
+            if(shield.isPowered){
+                shieldSprite.setAlpha(lerp(shieldSprite.alpha, 1, 0.2))
+            }else{
+                shieldSprite.setAlpha(lerp(shieldSprite.alpha, 0, 0.1))
+            }
         }
         
         const {x,y} = this.spaceship.position;

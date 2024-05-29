@@ -14,7 +14,8 @@ const ROTATION_FACTOR = 0.2;
 const COLLISION_KNOCKBACK = 0.01;
 const MASS_MULTIPLIER = 1.5;
 const SPEED_MULTIPLIER = 0.7;
-
+export const SHIELD_STAY_ACTIVE_TIME=3;
+export const SHIELD_REACTIVATE_TIME=200;
 
 export class SpaceShip {
     components: Component[];
@@ -30,6 +31,7 @@ export class SpaceShip {
 
     impulses: Force[] = [];
     shelf: {typeName:string, count:number}[] = []
+    shieldsHitAt?: number;
   
     get mass(): number {
         return this.components.reduce((acc, component) => acc + component.mass, 0) * MASS_MULTIPLIER;
@@ -372,7 +374,8 @@ export class SpaceShip {
             angularVelocity: this.angularVelocity,
             id: this.id,
             weaponCalldown: this.weaponCalldown,
-            components: this.components.map(c=>c.dump())
+            components: this.components.map(c=>c.dump()),
+            shieldsHitAt: this.shieldsHitAt
         }
     }
     fulldump(): SpaceshipDump {
@@ -396,6 +399,7 @@ export class SpaceShip {
         this.angularVelocity=dump.angularVelocity,
         this.id=dump.id,
         this.weaponCalldown=dump.weaponCalldown
+        this.shieldsHitAt=dump.shieldsHitAt
         if(dump.fullComponents){
             this.components.splice(0, this.components.length)
             dump.fullComponents.forEach(cDump=>{
@@ -424,11 +428,23 @@ export class SpaceShip {
     }
 
     areShieldsOnline(): boolean {
+        const delta = this.timeSinceShieldsHit()
+        if(delta){
+            return delta <= SHIELD_STAY_ACTIVE_TIME || delta>=SHIELD_REACTIVATE_TIME
+        }
         return true
+    }
+
+    timeSinceShieldsHit() {
+        return this.shieldsHitAt && this.level.gametime - this.shieldsHitAt;
     }
 
     getShields(includeOffline=false): Component[] {
         return this.components.filter(c=>(c.isPowered||includeOffline) && c.type.shieldRadius > 0)
+    }
+    
+    onShieldHit() {
+        this.shieldsHitAt=this.level.gametime
     }
 }
 
@@ -442,4 +458,5 @@ export interface SpaceshipDump{
     components?: ComponentDump[]
     fullComponents?: ComponentDumpFull[]
     shelf?: {typeName:string, count:number}[]
+    shieldsHitAt?: number;
 }

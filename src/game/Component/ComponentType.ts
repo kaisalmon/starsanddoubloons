@@ -323,7 +323,7 @@ export const shields: ComponentType = {
     ...block,
     name: 'Shields',
     appearance: 'shield',
-    shieldRadius: 3,
+    shieldRadius: 3.25,
     isPowered: (_,__,spaceship)=>{
         return spaceship.areShieldsOnline()
     }
