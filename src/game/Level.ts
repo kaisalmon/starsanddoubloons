@@ -122,7 +122,7 @@ export class GameLevel {
                 this.resolveCollisionsBetween(ships[i], ships[j]);
             }
             for (let j = 0; j < this.cannonballs.length; j++) {
-                ships[i].checkCannonballColission(this.cannonballs[j]);
+                ships[i].checkCannonballCollision(this.cannonballs[j]);
             }
             for (let j = 0; j < this.obsticals.length; j++) {
                 const component = this.obsticals[j].collidesWith(ships[i]);
@@ -250,7 +250,7 @@ export class GameLevel {
                 if(existantCb){
                     existantCb.applyDump(cbDump, p)
                 }else{
-                    const newCannonball = new Cannonball(cbDump.position, cbDump.velocity, cbDump.firer, cbDump.bounces, cbDump.maxAge, cbDump.id)
+                    const newCannonball = new Cannonball(cbDump.position, cbDump.velocity, cbDump.firer, cbDump.bounces, cbDump.maxAge, cbDump.friction, cbDump.id)
                     this.cannonballs.push(newCannonball);
                     console.log("CB from dump")
                     this.triggerEvent('cannonballFired', [this.ships.find(s=>s.id==cbDump.firer)!, newCannonball, null]);

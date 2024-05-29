@@ -121,7 +121,9 @@ export class LevelRenderer{
             }
             sprite.setX(cannonball.position.x * DRAW_SCALE);
             sprite.setY(cannonball.position.y * DRAW_SCALE);
-            sprite.setScale(Math.max(0.5, 2 * cannonball.maxAge / CANNONBALL_AGE))
+            sprite.setScale(
+                Math.min(2,Math.max(0.5, 2 * cannonball.maxAge / CANNONBALL_AGE))
+            )
         });
 
         this.level.cannonballs.forEach(cannonball=>{

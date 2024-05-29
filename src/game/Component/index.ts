@@ -9,7 +9,8 @@ import ComponentType, { ComponentTypeDump, componentTypefromDump, dumpComponentT
 
 const WEAPON_ANGLES = {
     right: Math.PI,
-    left: 0
+    left: 0,
+    back: Math.PI*3/2,
 }
 export const UNIT_SCALE = 1;
 const INV_TIME = 30 
@@ -225,7 +226,8 @@ export default class Component {
                 }, this.getCannonballVelocity(spaceship, weapon),
                     spaceship.id,
                     this.type.bounces,
-                    this.type.cannonballMaxAge
+                    this.type.cannonballMaxAge,
+                    this.type.cannonballFriction
                 );
             spaceship.addCannonball(cannonball, this);
             if(i==0){

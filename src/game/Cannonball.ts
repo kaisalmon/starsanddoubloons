@@ -14,16 +14,19 @@ export class Cannonball {
     bounces = 0;
     age = 0;
     maxAge: number;
+    friction: number;
+    radius = 1;
 
     get angle(): number {
         return Math.atan2(this.velocity.y, this.velocity.x);
     }
-    constructor(position: Vector2, velocity: Vector2, firer: string, bounces: number, maxAge:number,  id?:string) {
+    constructor(position: Vector2, velocity: Vector2, firer: string, bounces: number, maxAge:number, friction:number,  id?:string) {
         this.position = position;
         this.velocity = velocity;
         this.firer = firer;
         this.bounces = bounces
         this.maxAge = maxAge
+        this.friction = friction
         this.id = id ?? Math.floor(Math.random()*10000).toString()
     }
 
@@ -33,10 +36,10 @@ export class Cannonball {
 
     update(dt: number) {
         this.age += dt;
-        this.position = {
-            x: this.position.x + this.velocity.x * dt,
-            y: this.position.y + this.velocity.y * dt
-        }
+        this.position.x += this.velocity.x * dt
+        this.position.y += this.velocity.y * dt
+        this.velocity.x -=  this.velocity.x * this.friction * dt
+        this.velocity.y -=  this.velocity.y * this.friction * dt
     }
     
     dump(): CannonballDump {
@@ -48,6 +51,7 @@ export class Cannonball {
             id: this.id,
             bounces: this.bounces,
             maxAge: this.maxAge,
+            friction: this.friction
         }
     } 
 
@@ -62,6 +66,7 @@ export class Cannonball {
         this.age = dump.age
         this.bounces = dump.bounces
         this.maxAge = dump.maxAge
+        this.friction= dump.friction
     }
 }
 
@@ -73,4 +78,5 @@ export interface CannonballDump{
     age: number;
     id: string;
     bounces: number
+    friction: number
 }

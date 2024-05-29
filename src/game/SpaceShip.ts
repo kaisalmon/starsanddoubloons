@@ -8,7 +8,7 @@ import {GameLevel } from "./Level";
 import SpaceshipIntent from "./SpaceshipIntent";
 import Vector2, { getDistance, lerp } from "./Vector2";
 
-export type Weapon = 'left' | 'right';
+export type Weapon = 'left' | 'right' | 'back';
 
 const ROTATION_FACTOR = 0.2;
 const COLLISION_KNOCKBACK = 0.01;
@@ -162,6 +162,9 @@ export class SpaceShip {
         if (this.intent.fireRight) {
             this.attemptToFire('right');
         }
+        if (this.intent.fireBack) {
+            this.attemptToFire('back');
+        }
     }
 
     collidesWith(other: SpaceShip):[Collision, Component, Component]|undefined {
@@ -205,43 +208,64 @@ export class SpaceShip {
         this.level.addCannonball(cannonball, this, component);
     }
 
-    checkCannonballColission(cannonball: Cannonball) {
-        if(cannonball.firer === this.id && cannonball.age < CANNONBALL_FRIENDLY_FIRE_TIME){
+    checkCannonballCollision(cannonball: Cannonball) {
+        if (cannonball.firer === this.id && cannonball.age < CANNONBALL_FRIENDLY_FIRE_TIME) {
             return;
         }
+    
         const distance = getDistance(this.position, cannonball.position);
-        if(distance > this.radius){
+        if (distance > this.radius + cannonball.radius) {
             return;
         }
+    
         const cannonBallLine: Line = [
-            {x: cannonball.position.x - cannonball.velocity.x, y: cannonball.position.y - cannonball.velocity.y},
-            {x: cannonball.position.x, y: cannonball.position.y},
-        ]
+            { x: cannonball.position.x - cannonball.velocity.x, y: cannonball.position.y - cannonball.velocity.y },
+            { x: cannonball.position.x, y: cannonball.position.y },
+        ];
+    
         const components = this.components
             .filter(component => component.isCollidable())
-            .filter(component => doPolygonsIntersect(rectangleToPolygon(component.getBoundingBox()), cannonBallLine));
-        if(components.length === 0){
+            .filter(component => {
+                if (cannonball.velocity.x < 1 && cannonball.velocity.y < 1) {
+                    // For stationary cannonballs, check if the component's bounding box intersects with the cannonball's circular area
+                    const boundingBox = component.getBoundingBox();
+                    const centerX = cannonball.position.x;
+                    const centerY = cannonball.position.y;
+                    const radius = cannonball.radius;
+    
+                    const closestX = Math.max(boundingBox.position.x, Math.min(centerX, boundingBox.position.x + boundingBox.width));
+                    const closestY = Math.max(boundingBox.position.y, Math.min(centerY, boundingBox.position.y + boundingBox.height));
+    
+                    const distanceSquared = Math.pow(closestX - centerX, 2) + Math.pow(closestY - centerY, 2);
+                    return distanceSquared <= Math.pow(radius, 2);
+                } else {
+                    // For moving cannonballs, check if the component's bounding box intersects with the cannonball's trajectory line
+                    return doPolygonsIntersect(rectangleToPolygon(component.getBoundingBox()), cannonBallLine);
+                }
+            });
+    
+        if (components.length === 0) {
             return;
         }
+    
         components.sort((a, b) => {
             const cannonballPrevPosition = cannonBallLine[0];
             const aDistance = getDistance(a.getCenterOfMassInWorldSpace(), cannonballPrevPosition);
             const bDistance = getDistance(b.getCenterOfMassInWorldSpace(), cannonballPrevPosition);
             return aDistance - bDistance;
         });
-
-        if(!this.isInvincible()){
+    
+        if (!this.isInvincible()) {
             components[0].onHit(cannonball, this);
         }
-
+    
         this.impulses.push({
             x: cannonball.velocity.x * CANNONBALL_KNOCKBACK,
-            y: cannonball.velocity.y  * CANNONBALL_KNOCKBACK,
+            y: cannonball.velocity.y * CANNONBALL_KNOCKBACK,
             offsetX: cannonball.position.x - this.position.x,
-            offsetY: cannonball.position.y - this.position.y
+            offsetY: cannonball.position.y - this.position.y,
         });
-
-
+    
         this.level.removeCannonball(cannonball);
     }
     isInvincible(): boolean {

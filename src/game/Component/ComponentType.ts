@@ -8,6 +8,7 @@ import SpaceshipIntent, { flipIntent } from "../SpaceshipIntent";
 export const COMPONENT_TYPES_BY_NAME:Record<string, ComponentType> = {}
 export default interface ComponentType{
     cannonballMaxAge: number;
+    cannonballFriction: number;
     inaccuracy: number;
     health: number;
     appearance: string;
@@ -83,6 +84,7 @@ export const block: ComponentType = {
     shots: 1,
     bounces: 0,
     inaccuracy: 0,
+    cannonballFriction: 0,
     cannonballMaxAge: CANNONBALL_AGE,
     isPowered: () => {
         return false;
@@ -234,6 +236,21 @@ export const minicannon: ComponentType = {
 }
 register(minicannon)
 
+export const depthchargedropper: ComponentType = {
+    ...block,
+    name: "Depthcharge Dropper",
+    appearance: "depthchargedropper",
+    weaponType: 'back',
+    shots: 10,
+    inaccuracy: Math.PI/7,
+    cannonballFriction: 0.2,
+    cannonballMaxAge: CANNONBALL_AGE*3,
+    fireDelay(shotNumber) {
+        return shotNumber*8000
+    },
+}
+register(depthchargedropper)
+
 export const bouncingMagazine: ComponentType = {
     ...block,
     name: "Bouncing Magazine",
@@ -266,7 +283,7 @@ export const multishotMagazine: ComponentType = {
             shots: component.shots + 2,
             inaccuracy: component.inaccuracy + Math.PI/7,
             fireDelay(shotNumber): number{
-                return Math.min(shotNumber *800, component.fireDelay(shotNumber))
+                return component.fireDelay(shotNumber) * .75
             },
         }
     }
