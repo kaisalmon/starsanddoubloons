@@ -31,7 +31,7 @@ export class SpaceShip {
 
     impulses: Force[] = [];
     shelf: {typeName:string, count:number}[] = []
-    shieldsHitAt?: number;
+    shieldsHitAt: number|null = null;
   
     get mass(): number {
         return this.components.reduce((acc, component) => acc + component.mass, 0) * MASS_MULTIPLIER;
@@ -421,6 +421,7 @@ export class SpaceShip {
     
     resetHealth() {
         this.components.forEach(c=>c.resetHealth())
+        this.shieldsHitAt = null
     }
 
     updateDecoratedComponentTypes(){
@@ -458,5 +459,5 @@ export interface SpaceshipDump{
     components?: ComponentDump[]
     fullComponents?: ComponentDumpFull[]
     shelf?: {typeName:string, count:number}[]
-    shieldsHitAt?: number;
+    shieldsHitAt: number|null;
 }

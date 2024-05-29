@@ -157,12 +157,16 @@ export class LevelRenderer{
             scene.cameras.main.scrollX = centerX * DRAW_SCALE - scene.cameras.main.width /2 ;
             scene.cameras.main.scrollY = centerY * DRAW_SCALE - scene.cameras.main.height /2 ;
     
-            const maxDistance = spaceships.reduce((maxDist, ship) => {
-                const distX = Math.abs(ship.position.x - centerX);
-                const distY = Math.abs(ship.position.y - centerY);
-                return Math.max(maxDist, distX, distY) + 10
-            }, 0);
-            const tzoom = scene.cameras.main.width / (maxDistance * 2 * DRAW_SCALE)
+            let distX=0
+            let distY=0
+            for(let ship of spaceships){
+                distX =Math.max(distX, Math.abs(ship.position.x - centerX)) 
+                distY =Math.max(distY, Math.abs(ship.position.y - centerY)) 
+            }
+            const tzoom = Math.min(
+                scene.cameras.main.width / ((distX+7*UNIT_SCALE) * 2 * DRAW_SCALE),
+                scene.cameras.main.height / ((distY+7*UNIT_SCALE) * 2 * DRAW_SCALE)
+            )
             this.desiredZoom = Math.max(0.25, Math.min(3, tzoom))
         }
         scene.cameras.main.setZoom(lerp(scene.cameras.main.zoom, this.desiredZoom, delta));
