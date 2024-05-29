@@ -160,3 +160,7 @@ export function reflect(velocity: Vector2, surface: Line): Vector2 {
     
     return reflectionVector;
 }
+export function isInCircle(point: Vector2, center: Vector2, radius: number): boolean {
+    const distanceSquared = distanceSq(point, center);
+    return distanceSquared <= radius * radius;
+}

@@ -6,7 +6,7 @@ import Component, { ComponentDump, ComponentDumpFull, UNIT_SCALE } from "./Compo
 import Force, { calculateTorques, sum } from "./Force";
 import {GameLevel } from "./Level";
 import SpaceshipIntent from "./SpaceshipIntent";
-import Vector2, { getDistance, lerp } from "./Vector2";
+import Vector2, { getDistance, isInCircle, lerp } from "./Vector2";
 
 export type Weapon = 'left' | 'right' | 'back';
 
@@ -271,7 +271,7 @@ export class SpaceShip {
             const shieldPosition = shield.getCenterOfMassInWorldSpace();
             const shieldRadius = shield.type.shieldRadius;
 
-            if (doesLineIntersectCircle(cannonBallLine, shieldPosition, shieldRadius)) {
+            if (isInCircle(cannonball.position, shieldPosition, shieldRadius) || doesLineIntersectCircle(cannonBallLine, shieldPosition, shieldRadius)) {
                 shield.onShieldHit();
                 this.level.removeCannonball(cannonball);
                 return;
