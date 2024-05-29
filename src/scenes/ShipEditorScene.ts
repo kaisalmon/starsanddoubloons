@@ -54,6 +54,7 @@ export default class ShipEditorScene extends Phaser.Scene {
         this.createSprites();
         this.graphics = this.add.graphics();
         this.graphics.z = 10;
+        this.add.text(3,580, "Enter to continue, CTRL to disable snapping, F to flip")
         this.input.on('pointerup', () => {
             if (this.selectedComponent && this.selectedSprite) {
                 // Check if the component is being dropped on the shelf area

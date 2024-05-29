@@ -124,26 +124,27 @@ export const bridge: ComponentType = {
 }   
 register(bridge)
 
-// export const wing: ComponentType = {
-//     ...block,
-//     name: "Wing",
-//     height: 2,
-//     width: 2,
-//     getThrust(powered: boolean): Force|undefined {
-//         if(powered){
-//             return {
-//                 offsetY: 0,
-//                 offsetX: 0,
-//                 x: 0,
-//                 y: 1
-//             }
-//         }
-//     },
-//     isPowered: (intent: SpaceshipIntent) => {
-//         return intent.rotateLeft || intent.moveForward;
-//     }
-// }
-// register(wing)
+export const wing: ComponentType = {
+    ...block,
+    name: "Wing",
+    appearance: 'wing',
+    height: 2,
+    width: 2,
+    getThrust(powered: boolean): Force|undefined {
+        if(powered){
+            return {
+                offsetY: 0,
+                offsetX: 0,
+                x: 0,
+                y: 1
+            }
+        }
+    },
+    isPowered: (intent: SpaceshipIntent) => {
+        return intent.rotateLeft || intent.moveForward;
+    }
+}
+register(wing)
 
 export const lateralThruster: ComponentType = {
     ...block,

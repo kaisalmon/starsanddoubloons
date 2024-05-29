@@ -5,6 +5,8 @@ export function preload_sprites(scene: Scene) {
     scene.load.spritesheet('thruster', 'assets/components/thruster.png', { frameWidth: 16, frameHeight: 16 });
     scene.load.spritesheet('lateralThrusters', 'assets/components/laterialThrusters.png', { frameWidth: 16, frameHeight: 16 });
     scene.load.spritesheet('engineRoom', 'assets/components/engineRoom.png', { frameWidth: 32, frameHeight: 32 });
+    scene.load.spritesheet('wing', 'assets/components/wing.png', { frameWidth: 32, frameHeight: 32 });
+
     scene.load.spritesheet('bridge', 'assets/components/bridge.png', { frameWidth: 32, frameHeight: 32 });
     scene.load.spritesheet('cannon', 'assets/components/cannon.png', { frameWidth: 16, frameHeight: 16 });
     scene.load.spritesheet('grapecannon', 'assets/components/grapecannon.png', { frameWidth: 16, frameHeight: 16 });
