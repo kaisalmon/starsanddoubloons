@@ -223,7 +223,7 @@ export default class Component {
                 //const o:Vector2 = i==0 ? {x:0,y:0} : {x:(Math.random()-.5)*UNIT_SCALE*2, y:(Math.random()-.5)*UNIT_SCALE*2}
                 const cannonball = new Cannonball({
                     x, y
-                }, this.getCannonballVelocity(spaceship, weapon),
+                }, this.getCannonballVelocity(spaceship, this),
                     spaceship.id,
                     this.type.bounces,
                     this.type.cannonballMaxAge,
@@ -243,11 +243,12 @@ export default class Component {
     }
 
 
-    private getCannonballVelocity(spaceship:SpaceShip, weapon:Weapon): Vector2 {
-        const angle = spaceship.angle + WEAPON_ANGLES[weapon] + (Math.random()-.5) * this.type.inaccuracy;
+    private getCannonballVelocity(spaceship:SpaceShip, component:Component): Vector2 {
+        const angle = spaceship.angle + WEAPON_ANGLES[component.type.weaponType!] + (Math.random()-.5) * this.type.inaccuracy;
+        const speed = component.type.cannonballSpeed
         return {
-            x: spaceship.velocity.x + Math.cos(angle) * CANNONBALL_SPEED,
-            y: spaceship.velocity.y + Math.sin(angle) * CANNONBALL_SPEED
+            x: spaceship.velocity.x + Math.cos(angle) * speed,
+            y: spaceship.velocity.y + Math.sin(angle) * speed
         };
     }
 
@@ -341,7 +342,7 @@ export default class Component {
             return false;
         }
         const cannonballPosition = this.getCenterOfMassInWorldSpace();
-        const cannonballVelocity = this.getCannonballVelocity(spaceship, this.type.weaponType);
+        const cannonballVelocity = this.getCannonballVelocity(spaceship, this);
         const targetPosition = target.position
         const targetVelocity = target.velocity
         const shortestDistance = findShortestDistanceBetweenTwoMovingObjects(cannonballPosition, cannonballVelocity, targetPosition, targetVelocity);

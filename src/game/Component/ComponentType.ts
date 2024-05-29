@@ -1,5 +1,5 @@
 import Component from ".";
-import { CANNONBALL_AGE } from "../Cannonball";
+import { CANNONBALL_AGE, CANNONBALL_SPEED } from "../Cannonball";
 import { BoundingBox } from "../Collision";
 import Force from "../Force";
 import { SpaceShip, Weapon } from "../SpaceShip";
@@ -7,6 +7,7 @@ import SpaceshipIntent, { flipIntent } from "../SpaceshipIntent";
 
 export const COMPONENT_TYPES_BY_NAME:Record<string, ComponentType> = {}
 export default interface ComponentType{
+    cannonballSpeed: number;
     cannonballMaxAge: number;
     cannonballFriction: number;
     inaccuracy: number;
@@ -84,6 +85,7 @@ export const block: ComponentType = {
     shots: 1,
     bounces: 0,
     inaccuracy: 0,
+    cannonballSpeed: CANNONBALL_SPEED,
     cannonballFriction: 0,
     cannonballMaxAge: CANNONBALL_AGE,
     isPowered: () => {
@@ -245,6 +247,7 @@ export const depthchargedropper: ComponentType = {
     inaccuracy: Math.PI/7,
     cannonballFriction: 0.2,
     cannonballMaxAge: CANNONBALL_AGE*3,
+    cannonballSpeed: CANNONBALL_SPEED/5,
     fireDelay(shotNumber) {
         return shotNumber*8000
     },
@@ -290,6 +293,23 @@ export const multishotMagazine: ComponentType = {
 }   
 register(multishotMagazine)
 
+export const quickShotMagazine: ComponentType = {
+    ...block,
+    name: "Quickshot Magazine",
+    appearance: "quickshotmagazine",
+    health: 1,
+    mass: 2,
+    width: 2,
+    height: 1, 
+    decorateComponentType(component){
+        return {
+            ...component,
+            inaccuracy: component.inaccuracy + Math.PI/9,
+            cannonballSpeed: component.cannonballSpeed * 1.75,
+        }
+    }
+}   
+register(quickShotMagazine)
 
 export type  ComponentTypeDump= string
 
