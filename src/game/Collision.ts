@@ -188,3 +188,28 @@ export function doesLineIntersectCircle(line: Line, circlePosition: Vector2, cir
         }
         return dist < circleRadius * circleRadius;
 }
+
+
+export function getCorners(boundingBox: BoundingBox): Vector2[] {
+    const { position, width, height, angle } = boundingBox;
+    const halfWidth = width / 2;
+    const halfHeight = height / 2;
+
+    const corners: Vector2[] = [
+        { x: -halfWidth, y: -halfHeight },
+        { x: halfWidth, y: -halfHeight },
+        { x: halfWidth, y: halfHeight },
+        { x: -halfWidth, y: halfHeight }
+    ];
+
+    const rotatedCorners = corners.map(corner => {
+        const rotatedX = corner.x * Math.cos(angle) - corner.y * Math.sin(angle);
+        const rotatedY = corner.x * Math.sin(angle) + corner.y * Math.cos(angle);
+        return {
+            x: rotatedX + position.x,
+            y: rotatedY + position.y
+        };
+    });
+
+    return rotatedCorners;
+}

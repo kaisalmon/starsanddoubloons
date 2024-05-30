@@ -28,6 +28,7 @@ export default class ShipRenderer {
             angle: { min: 0, max: 360 },
             scale: { start: 0.4, end: 0.1 },
             alpha: { start: 1, end: 0 },
+            frame: this.spaceship.id == "1" ? 0 : 2,
             lifespan: 800,
             x: this.spaceship.position.x,
             y: this.spaceship.position.y,

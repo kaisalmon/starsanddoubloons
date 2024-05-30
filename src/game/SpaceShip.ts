@@ -280,6 +280,7 @@ export class SpaceShip {
     
         const components = this.components
             .filter(component => component.isCollidable())
+            .filter(component => !component.isInsideShield())
             .filter(component => {
                 if (cannonball.velocity.x < 1 && cannonball.velocity.y < 1) {
                     // For stationary cannonballs, check if the component's bounding box intersects with the cannonball's circular area

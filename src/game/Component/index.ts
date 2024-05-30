@@ -1,10 +1,10 @@
 import { GAME_SPEED } from "../../GAME_SPEED";
 import { Cannonball, CANNONBALL_KNOCKBACK, CANNONBALL_SPEED } from "../Cannonball";
-import Collision, { BoundingBox, doRectanglesIntersect, MOMENTUM_TO_DAMAGE } from "../Collision";
+import Collision, { BoundingBox, doRectanglesIntersect, getCorners, MOMENTUM_TO_DAMAGE } from "../Collision";
 import Force, { rotate, sum } from "../Force";
 import { SpaceShip, Weapon } from "../SpaceShip";
 import SpaceshipIntent from "../SpaceshipIntent";
-import Vector2, { findShortestDistanceBetweenTwoMovingObjects, getLinearVelocityFromAngularVelocity, getMagnitude } from "../Vector2";
+import Vector2, { findShortestDistanceBetweenTwoMovingObjects, getLinearVelocityFromAngularVelocity, getMagnitude, isInCircle } from "../Vector2";
 import ComponentType, { ComponentTypeDump, componentTypefromDump, dumpComponentType, flipped } from "./ComponentType";
 
 const WEAPON_ANGLES = {
@@ -247,8 +247,8 @@ export default class Component {
         const angle = spaceship.angle + WEAPON_ANGLES[component.type.weaponType!] + (Math.random()-.5) * this.type.inaccuracy;
         const speed = component.type.cannonballSpeed
         return {
-            x: spaceship.velocity.x + Math.cos(angle) * speed,
-            y: spaceship.velocity.y + Math.sin(angle) * speed
+            x: spaceship.velocity.x/2 + Math.cos(angle) * speed,
+            y: spaceship.velocity.y/2 + Math.sin(angle) * speed
         };
     }
 
@@ -303,6 +303,7 @@ export default class Component {
         this.damage += damage;
         this.damage = Math.min(this.damage, this.type.health);
         if(this.isDestroyed() && !wasDestroyed){
+            this.onDestroyed()
             const spaceshipDestroyed = this.spaceship.isDestroyed();
             if(spaceshipDestroyed && !spaceshipWasDestroyed){
                 this.spaceship.onDestroyed();
@@ -310,9 +311,9 @@ export default class Component {
         }
     }
     
-    onDestroyed(spaceship: SpaceShip): void {
+    onDestroyed(): void {
         this.isPowered = false;
-
+        const spaceship = this.spaceship
         const CoM = spaceship.getCenterOfMassInRotatedShipSpace();
         const newCoM = spaceship.getCenterOfMassInRotatedShipSpace();
         const offset = {
@@ -397,6 +398,23 @@ export default class Component {
     onShieldHit():void {
         this.spaceship.onShieldHit()
     }
+
+    isInsideShield(): boolean {
+        const shields = this.spaceship.getShields();
+        if (shields.length === 0) {
+            return false;
+        }
+    
+        const boundingBox = this.getBoundingBox();
+        const corners = getCorners(boundingBox);
+    
+        return shields.some(shield => {
+            const shieldPosition = shield.getCenterOfMassInWorldSpace();
+            const shieldRadius = shield.type.shieldRadius;
+            return corners.every(corner => isInCircle(corner, shieldPosition, shieldRadius));
+        });
+    }
+    
 }
 
 export interface ComponentDump {

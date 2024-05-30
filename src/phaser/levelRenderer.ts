@@ -164,8 +164,8 @@ export class LevelRenderer{
                 distY =Math.max(distY, Math.abs(ship.position.y - centerY)) 
             }
             const tzoom = Math.min(
-                scene.cameras.main.width / ((distX+7*UNIT_SCALE) * 2 * DRAW_SCALE),
-                scene.cameras.main.height / ((distY+7*UNIT_SCALE) * 2 * DRAW_SCALE)
+                scene.cameras.main.width / ((distX+12*UNIT_SCALE) * 2 * DRAW_SCALE),
+                scene.cameras.main.height / ((distY+12*UNIT_SCALE) * 2 * DRAW_SCALE)
             )
             this.desiredZoom = Math.max(0.25, Math.min(3, tzoom))
         }
